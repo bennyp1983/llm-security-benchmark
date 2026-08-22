@@ -1,0 +1,26 @@
+services:
+  n8n:
+    build: .
+    container_name: n8n-benchmark
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_SECURE_COOKIE=false
+      - N8N_EDITOR_BASE_URL=http://10.5.3.1:5678/
+    volumes:
+      - n8n-data:/root/.n8n
+      - claude-auth:/root/.claude
+      - codex-auth:/root/.codex
+      - qwen-auth:/root/.qwen
+      - antigravity-auth:/root/.gemini
+      - ./results:/data/results
+    restart: unless-stopped
+
+volumes:
+  n8n-data:
+  claude-auth:
+  codex-auth:
+  qwen-auth:
+  antigravity-auth:
