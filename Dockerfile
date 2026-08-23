@@ -7,7 +7,7 @@ ARG N8N_VERSION=2.36
 
 FROM node:24.19.0-bookworm-slim
 
-RUN apt-get update && apt-get install -y curl bash git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl bash git bubblewrap && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g n8n@${N8N_VERSION}
 
