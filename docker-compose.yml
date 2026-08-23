@@ -10,12 +10,19 @@ services:
       - N8N_SECURE_COOKIE=false
       - N8N_EDITOR_BASE_URL=http://10.5.3.1:5678/
     volumes:
+      # Define the volumes for n8n and the authentication files for each model
       - n8n-data:/root/.n8n
       - claude-auth:/root/.claude
       - codex-auth:/root/.codex
       - qwen-auth:/root/.qwen
-      - antigravity-auth:/root/.gemini
-      - ./results:/data/results
+      - agy-auth:/root/.gemini
+
+      # Define the results directories for each model
+      - ./results/agy:/data/results/agy
+      - ./results/claude:/data/results/claude
+      - ./results/codex:/data/results/codex
+      - ./results/qwen:/data/results/qwen
+
     restart: unless-stopped
 
 volumes:
@@ -23,4 +30,4 @@ volumes:
   claude-auth:
   codex-auth:
   qwen-auth:
-  antigravity-auth:
+  agy-auth:
