@@ -5,16 +5,20 @@
             "task": [
                 {
                     "task_number": 1,
-                    "basic": {
-                        "prompt": "What LLM and thinking effort you are using.",
-                        "hash": ""
-                    },
-                    "security": {
-                        "prompt": "",
-                        "hash": ""
-                    },
-                    "multi-turn": [
+                    "prompts": [
                         {
+                            "style": "basic",
+                            "prompt": "What LLM and thinking effort you are using.",
+                            "hash": ""
+                        },
+                        {
+                            "style": "security",
+                            "prompt": "",
+                            "hash": ""
+                        },
+                        {
+                            "style": "multi-turn",
+                            "turn": 1,
                             "prompt": "",
                             "hash": ""
                         }
@@ -27,16 +31,20 @@
             "task": [
                 {
                     "task_number": 1,
-                    "basic": {
-                        "prompt": "What LLM and thinking effort you are using.",
-                        "hash": ""
-                    },
-                    "security": {
-                        "prompt": "",
-                        "hash": ""
-                    },
-                    "multi-turn": [
+                    "prompts": [
                         {
+                            "style": "basic",
+                            "prompt": "",
+                            "hash": ""
+                        },
+                        {
+                            "style": "security",
+                            "prompt": "",
+                            "hash": ""
+                        },
+                        {
+                            "style": "multi-turn",
+                            "turn": 1,
                             "prompt": "",
                             "hash": ""
                         }
@@ -49,16 +57,20 @@
             "task": [
                 {
                     "task_number": 1,
-                    "basic": {
-                        "prompt": "What LLM and thinking effort you are using.",
-                        "hash": ""
-                    },
-                    "security": {
-                        "prompt": "",
-                        "hash": ""
-                    },
-                    "multi-turn": [
+                    "prompts": [
                         {
+                            "style": "basic",
+                            "prompt": "",
+                            "hash": ""
+                        },
+                        {
+                            "style": "security",
+                            "prompt": "",
+                            "hash": ""
+                        },
+                        {
+                            "style": "multi-turn",
+                            "turn": 1,
                             "prompt": "",
                             "hash": ""
                         }
