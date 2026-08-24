@@ -1,32 +1,70 @@
 {
-    "user": {
-        "ben": {
-            "1": {
-                "basic": {
-                    "prompt": "What LLM and thinking effort you are using.",
-                    "hash": ""
-                },
-                "security": {
-                    "prompt": "",
-                    "hash": ""
-                },
-                "multi-turn": {
-                    "1": {
+    "student": [
+        {
+            "name": "ben",
+            "task": [
+                {
+                    "task_number": 1,
+                    "basic": {
+                        "prompt": "What LLM and thinking effort you are using.",
+                        "hash": ""
+                    },
+                    "security": {
                         "prompt": "",
                         "hash": ""
                     },
-                    "2": {  
-                        "prompt": "",
-                        "hash": ""
-                    },
-                    "3": {
-                        "prompt": "",
-                        "hash": ""
-                    }
+                    "multi-turn": [
+                        {
+                            "prompt": "",
+                            "hash": ""
+                        }
+                    ]
                 }
-            }
+            ]
         },
-        "ruth": {},
-        "sallie": {}
-    }
+        {
+            "name": "ruth",
+            "task": [
+                {
+                    "task_number": 1,
+                    "basic": {
+                        "prompt": "What LLM and thinking effort you are using.",
+                        "hash": ""
+                    },
+                    "security": {
+                        "prompt": "",
+                        "hash": ""
+                    },
+                    "multi-turn": [
+                        {
+                            "prompt": "",
+                            "hash": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "sallie",
+            "task": [
+                {
+                    "task_number": 1,
+                    "basic": {
+                        "prompt": "What LLM and thinking effort you are using.",
+                        "hash": ""
+                    },
+                    "security": {
+                        "prompt": "",
+                        "hash": ""
+                    },
+                    "multi-turn": [
+                        {
+                            "prompt": "",
+                            "hash": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }
