@@ -1,4 +1,34 @@
 {
+    "cli_settings": [
+        {
+            "name": "Google Antigravity",
+            "cli_name": "agy -p ",
+            "model_choice": "gemini",
+            "thinking_level": "basic",
+            "container_path": "/data/results/agy"
+        },
+        {
+            "name": "Claude Code",
+            "cli_name": "claude -p ",
+            "model_choice": "claude-sonnet-5",
+            "thinking_level": "basic",
+            "container_path": "/data/results/claude"
+        },
+        {
+            "name": "ChatGPT Codex",
+            "cli_name": "codex exec  --sandbox danger-full-access  --skip-git-repo-check ",
+            "model_choice": "codex",
+            "thinking_level": "basic",
+            "container_path": "/data/results/codex"
+        },
+        {
+            "name": "Qwen",
+            "cli_name": "qwen --prompt ",
+            "model_choice": "qwen-3.8-27b",
+            "thinking_level": "basic",
+            "container_path": "/data/results/qwen"
+        }
+    ],
     "student": [
         {
             "name": "ben",
@@ -8,19 +38,16 @@
                     "prompts": [
                         {
                             "style": "basic",
-                            "prompt": "What LLM and thinking effort you are using.",
-                            "hash": ""
+                            "prompt": "This is a test respond yes i am active"
                         },
                         {
                             "style": "security",
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         },
                         {
                             "style": "multi-turn",
                             "turn": 1,
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         }
                     ]
                 }
@@ -34,19 +61,16 @@
                     "prompts": [
                         {
                             "style": "basic",
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         },
                         {
                             "style": "security",
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         },
                         {
                             "style": "multi-turn",
                             "turn": 1,
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         }
                     ]
                 }
@@ -60,19 +84,16 @@
                     "prompts": [
                         {
                             "style": "basic",
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         },
                         {
                             "style": "security",
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         },
                         {
                             "style": "multi-turn",
                             "turn": 1,
-                            "prompt": "",
-                            "hash": ""
+                            "prompt": ""
                         }
                     ]
                 }

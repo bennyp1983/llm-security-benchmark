@@ -1,0 +1,4 @@
+mkdir -p {{ $json.cli_settings.container_path }}
+echo "{{ $json.prompt }}" > {{ $json.cli_settings.container_path }}prompt.txt
+cd {{ $json.cli_settings.container_path }} && 
+echo "{{ $json.hash }}" > {{ $json.cli_settings.container_path }}prompt_hash.txt
