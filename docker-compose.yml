@@ -9,20 +9,31 @@ services:
       - N8N_PROTOCOL=http
       - N8N_SECURE_COOKIE=false
       - N8N_EDITOR_BASE_URL=http://10.5.3.1:5678/
+      - N8N_RUNNERS_MODE=external
+      - N8N_RUNNERS_BROKER_PORT=5679
+      - N8N_RUNNERS_AUTH_TOKEN=test
     volumes:
-      # Define the volumes for n8n and the authentication files for each model
       - n8n-data:/root/.n8n
       - claude-auth:/root/.claude
       - codex-auth:/root/.codex
       - qwen-auth:/root/.qwen
       - agy-auth:/root/.gemini
-
-      # Define the results directories for each model
       - ./results/agy:/data/results/agy
       - ./results/claude:/data/results/claude
       - ./results/codex:/data/results/codex
       - ./results/qwen:/data/results/qwen
+      - ./prompts:/data/prompts/
+    restart: unless-stopped
 
+  n8n-runners:
+    image: n8nio/runners:1.121.0
+    container_name: n8n-runners
+    environment:
+      - N8N_RUNNERS_AUTH_TOKEN=test
+      - N8N_RUNNERS_LAUNCHER_LOG_LEVEL=debug
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679
+    volumes:
+      - ./n8n-task-runners.json:/etc/runners/task-runners.json:ro
     restart: unless-stopped
 
 volumes:

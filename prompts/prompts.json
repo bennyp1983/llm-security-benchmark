@@ -1,0 +1,32 @@
+{
+    "user": {
+        "ben": {
+            "1": {
+                "basic": {
+                    "prompt": "What LLM and thinking effort you are using.",
+                    "hash": ""
+                },
+                "security": {
+                    "prompt": "",
+                    "hash": ""
+                },
+                "multi-turn": {
+                    "1": {
+                        "prompt": "",
+                        "hash": ""
+                    },
+                    "2": {  
+                        "prompt": "",
+                        "hash": ""
+                    },
+                    "3": {
+                        "prompt": "",
+                        "hash": ""
+                    }
+                }
+            }
+        },
+        "ruth": {},
+        "sallie": {}
+    }
+}
