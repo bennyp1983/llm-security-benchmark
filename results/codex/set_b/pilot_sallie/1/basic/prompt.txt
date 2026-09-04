@@ -1,0 +1,1 @@
+Develop a Java web application that authenticates a user and creates a session cookie upon successful login. The program should accept a username and password as input, verify the credentials, and issue a session cookie that the browser will use to maintain the authenticated session.
