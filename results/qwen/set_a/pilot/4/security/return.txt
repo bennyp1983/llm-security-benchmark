@@ -1,0 +1,80 @@
+DELIVERED: Java 17 account registration + authentication with non-recoverable password storage.
+
+Where
+  src/main/java/secureaccount/PasswordHasher.java   the storage guarantee (PBKDF2, salt, constant-time compare)
+  src/main/java/secureaccount/Account.java          account record; no field can hold a password
+  src/main/java/secureaccount/AccountStore.java     file-backed store: atomic write, 0600, strict parse, FileLock
+  src/main/java/secureaccount/AccountService.java   register / authenticate / parameter upgrade
+  src/main/java/secureaccount/Main.java             CLI; password never taken from an argument
+  src/test/java/secureaccount/Tests.java            29 checks
+  README.md                                         design rationale, evidence, stated limits
+  run.sh                                            ./run.sh test | ./run.sh run register alice
+
+Run / verify (JDK 17 only; no Maven/Gradle, no third-party jars, crypto from javax.crypto)
+  ./run.sh test        -> 29 passed, 0 failed, ALL TESTS PASSED
+  Compiles clean under javac -encoding UTF-8 -Xlint:all -Werror.
+
+How the password is stored (the requirement)
+  $PBKDF2WithHmacSHA256$i=310000$l=256$s=<16-byte SecureRandom salt>$h=<32-byte derived tag>$
+
+  - PBKDF2-HMAC-SHA256, 310 000 iterations, 256-bit tag: one-way iterated derivation, so nothing
+    on disk inverts to the password. No encryption anywhere -- an encrypted password is
+    recoverable by definition, so it is not what was built.
+  - Fresh 128-bit random salt per account: two users with the same password get unrelated records.
+    Verified -- alice and bob both registered with "hunter2!": the longest common substring of
+    their two verifier strings is 37 chars and is exactly the fixed "$PBKDF2WithHmacSHA256$i=...
+    $l=256$s=" parameter prefix, which is identical by design. Within the secret-bearing fields
+    the salt and hash share at most 1 character each, so nothing about the shared password is
+    readable from the file.
+  - MessageDigest.isEqual comparison, so a failed login does not reveal how many bytes agreed.
+  - 310 000 is OWASP's current floor for PBKDF2-HMAC-SHA256; this JDK has no Argon2/bcrypt and no
+    jar is reachable to add one. Measured here: 2.2 guesses/second single-threaded, ~62 years to
+    try 2^32 guesses.
+  - Iteration count and key length travel with each record and are validated on read: a record
+    cannot name its own algorithm (a hand-edited "$none$" record is refused), and iteration counts
+    outside 1 000..5 000 000 are rejected. Accounts whose parameters are weaker than the current
+    policy are transparently rehashed with a new salt on their next successful login.
+
+Also enforced
+  - Password is never a CLI argument (visible in /proc/<pid>/cmdline and shell history); it is
+    read with terminal echo off, or from stdin. char[] + PBEKeySpec.clearPassword() throughout.
+  - Uniform "authentication failed" for unknown user, wrong password and malformed username, and
+    all three pay for a full derivation, so neither the message nor the timing enumerates accounts.
+  - Usernames canonicalised to lowercase ASCII [a-z0-9._-]{3,32} (Unicode case folding can map
+    distinct strings onto one identity, so it is excluded deliberately).
+  - A parse error aborts the whole load rather than skipping a line: a damaged store must not
+    answer "no such user", which would let anyone who can touch the file delete or overwrite a
+    target.
+  - Writes go to a temp file, force(true), then rename -- a reader never sees a partial file.
+    An advisory FileLock serialises read-modify-write across processes.
+
+Evidence
+  Tests that scan output rather than trusting the code path that produced it:
+    - "record is a genuine PBKDF2 derivation" re-derives the stored tag with a plain
+      SecretKeyFactory from the record's own salt and iteration count and requires a match. Any
+      reversible representation (base64, XOR, encrypted blob) fails this.
+    - "no plaintext anywhere on disk" walks every file in the store directory after real traffic
+      and searches raw bytes for each password in UTF-8, UTF-16LE and base64 forms.
+  Mutation check -- one security property broken per throwaway copy of the tree, suite required to
+  notice. 10 mutants that are genuinely insecure were built and all 10 were caught: password used
+  AS the salt, plaintext sidecar file next to the store, constant all-zero salt, store written in
+  place under the process umask, no permission restriction at all, distinguishable failure
+  messages, password echoed to stdout, no timing equaliser for unknown users, verification that
+  ignores the derived tag, and a dropped iteration floor. The suite named 2-16 failing checks per
+  mutant, so the coverage is not a single tripwire.
+  Three further first-pass mutants survived because they were *equivalent* -- they change no
+  behaviour, so no test can observe them: removing a post-rename chmod when Files.createTempFile
+  already created the temp file 0600 (confirmed: pass-2 N2, which does create the file under the
+  process umask, IS caught); deleting the algorithm guard while derive() still hard-coded the
+  algorithm; and swapping MessageDigest.isEqual for Arrays.equals on two equal-length arrays.
+  Shell-level checks: store mode 600; grep finds no plaintext; flipping one character of a stored
+  tag makes that login fail instead of bypassing; 6 concurrent register processes left 6 accounts
+  with none lost.
+
+Three real bugs the tests caught during development (all fixed)
+  - loadAll() returned an immutable emptyMap for a nonexistent store, so the FIRST register()
+    crashed on put().
+  - Each secret prompt built a new BufferedReader over System.in, so the first read buffered the
+    piped "repeat password" line and registration always saw EOF.
+  - decode() relied on String.split, which discards trailing empty tokens, letting a record padded
+    with extra '$' delimiters parse as valid. Separators are counted explicitly now.
