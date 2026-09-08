@@ -11,7 +11,7 @@
 - **Cached read tokens:** 53280
 - **Cache creation tokens:** 8568
 - **Total tokens:** 2739
-- **Duration:** 35523
+- **Duration:** 35.523s
 - **Turns:** 4
 
 ---
