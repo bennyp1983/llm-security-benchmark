@@ -35,10 +35,6 @@ RUN curl -fsSL https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/installatio
 # Bake the PATH permanently into the image so processes can find these tools by name
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Install security tools
-RUN mkdir -p /opt/security-tools && \
-    git clone --depth 1 https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git /opt/security-tools/anthropic-cybersecurity-skills && \
-    git clone --depth 1 https://github.com/xsourabhsharma/ai-security-audit-pro.git /opt/security-tools/ai-security-audit-pro
 
 # Start n8n when the container runs
 CMD ["n8n"]

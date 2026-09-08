@@ -1,0 +1,785 @@
+{
+  "updatedAt": "2026-09-08T02:32:08.691Z",
+  "createdAt": "2026-08-23T22:40:51.644Z",
+  "id": "bwqKVV0abQefK272",
+  "name": "My workflow",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        16
+      ],
+      "id": "b17ab879-1aed-4354-a66c-0ee8ec8335f1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "destinationKey": "prompts_json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        16
+      ],
+      "id": "47ae06f8-dd75-419a-9ec7-b7f2d3c4b0d4",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "import hashlib\n\nLLM_SET = \"a\"\n\ndata = _items[0][\"json\"][\"prompts_json\"]\nstudents = data[\"student\"]\ncli_settings = data[\"cli_settings\"]\n\nfor student in students:\n    for task in student[\"task\"]:\n        for prompt in task[\"prompts\"]:\n\n            # Hash the prompt\n            prompt[\"hash\"] = hashlib.sha256(\n                prompt[\"prompt\"].encode(\"utf-8\")\n            ).hexdigest()\n\n            # Build the prompt-specific path\n            path = f'/{student[\"name\"]}/{task[\"task_number\"]}/{prompt[\"style\"]}/'\n\n            if prompt.get(\"turn\") is not None:\n                path += f'{prompt[\"turn\"]}/'\n\n            prompt[\"cli_settings\"] = []\n\n            for cli in cli_settings:\n                for cli_set in cli[\"input\"][\"set\"]:\n\n                    # Only use the selected LLM set\n                    if cli_set[\"id\"] != LLM_SET:\n                        continue\n\n                    prompt[\"cli_settings\"].append({\n                        # CLI-level fields\n                        \"name\": cli[\"name\"],\n                        \"set_id\": cli_set[\"id\"],\n\n                        # Flatten common input fields, excluding nested set\n                        **{\n                            key: value\n                            for key, value in cli[\"input\"].items()\n                            if key != \"set\"\n                        },\n\n                        # Flatten selected set fields, excluding id\n                        **{\n                            key: value\n                            for key, value in cli_set.items()\n                            if key != \"id\"\n                        },\n\n                        # Build unique result path\n                        \"container_path\":\n                            f'{cli[\"container_path\"]}/set_{cli_set[\"id\"]}{path}',\n\n                        # Flatten json_output with json_output_ prefix\n                        **{\n                            f\"json_output_{key}\": value\n                            for key, value in cli[\"json_output\"].items()\n                        }\n                    })\n\nreturn students"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        16
+      ],
+      "id": "733c7f92-bff8-4203-b26b-d78fce135b07",
+      "name": "Hash Prompts"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -512,
+        320
+      ],
+      "id": "3289546c-5d46-47c5-b74e-0fabae9e53cb",
+      "name": "Loop Over Students"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "task",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        320
+      ],
+      "id": "4d17dd30-6da5-499a-9f2c-09261177fc44",
+      "name": "Split Out Tasks"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "prompts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        320
+      ],
+      "id": "6f0a61e5-27bb-4f7e-8bc1-402939b458c0",
+      "name": "Split Out Prompts"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "279cbb6a-842d-45d4-9b67-c61df9c113d7",
+              "leftValue": "={{ $json.prompt }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        320
+      ],
+      "id": "8a1b8ab9-b319-47a4-84c8-cb9ac02942ef",
+      "name": "If string not empty"
+    },
+    {
+      "parameters": {
+        "fileSelector": "=/data/prompts/prompts_2.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -304,
+        16
+      ],
+      "id": "3ae1f336-e46d-429f-94e7-0edee55c75b0",
+      "name": "Read prompts.json"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "cli_settings",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        384,
+        384
+      ],
+      "id": "ed6af983-c3c0-439e-a676-c1fe3dfe5c4d",
+      "name": "Split models"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -480,
+        640
+      ],
+      "id": "315effee-513b-4603-9f0a-c1a8e8f14098",
+      "name": "Loop Models"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.cli_settings.container_path }}prompt_hash.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -304,
+        768
+      ],
+      "id": "c5b8b68d-9b33-46ba-9199-1189422f74b5",
+      "name": "Read/Write Files from Disk",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "=rm -rf \"{{ $json.cli_settings.container_path }}\" &&\nmkdir -p \"{{ $json.cli_settings.container_path }}\" &&\ncat > \"{{ $json.cli_settings.container_path }}prompt.txt\" <<'N8N_PROMPT_EOF' &&\n{{ $json.prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $json.cli_settings.container_path }}\" &&\n{{ $json.cli_settings.headless_execute }} {{ $json.cli_settings.prompt_prefix }} \"$(cat prompt.txt)\" {{ $json.cli_settings.prompt_suffix }} < /dev/null > return.txt &&\nprintf '%s' \"{{ $json.hash }}\" > prompt_hash.txt"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        928
+      ],
+      "id": "b2aa6f3a-ac1c-4d96-93a1-91b261815b1d",
+      "name": "Execute Command",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "existing_hash",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        720
+      ],
+      "id": "61cb86f8-709d-4676-b96e-ea6a076e8421",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        144,
+        656
+      ],
+      "id": "ac57c6e4-d286-4b7d-b35d-df5e0f079103",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "command": "=rm -rf \"{{ $json.cli_settings.container_path }}\" &&\nmkdir -p \"{{ $json.cli_settings.container_path }}\" &&\ncat > \"{{ $json.cli_settings.container_path }}prompt.txt\" <<'N8N_PROMPT_EOF' &&\n{{ $json.prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $json.cli_settings.container_path }}\" &&\n{{ $json.cli_settings.headless_execute }} {{ $json.cli_settings.prompt_prefix }} \"$(cat prompt.txt)\" {{ $json.cli_settings.prompt_suffix }} < /dev/null > return.txt &&\nprintf '%s' \"{{ $json.hash }}\" > prompt_hash.txt"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        544,
+        864
+      ],
+      "id": "0ccd1207-f83f-4bbc-b04d-5c13d2348920",
+      "name": "Execute Command1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "90f5a605-7f01-4e40-acf0-54d17a66d8bf",
+              "leftValue": "={{ $json.hash }}",
+              "rightValue": "={{ $json.existing_hash }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        672
+      ],
+      "id": "b1c493ba-bd2f-42f5-b5ef-6e0ba2bd4bee",
+      "name": "If hashes match"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        864,
+        912
+      ],
+      "id": "180c475e-c9d6-4c1d-bf70-52f4e1bb826c",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.cli_settings.container_path }}result.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        928
+      ],
+      "id": "225d68b7-9e69-4cd9-90b1-542ce77c63db",
+      "name": "Read/Write Files from Disk1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "import json\n\n\n# ---------------------------------------------------------\n# INPUT\n# ---------------------------------------------------------\n\ndata = _items[0][\"json\"]\n\nraw_text = data.get(\"return_txt\", \"\")\n\nif not isinstance(raw_text, str) or not raw_text.strip():\n    return [{\n        \"json\": {\n            **data,\n            \"parse_success\": False,\n            \"parse_error\": \"return_txt is empty or missing\"\n        }\n    }]\n\n\n# ---------------------------------------------------------\n# CLI SETTINGS\n# ---------------------------------------------------------\n\ncli = data.get(\"cli_settings\", {})\n\n\n# ---------------------------------------------------------\n# HELPERS\n# ---------------------------------------------------------\n\ndef get_path(obj, path):\n    \"\"\"\n    Read dotted paths such as:\n      usage.input_tokens\n      item.text\n    \"\"\"\n\n    if not path:\n        return False, \"\"\n\n    current = obj\n\n    for part in path.split(\".\"):\n\n        if isinstance(current, dict) and part in current:\n            current = current[part]\n\n        else:\n            return False, \"\"\n\n    return True, current\n\n\ndef find_value(records, path):\n    \"\"\"\n    Search records backwards because final response / usage\n    records normally occur near the end of CLI output.\n    \"\"\"\n\n    if not path:\n        return \"\"\n\n    for record in reversed(records):\n\n        found, value = get_path(record, path)\n\n        if found:\n            return value\n\n    return \"\"\n\n\ndef clean(value):\n    \"\"\"\n    Convert metadata values to strings for result.md.\n    \"\"\"\n\n    if value is None:\n        return \"\"\n\n    if isinstance(value, (dict, list)):\n        return json.dumps(\n            value,\n            ensure_ascii=False\n        )\n\n    return str(value)\n\n\ndef to_number(value):\n    \"\"\"\n    Convert int / float / numeric string to float.\n    Returns None if value cannot be converted.\n    \"\"\"\n\n    if isinstance(value, (int, float)):\n        return float(value)\n\n    if isinstance(value, str):\n\n        value = value.strip()\n\n        if not value:\n            return None\n\n        try:\n            return float(value)\n        except Exception:\n            return None\n\n    return None\n\n\ndef format_duration(seconds):\n    \"\"\"\n    Convert seconds to human-readable duration.\n\n    Examples:\n      35.523       -> 35.523s\n      207.759      -> 3m 27.759s\n      872.221      -> 14m 32.221s\n      3974.521     -> 1h 6m 14.521s\n    \"\"\"\n\n    if seconds is None:\n        return \"\"\n\n    if seconds < 0:\n        return \"\"\n\n    hours = int(seconds // 3600)\n\n    remaining = seconds - (hours * 3600)\n\n    minutes = int(remaining // 60)\n\n    secs = remaining - (minutes * 60)\n\n\n    # Remove insignificant trailing zeroes while retaining\n    # millisecond precision where useful.\n    seconds_text = f\"{secs:.3f}\".rstrip(\"0\").rstrip(\".\")\n\n    if hours > 0:\n        return (\n            str(hours)\n            + \"h \"\n            + str(minutes)\n            + \"m \"\n            + seconds_text\n            + \"s\"\n        )\n\n    if minutes > 0:\n        return (\n            str(minutes)\n            + \"m \"\n            + seconds_text\n            + \"s\"\n        )\n\n    return seconds_text + \"s\"\n\n\n# ---------------------------------------------------------\n# CONFIG PATHS\n# ---------------------------------------------------------\n\noutput_format = cli.get(\n    \"json_output_format\",\n    \"json\"\n)\n\nstatus_path = cli.get(\n    \"json_output_status\",\n    \"\"\n)\n\nresponse_path = cli.get(\n    \"json_output_response\",\n    \"\"\n)\n\nconversation_path = cli.get(\n    \"json_output_conversation_id\",\n    \"\"\n)\n\ninput_tokens_path = cli.get(\n    \"json_output_input_tokens\",\n    \"\"\n)\n\noutput_tokens_path = cli.get(\n    \"json_output_output_tokens\",\n    \"\"\n)\n\nthinking_tokens_path = cli.get(\n    \"json_output_thinking_tokens\",\n    \"\"\n)\n\ncached_read_tokens_path = cli.get(\n    \"json_output_cached_read_tokens\",\n    \"\"\n)\n\ncache_creation_tokens_path = cli.get(\n    \"json_output_cache_creation_tokens\",\n    \"\"\n)\n\ntotal_tokens_path = cli.get(\n    \"json_output_total_tokens\",\n    \"\"\n)\n\n\n# ---------------------------------------------------------\n# DURATION CONFIG\n#\n# Determine both the JSON path and the unit supplied by the\n# CLI configuration.\n# ---------------------------------------------------------\n\nif cli.get(\"json_output_duration_seconds\", \"\"):\n\n    duration_path = cli.get(\n        \"json_output_duration_seconds\",\n        \"\"\n    )\n\n    duration_unit = \"seconds\"\n\nelif cli.get(\"json_output_duration_ms\", \"\"):\n\n    duration_path = cli.get(\n        \"json_output_duration_ms\",\n        \"\"\n    )\n\n    duration_unit = \"milliseconds\"\n\nelse:\n\n    duration_path = \"\"\n    duration_unit = \"\"\n\n\nnum_turns_path = cli.get(\n    \"json_output_num_turns\",\n    \"\"\n)\n\n\n# ---------------------------------------------------------\n# PARSE\n# ---------------------------------------------------------\n\nparse_mode = output_format\n\ntry:\n\n    records = []\n\n\n    # -----------------------------------------------------\n    # JSONL\n    # Currently used by Codex.\n    # -----------------------------------------------------\n\n    if output_format == \"jsonl\":\n\n        valid_json_records = []\n\n        for line_number, line in enumerate(\n            raw_text.splitlines(),\n            start=1\n        ):\n\n            line = line.strip()\n\n            if not line:\n                continue\n\n            try:\n\n                parsed_line = json.loads(line)\n\n                if isinstance(parsed_line, dict):\n                    valid_json_records.append(\n                        parsed_line\n                    )\n\n            except Exception:\n\n                # Ignore stray non-JSON lines if valid JSONL\n                # records are otherwise present.\n                pass\n\n\n        if valid_json_records:\n\n            records = valid_json_records\n\n        else:\n\n            parse_mode = \"text_fallback\"\n            records = []\n\n\n    # -----------------------------------------------------\n    # JSON ARRAY\n    # Normally used by Qwen.\n    #\n    # Qwen may occasionally emit plain Markdown/text even\n    # when --output-format json was supplied.\n    # -----------------------------------------------------\n\n    elif output_format == \"json_array\":\n\n        try:\n\n            parsed = json.loads(raw_text)\n\n            if not isinstance(parsed, list):\n                raise Exception(\n                    \"Root value is not an array\"\n                )\n\n            records = parsed\n\n        except Exception:\n\n            parse_mode = \"text_fallback\"\n            records = []\n\n\n    # -----------------------------------------------------\n    # NORMAL JSON\n    # Used by CLIs returning a single JSON object.\n    # -----------------------------------------------------\n\n    elif output_format == \"json\":\n\n        try:\n\n            parsed = json.loads(raw_text)\n\n            if isinstance(parsed, list):\n                records = parsed\n\n            else:\n                records = [parsed]\n\n        except Exception:\n\n            parse_mode = \"text_fallback\"\n            records = []\n\n\n    # -----------------------------------------------------\n    # UNKNOWN FORMAT\n    # -----------------------------------------------------\n\n    else:\n\n        parse_mode = \"text_fallback\"\n        records = []\n\n\n    # ---------------------------------------------------------\n    # TEXT FALLBACK\n    # ---------------------------------------------------------\n\n    if parse_mode == \"text_fallback\":\n\n        status = \"TEXT_FALLBACK\"\n\n        response = raw_text\n\n        conversation_id = \"\"\n\n        input_tokens = \"\"\n        output_tokens = \"\"\n        thinking_tokens = \"\"\n        cached_read_tokens = \"\"\n        cache_creation_tokens = \"\"\n        total_tokens = \"\"\n\n        duration_raw = \"\"\n        duration_seconds = None\n        duration_formatted = \"\"\n\n        num_turns = \"\"\n\n\n    # ---------------------------------------------------------\n    # STRUCTURED OUTPUT\n    # ---------------------------------------------------------\n\n    else:\n\n        # -------------------------------------------------\n        # Generic configured extraction\n        # -------------------------------------------------\n\n        status = find_value(\n            records,\n            status_path\n        )\n\n        response = find_value(\n            records,\n            response_path\n        )\n\n        conversation_id = find_value(\n            records,\n            conversation_path\n        )\n\n        input_tokens = find_value(\n            records,\n            input_tokens_path\n        )\n\n        output_tokens = find_value(\n            records,\n            output_tokens_path\n        )\n\n        thinking_tokens = find_value(\n            records,\n            thinking_tokens_path\n        )\n\n        cached_read_tokens = find_value(\n            records,\n            cached_read_tokens_path\n        )\n\n        cache_creation_tokens = find_value(\n            records,\n            cache_creation_tokens_path\n        )\n\n        total_tokens = find_value(\n            records,\n            total_tokens_path\n        )\n\n        duration_raw = find_value(\n            records,\n            duration_path\n        )\n\n        num_turns = find_value(\n            records,\n            num_turns_path\n        )\n\n\n        # -------------------------------------------------\n        # CODEX JSONL EXTRACTION\n        #\n        # Codex distributes useful information across:\n        #\n        # thread.started\n        # item.completed / agent_message\n        # turn.completed / usage\n        # -------------------------------------------------\n\n        if output_format == \"jsonl\":\n\n            completed_turns = 0\n\n            codex_thread_id = \"\"\n\n            # Last agent_message wins.\n            codex_response = \"\"\n\n            # Latest turn.completed usage wins.\n            codex_usage = {}\n\n            codex_detected = False\n\n\n            for record in records:\n\n                if not isinstance(record, dict):\n                    continue\n\n                record_type = record.get(\n                    \"type\",\n                    \"\"\n                )\n\n\n                # -----------------------------------------\n                # THREAD ID\n                # -----------------------------------------\n\n                if record_type == \"thread.started\":\n\n                    codex_detected = True\n\n                    thread_id = record.get(\n                        \"thread_id\",\n                        \"\"\n                    )\n\n                    if thread_id:\n                        codex_thread_id = thread_id\n\n\n                # -----------------------------------------\n                # AGENT MESSAGE\n                # -----------------------------------------\n\n                elif record_type == \"item.completed\":\n\n                    item_data = record.get(\n                        \"item\",\n                        {}\n                    )\n\n                    if isinstance(item_data, dict):\n\n                        if (\n                            item_data.get(\"type\")\n                            == \"agent_message\"\n                        ):\n\n                            codex_detected = True\n\n                            text = item_data.get(\n                                \"text\",\n                                \"\"\n                            )\n\n                            if text:\n                                codex_response = text\n\n\n                # -----------------------------------------\n                # COMPLETED TURN / USAGE\n                # -----------------------------------------\n\n                elif record_type == \"turn.completed\":\n\n                    codex_detected = True\n\n                    completed_turns += 1\n\n                    usage = record.get(\n                        \"usage\",\n                        {}\n                    )\n\n                    if isinstance(usage, dict):\n                        codex_usage = usage\n\n\n            # ---------------------------------------------\n            # Fill missing generic values from Codex\n            # ---------------------------------------------\n\n            if codex_detected:\n\n                if not conversation_id:\n                    conversation_id = codex_thread_id\n\n                if not response:\n                    response = codex_response\n\n\n                if input_tokens == \"\":\n                    input_tokens = codex_usage.get(\n                        \"input_tokens\",\n                        \"\"\n                    )\n\n\n                if output_tokens == \"\":\n                    output_tokens = codex_usage.get(\n                        \"output_tokens\",\n                        \"\"\n                    )\n\n\n                if thinking_tokens == \"\":\n                    thinking_tokens = codex_usage.get(\n                        \"reasoning_output_tokens\",\n                        \"\"\n                    )\n\n\n                if cached_read_tokens == \"\":\n                    cached_read_tokens = codex_usage.get(\n                        \"cached_input_tokens\",\n                        \"\"\n                    )\n\n\n                if cache_creation_tokens == \"\":\n                    cache_creation_tokens = codex_usage.get(\n                        \"cache_write_input_tokens\",\n                        \"\"\n                    )\n\n\n                # Codex does not provide a normal\n                # SUCCESS status field.\n                if completed_turns > 0:\n\n                    if (\n                        not status\n                        or status == \"turn.completed\"\n                    ):\n                        status = \"SUCCESS\"\n\n\n                # Codex does not normally provide num_turns.\n                if (\n                    num_turns == \"\"\n                    and completed_turns > 0\n                ):\n                    num_turns = completed_turns\n\n\n        # -------------------------------------------------\n        # DERIVE TOTAL TOKENS\n        #\n        # Cached tokens are already included within input\n        # tokens, so they are NOT added again.\n        # -------------------------------------------------\n\n        if (\n            total_tokens == \"\"\n            and isinstance(\n                input_tokens,\n                (int, float)\n            )\n            and isinstance(\n                output_tokens,\n                (int, float)\n            )\n        ):\n\n            total_tokens = (\n                input_tokens\n                + output_tokens\n            )\n\n\n        # -------------------------------------------------\n        # NORMALISE DURATION TO SECONDS\n        # -------------------------------------------------\n\n        duration_number = to_number(\n            duration_raw\n        )\n\n        if duration_number is None:\n\n            duration_seconds = None\n            duration_formatted = \"\"\n\n        else:\n\n            if duration_unit == \"milliseconds\":\n\n                duration_seconds = (\n                    duration_number / 1000.0\n                )\n\n            else:\n\n                # duration_seconds fields are already seconds.\n                duration_seconds = duration_number\n\n\n            duration_formatted = format_duration(\n                duration_seconds\n            )\n\n\n    # ---------------------------------------------------------\n    # RESPONSE BODY\n    # ---------------------------------------------------------\n\n    if isinstance(response, str):\n\n        response_body = response\n\n    elif response is None or response == \"\":\n\n        response_body = \"\"\n\n    else:\n\n        response_body = json.dumps(\n            response,\n            indent=2,\n            ensure_ascii=False\n        )\n\n\n    # ---------------------------------------------------------\n    # BUILD result.md\n    # ---------------------------------------------------------\n\n    metadata = [\n\n        \"- **CLI:** \"\n        + clean(\n            cli.get(\"name\", \"\")\n        ),\n\n        \"- **Set:** \"\n        + clean(\n            cli.get(\"set_id\", \"\")\n        ),\n\n        \"- **Status:** \"\n        + clean(status),\n\n        \"- **Output format:** \"\n        + clean(parse_mode),\n\n        \"- **Conversation ID:** \"\n        + clean(conversation_id),\n\n        \"- **Input tokens:** \"\n        + clean(input_tokens),\n\n        \"- **Output tokens:** \"\n        + clean(output_tokens),\n\n        \"- **Thinking tokens:** \"\n        + clean(thinking_tokens),\n\n        \"- **Cached read tokens:** \"\n        + clean(cached_read_tokens),\n\n        \"- **Cache creation tokens:** \"\n        + clean(cache_creation_tokens),\n\n        \"- **Total tokens:** \"\n        + clean(total_tokens),\n\n        \"- **Duration:** \"\n        + clean(duration_formatted),\n\n        \"- **Turns:** \"\n        + clean(num_turns),\n    ]\n\n\n    result_md = (\n        \"## Run Metadata\\n\\n\"\n        + \"\\n\".join(metadata)\n        + \"\\n\\n---\\n\\n\"\n        + response_body\n        + \"\\n\"\n    )\n\n\n    # ---------------------------------------------------------\n    # OUTPUT\n    # ---------------------------------------------------------\n\n    return [{\n\n        \"json\": {\n\n            **data,\n\n            \"parse_success\": True,\n\n            \"parse_error\": \"\",\n\n            \"parse_mode\": parse_mode,\n\n            \"status\": status,\n\n            \"conversation_id\": conversation_id,\n\n            \"input_tokens\": input_tokens,\n\n            \"output_tokens\": output_tokens,\n\n            \"thinking_tokens\": thinking_tokens,\n\n            \"cached_read_tokens\": cached_read_tokens,\n\n            \"cache_creation_tokens\": cache_creation_tokens,\n\n            \"total_tokens\": total_tokens,\n\n            # Original provider value\n            \"duration_raw\": duration_raw,\n\n            # Normalised machine-readable value\n            \"duration_seconds\": duration_seconds,\n\n            # Human-readable value\n            \"duration_formatted\": duration_formatted,\n\n            \"num_turns\": num_turns,\n\n            \"response\": response,\n\n            \"result_md\": result_md\n        }\n    }]\n\n\n# ---------------------------------------------------------\n# PARSE ERROR\n# ---------------------------------------------------------\n\nexcept Exception as e:\n\n    return [{\n\n        \"json\": {\n\n            **data,\n\n            \"parse_success\": False,\n\n            \"parse_error\": str(e)\n        }\n    }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        800
+      ],
+      "id": "aeebb1be-515f-4d20-b727-b2e3c28b647d",
+      "name": "Code in Python"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.cli_settings.container_path }}return.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        1008
+      ],
+      "id": "b7e2cc7d-785a-49ff-bb7e-b91902ae4536",
+      "name": "Read/Write Files from Disk2",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "return_txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        992
+      ],
+      "id": "70e23c0d-686a-4d29-9362-b14aa9e1a056",
+      "name": "Extract from File2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1808,
+        800
+      ],
+      "id": "5c5b9ee5-fa94-4d3b-b790-bb0ea5f897a4",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.cli_settings.container_path }}result.md",
+        "dataPropertyName": "=result_md_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        1152
+      ],
+      "id": "094e4e0f-b1f0-4603-b6b2-28ebe92aa7a7",
+      "name": "Read/Write Files from Disk3"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "result_md",
+        "binaryPropertyName": "result_md_data",
+        "options": {
+          "fileName": "result.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2256,
+        768
+      ],
+      "id": "becaffbb-077b-4b28-a9d1-504cd68a9c10",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2416,
+        992
+      ],
+      "id": "37039c25-2288-47ee-a6cf-461843e1cb8b",
+      "name": "Merge3"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read prompts.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Hash Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash Prompts": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Students",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Students": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Split Out Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Tasks": {
+      "main": [
+        [
+          {
+            "node": "Split Out Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Prompts": {
+      "main": [
+        [
+          {
+            "node": "If string not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If string not empty": {
+      "main": [
+        [
+          {
+            "node": "Split models",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Students",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read prompts.json": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split models": {
+      "main": [
+        [
+          {
+            "node": "Loop Models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Models": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Students",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If hashes match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If hashes match": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Loop Models",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read/Write Files from Disk2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File2": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk3": {
+      "main": [
+        [
+          {
+            "node": "Loop Models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "c18bfba9-496c-4d28-8d6d-85c65469ec56",
+  "activeVersionId": null,
+  "versionCounter": 1080,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-23T22:40:51.651Z",
+      "createdAt": "2026-08-23T22:40:51.651Z",
+      "role": "workflow:owner",
+      "workflowId": "bwqKVV0abQefK272",
+      "projectId": "PXj54iQwOwC1z3UL",
+      "project": {
+        "updatedAt": "2026-08-22T11:27:35.865Z",
+        "createdAt": "2026-08-22T11:08:13.117Z",
+        "id": "PXj54iQwOwC1z3UL",
+        "name": "Ben Pivetta <bennyberetta@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "4ffd8e06-13a1-486c-8554-91fcca4ba28f"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}
