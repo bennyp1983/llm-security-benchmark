@@ -1,0 +1,40 @@
+{
+    "cli_settings": [
+        {
+            "name": "Google Antigravity",
+            "cyber_container_path": "/data/results-cyber/agy",
+            "skill_path": "/root/.gemini/config/skills/review-code-for-security-vulnerabilities/SKILL.md"
+        },
+        {
+            "name": "Claude Code",
+            "cyber_container_path": "/data/results-cyber/claude",
+            "skill_path": "/root/.claude/skills/review-code-for-security-vulnerabilities/SKILL.md"
+        },
+        {
+            "name": "ChatGPT Codex",
+            "cyber_container_path": "/data/results-cyber/codex",
+            "skill_path": "/root/.codex/skills/review-code-for-security-vulnerabilities/SKILL.md"
+        },
+        {
+            "name": "Qwen",
+            "cyber_container_path": "/data/results-cyber/qwen",
+            "skill_path": "/root/.qwen/skills/review-code-for-security-vulnerabilities/SKILL.md"
+        }
+    ],
+    "student": [
+        {
+            "name": "llm_analyst",
+            "task": [
+                {
+                    "task_number": 1,
+                    "prompts": [
+                        {
+                            "style": "review",
+                            "prompt": "Review all the code in this folder for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in this folder. Do not create or modify any other file."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

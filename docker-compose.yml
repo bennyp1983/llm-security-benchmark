@@ -39,9 +39,60 @@ services:
       - ./n8n-task-runners.json:/etc/n8n-task-runners.json
     restart: unless-stopped
 
+  n8n-cyber:
+    build:
+      context: .
+      dockerfile: Dockerfile.cyber
+    container_name: n8n-cyber
+    ports:
+      - "5688:5678"
+    environment:
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_SECURE_COOKIE=false
+      - N8N_EDITOR_BASE_URL=http://10.5.3.1:5688/
+      - N8N_RUNNERS_MODE=external
+      - N8N_RUNNERS_BROKER_PORT=5679
+      - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
+      - N8N_RUNNERS_AUTH_TOKEN=test
+      - N8N_RESTRICT_FILE_ACCESS_TO=/data
+      - "NODES_EXCLUDE=[]"
+    volumes:
+      - n8n-cyber-data:/root/.n8n
+      - claude-cyber-auth:/root/.claude
+      - codex-cyber-auth:/root/.codex
+      - qwen-cyber-auth:/root/.qwen
+      - agy-cyber-auth:/root/.gemini
+      - ./results/agy:/data/results/agy:ro
+      - ./results/claude:/data/results/claude:ro
+      - ./results/codex:/data/results/codex:ro
+      - ./results/qwen:/data/results/qwen:ro
+      - ./results-cyber/agy:/data/results-cyber/agy
+      - ./results-cyber/claude:/data/results-cyber/claude
+      - ./results-cyber/codex:/data/results-cyber/codex
+      - ./results-cyber/qwen:/data/results-cyber/qwen
+      - ./prompts:/data/prompts/
+    restart: unless-stopped
+
+  n8n-cyber-runners:
+    image: n8nio/runners:1.121.0
+    container_name: n8n-cyber-runners
+    environment:
+      - N8N_RUNNERS_AUTH_TOKEN=test
+      - N8N_RUNNERS_LAUNCHER_LOG_LEVEL=debug
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n-cyber:5679
+    volumes:
+      - ./n8n-task-runners.json:/etc/n8n-task-runners.json
+    restart: unless-stopped
+
 volumes:
   n8n-data:
   claude-auth:
   codex-auth:
   qwen-auth:
   agy-auth:
+  n8n-cyber-data:
+  claude-cyber-auth:
+  codex-cyber-auth:
+  qwen-cyber-auth:
+  agy-cyber-auth:

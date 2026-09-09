@@ -1,0 +1,18 @@
+FROM n8n-uni-n8n:latest
+
+# Cybersecurity skill library (mukul975/Anthropic-Cybersecurity-Skills); latest on each build.
+RUN mkdir -p /opt/security-tools && \
+    git clone --depth 1 https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git /opt/security-tools/anthropic-cybersecurity-skills
+
+# Install flat into each CLI's skills dir (Codex sits beside its own .system/ skills).
+RUN mkdir -p /root/.claude/skills /root/.qwen/skills /root/.gemini/config/skills /root/.codex/skills && \
+    cp -r /opt/security-tools/anthropic-cybersecurity-skills/skills/. /root/.claude/skills/ && \
+    cp -r /opt/security-tools/anthropic-cybersecurity-skills/skills/. /root/.qwen/skills/ && \
+    cp -r /opt/security-tools/anthropic-cybersecurity-skills/skills/. /root/.gemini/config/skills/ && \
+    cp -r /opt/security-tools/anthropic-cybersecurity-skills/skills/. /root/.codex/skills/
+
+# Custom router skill — sits alongside the library so it can grep sibling skills.
+COPY custom-skills/review-code-for-security-vulnerabilities /root/.claude/skills/review-code-for-security-vulnerabilities
+COPY custom-skills/review-code-for-security-vulnerabilities /root/.codex/skills/review-code-for-security-vulnerabilities
+COPY custom-skills/review-code-for-security-vulnerabilities /root/.qwen/skills/review-code-for-security-vulnerabilities
+COPY custom-skills/review-code-for-security-vulnerabilities /root/.gemini/config/skills/review-code-for-security-vulnerabilities
