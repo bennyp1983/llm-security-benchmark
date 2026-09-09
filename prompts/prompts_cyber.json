@@ -21,7 +21,7 @@
             "skill_path": "/root/.qwen/skills/review-code-for-security-vulnerabilities/SKILL.md"
         }
     ],
-    "student": [
+    "analyst": [
         {
             "name": "llm_analyst",
             "task": [
