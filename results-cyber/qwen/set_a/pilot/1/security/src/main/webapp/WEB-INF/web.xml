@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+  <display-name>Post-authentication session cookie</display-name>
+
+  <!-- Servlets are registered through @WebServlet (/api/login, /api/logout). -->
+
+  <!-- Cookie knobs; see com.example.auth.web.WebInfrastructure. These can only narrow the cookie.
+       __Host- requires HTTPS on every origin that issues the cookie, which a TLS-terminating
+       deployment with proper X-Forwarded-Proto handling satisfies. -->
+  <context-param>
+    <param-name>auth.cookie.name</param-name>
+    <param-value>SESSION</param-value>
+  </context-param>
+  <context-param>
+    <param-name>auth.cookie.hostPrefix</param-name>
+    <param-value>true</param-value>
+  </context-param>
+  <context-param>
+    <param-name>auth.cookie.sameSite</param-name>
+    <param-value>Strict</param-value>
+  </context-param>
+  <context-param>
+    <param-name>auth.session.ttlSeconds</param-name>
+    <param-value>1800</param-value>
+  </context-param>
+
+  <!-- Hardens the container's own JSESSIONID. This application does not store authenticated state in
+       an HttpSession, but the container still hands one out to anything that asks, and an unhardened
+       JSESSIONID is a second session cookie to leak. Tomcat renders SameSite through
+       Rfc6265CookieProcessor (context.xml sameSiteCookies="Strict"), which is not web.xml territory. -->
+  <session-config>
+    <session-timeout>30</session-timeout>
+    <cookie-config>
+      <http-only>true</http-only>
+      <secure>true</secure>
+    </cookie-config>
+    <!-- The only tracking mode: an identifier in a URL leaks into access logs, bookmarks and
+         Referer headers, and is what LoginServlet refuses to adopt. -->
+    <tracking-mode>COOKIE</tracking-mode>
+  </session-config>
+</web-app>

@@ -1,0 +1,1 @@
+Develop a Java authentication program for an internal employee portal. The program should allow employees to enter their username and password, and the system checks the credentials against a records store to grant or deny access.

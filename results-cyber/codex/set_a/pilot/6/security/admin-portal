@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+
+project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+classes_dir="$project_dir/build/classes"
+mkdir -p "$classes_dir"
+find "$project_dir/src/main/java" -name '*.java' -print > "$project_dir/build/sources.list"
+javac -encoding UTF-8 -d "$classes_dir" @"$project_dir/build/sources.list"
+cd "$project_dir"
+exec java -cp "$classes_dir" com.example.adminportal.AdminPortal "$@"

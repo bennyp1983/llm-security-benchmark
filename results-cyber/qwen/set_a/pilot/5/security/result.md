@@ -1,0 +1,136 @@
+## Run Metadata
+
+- **CLI:** Qwen
+- **Set:** a
+- **Status:** TEXT_FALLBACK
+- **Output format:** text_fallback
+- **Conversation ID:** 
+- **Input tokens:** 
+- **Output tokens:** 
+- **Thinking tokens:** 
+- **Cached read tokens:** 
+- **Cache creation tokens:** 
+- **Total tokens:** 
+- **Duration:** 
+- **Turns:** 
+
+---
+
+# Employee portal authentication module - result
+
+Java 17, no third-party dependencies, no build tool on this box (plain `javac`/`java`).
+Everything is under `src/main/java/com/portal/auth/`; `./run.sh` compiles, runs the 130-check
+verification and a scripted sign-in demo.
+
+    ./run.sh            compile + verification + demo
+    ./run.sh verify     verification only (exit code is the verdict)
+    ./run.sh app        interactive sign-in prompt
+    python3 tools/mutation-check.py    prove the verification fails when the module is broken
+
+Demo accounts: `demo / Correct-Horse-9`, `jchen / another-secret-passphrase`, and
+`terminated.user` (status DISABLED).
+
+## What was asked, and where it lives
+
+"Employees enter username and password; credentials are checked against a records store."
+`AuthenticationService.authenticate(username, char[] password)` -> sealed `LoginResult`. The store is
+the `CredentialStore` interface (`findByUsername` / `save` / `exists`), implemented here by
+`InMemoryCredentialStore` so the module has no storage dependency; a JDBC or directory-backed store
+drops in behind the same interface. Records hold only a salted PBKDF2-HMAC-SHA256 digest
+(`PasswordHasher`, 600k iterations, 16-byte `SecureRandom` salt, self-describing
+`$pbkdf2-sha256$<iters>$<salt>$<hash>` encoding), never a password.
+
+"Must prevent a user from repeatedly guessing a password by making unlimited consecutive attempts
+against a single account." That is `LoginAttemptTracker` plus the order of operations in
+`AuthenticationService.check`, which is the security design and so is kept as one straight line:
+
+    1. tracker.state(user) -> locked?  refuse. The password is never hashed, the store is never read.
+    2. store.findByUsername -> unknown?  hash a fixed decoy digest anyway, count a failure, refuse
+       generically (so neither timing nor the attempt count reveals whether the name is real).
+    3. status != ACTIVE -> refuse, after burning the same work as a live account.
+    4. verify the digest. Success clears the history; failure counts one and applies the policy.
+
+Step 1 is what makes guessing stop being free. `LoginPolicy.DEFAULT` is 5 failures inside a 15-minute
+window -> refuse for 15 minutes without evaluating the password at all. `permanentLockAfterLocks`
+(default 0 = off) escalates a repeatedly-targeted account to an admin-only unlock.
+
+Four deliberate properties, each with a check behind it:
+  * Attempts logged while an account is throttled never push the lift time out, so continuous arrival
+    cannot turn the lockout into a denial-of-service tool. The lift time is fixed at lock time.
+  * State is counted per account, not per source address, so rotating addresses buys an attacker
+    nothing. `MAX_TRACKED_ACCOUNTS` (100k, LRU-evicting unlocked entries) bounds what a username
+    spray costs.
+  * The correct password is also refused while locked, so the state is unambiguous.
+  * The failure history clears on success and when the window ages out, so a stale count from
+    yesterday cannot lock someone out today.
+
+Supporting measures: `MessageDigest.isEqual` (no early exit) for digest comparison; one generic
+message for wrong-password and unknown-user, one for locked/hard-locked/disabled; passwords carried
+as `char[]` and wiped in a `finally` on every path with `PBEKeySpec.clearPassword()`; audit usernames
+control-character-stripped, quote-escaped and length-capped so one event is exactly one log line;
+`Credential.toString()` prints `passwordDigest=<redacted>`; a stored digest claiming >5M iterations is
+refused rather than honoured (a tampered record must not hang the login path).
+
+## Verification
+
+`src/test/java/com/portal/auth/AuthVerification.java` is a `main` that counts expectations and exits
+non-zero on failure - there is no build tool and no test-framework jar here, so this is what
+"verified" means. It drives the module through a `CredentialStore` and `AuditLog` double plus a
+mutable `Clock`, so the assertions are about observable behaviour (which usernames reached the store,
+what landed in the audit log, what each path cost) rather than private fields.
+
+Result: **130 checks, 0 failures** (`passed=130 failed=0`, exit 0). Both source sets compile under
+`javac -Xlint:all -Werror` with no warnings. Notable measured numbers:
+  * 500 guesses after lockout: 0 store lookups, 0 escapes, still exactly 1 lock taken.
+  * Timing parity at 60k iterations, medians of 9 interleaved pairs: real-user failure 86ms vs
+    unknown-user failure 86ms, ratio 1.00 - response time does not name a valid account.
+  * 16 threads x 25 concurrent failures on one account: all denied, lock engaged exactly once, no
+    attempt authenticated, count bounded.
+  * 105,000-username spray: tracked state stayed at or under the 100k cap.
+  * 600k iterations (the shipped default) measured ~900ms per verification on this machine.
+
+Covers: hashing and 10 malformed-digest rejections; the countdown; lockout holding against a flood;
+correct password refused while locked; unknown usernames behaving identically to real ones end to end;
+lock expiry; the no-lock-extension invariant driven directly at the tracker; window ageing; history
+clearing on success; escalation to admin lock and recovery via `AdminService.unlock`; LOCKED and
+DISABLED records; wording non-leakage and rendered-output non-leakage; audit secrecy (no candidate,
+no digest, no long base64 run) and log-forging resistance including a quote-injection attempt; zero
+store lookups while locked; candidate-array wiping; concurrency; bounded memory; timing parity.
+
+The suite is itself mutation-checked - `tools/mutation-check.py` rebuilds seven broken copies of the
+module and re-runs the suite on each; all seven were detected (see the table in README.md). That is
+what makes the green result mean something: dropping the pre-hash lock gate turns 5 checks red, and
+deleting the decoy hash shows up as a broken timing ratio.
+
+## Defects found and fixed during the work, not before
+
+  * The console renderer printed "attempts remaining" only when the internal `accountExists` flag was
+    set - a user-enumeration channel through the terminal that contradicted the rest of the design.
+    `PortalAuthApp.render` now derives only from the outcome and the countdown, and a check asserts the
+    rendered text is byte-identical for a real account and a nonexistent name.
+  * A check written to prove "logged failures do not extend a lock" went through the service, which
+    refuses locked accounts before the tracker is reached - so it never exercised the invariant and let
+    a lock-extension mutant through on the first battery. Rewritten to drive `LoginAttemptTracker`
+    directly, where the invariant actually lives (in-flight races, or a store that logs failures
+    itself). That mutant is now caught by 3 checks.
+  * An audit log-forging assertion used substring search over the raw line, which would have passed
+    even for a properly escaped line and failed for a hostile-but-neutralised one. Replaced with
+    field-level assertions on the parsed `type=` field.
+
+## Limits a reviewer should weigh (also in README.md)
+
+  * Lockout state is per-JVM. N app instances multiply the guess budget by N - back
+    `LoginAttemptTracker` with shared state (SQL table or Redis) before running more than one instance.
+  * Account lockout is itself a harassment vector: 5 thrown guesses make an employee's next sign-in
+    fail. That is the cost of the requirement as stated; NIST SP 800-63B prefers rate limiting plus a
+    strong password policy, which is why the default lock self-clears in 15 minutes rather than
+    escalating to a help-desk ticket.
+  * No per-source-address or fleet-wide dimension; add an edge throttle for a distributed spray.
+  * No session, MFA, or password-policy layer - this module only answers "do these credentials open
+    the door". `AdminService` records the operator for audit but does not authenticate its caller; the
+    portal's admin boundary must already have authorised them.
+  * `InMemoryCredentialStore` is heap-only and the seeded passwords are public; the piped-input
+    fallback in the console app echoes them, which is why the seeded accounts are low-value.
+  * Passwords are compared byte-exactly: no Unicode normalisation, no case folding, no trimming of the
+    password (only the username is trimmed). Callers must normalise identically at write and read time.
+

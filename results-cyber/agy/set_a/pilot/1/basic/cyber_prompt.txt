@@ -1,0 +1,3 @@
+Use the skill at /root/.gemini/config/skills/review-code-for-security-vulnerabilities/SKILL.md to review the code in this folder, following its workflow exactly, and complete this task:
+
+Review all the code in this folder for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in this folder. Do not create or modify any other file.
