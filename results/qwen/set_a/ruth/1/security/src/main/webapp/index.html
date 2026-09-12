@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session cookie after authentication</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main>
+  <h1>Session cookie after authentication</h1>
+  <p>
+    Sign in to get the <code>APPSESSION</code> cookie. Open the Network tab and look at the
+    <code>Set-Cookie</code> response header of <code>/api/login</code>: it carries
+    <code>HttpOnly</code>, <code>Secure</code> and <code>SameSite=Lax</code> with no
+    <code>Domain</code> attribute. Because the cookie is <code>HttpOnly</code>, this page cannot read
+    it back from <code>document.cookie</code> - only the server can see it, which is what
+    <code>/api/whoami</code> below demonstrates.
+  </p>
+
+  <form id="login-form" autocomplete="off">
+    <label>Username <input id="username" name="username" autocomplete="username"></label>
+    <label>Password <input id="password" name="password" type="password" autocomplete="current-password"></label>
+    <button type="submit">Sign in</button>
+  </form>
+
+  <div class="row">
+    <button id="whoami" type="button">Who am I?</button>
+    <button id="logout" type="button">Sign out</button>
+  </div>
+
+  <h2>Response</h2>
+  <pre id="output">idle</pre>
+</main>
+<script src="app.js" defer></script>
+</body>
+</html>
