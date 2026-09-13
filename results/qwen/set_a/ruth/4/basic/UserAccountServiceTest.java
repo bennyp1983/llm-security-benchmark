@@ -52,6 +52,9 @@ public final class UserAccountServiceTest {
             testPolicyRejections(svc, c);
             testHostileInputsStoredVerbatim(svc, c);
             testMalformedRowsRefused(svc, c);
+            testSaltIsFreshEntropyPerRegistration(svc, c);
+            testStoredWorkFactorIsHonoured(svc, c);
+            testUnrelatedSqlErrorIsNotADuplicate(svc, c);
             testDelete(svc, c);
             testConcurrentDuplicate(svc);
         }
@@ -239,10 +242,13 @@ public final class UserAccountServiceTest {
             try (Statement st = c.createStatement()) {
                 st.executeUpdate(t[1]);
             }
-            ok("tampered row refused (" + t[0] + "): right password",
-                    !svc.authenticate(c, "corrupt", GOOD));
-            ok("tampered row refused (" + t[0] + "): wrong password",
-                    !svc.authenticate(c, "corrupt", BAD));
+            // Refusal must also be *prompt*: a row that claims 999 999 999 iterations has to be
+            // rejected by the bounds check rather than derived, and "it returned false eventually"
+            // after minutes of CPU is the failure, not the pass.
+            ok("tampered row refused promptly (" + t[0] + "): right password",
+                    refusedWithin(svc, c, "corrupt", GOOD, 5_000));
+            ok("tampered row refused promptly (" + t[0] + "): wrong password",
+                    refusedWithin(svc, c, "corrupt", BAD, 5_000));
             try (Statement st = c.createStatement()) {
                 st.executeUpdate(restore);
             }
@@ -251,6 +257,118 @@ public final class UserAccountServiceTest {
                 svc.authenticate(c, "corrupt", GOOD));
         ok("restored row still rejects the wrong password",
                 !svc.authenticate(c, "corrupt", BAD));
+    }
+
+    /**
+     * A salt derived from the username or the password instead of the RNG keeps every functional
+     * check green -- the row verifies, the key matches PBKDF2, different usernames still get
+     * different salts -- so pin randomness where it is produced.
+     */
+    private static void testSaltIsFreshEntropyPerRegistration(UserAccountService svc, Connection c)
+            throws Exception {
+        svc.registerUser(c, "regen", GOOD);
+        byte[] first = saltOf(c, "regen");
+        ok("first registration has a non-zero salt", !allZeros(first));
+        ok("delete the account to re-register the same name", svc.deleteUser(c, "regen"));
+        svc.registerUser(c, "regen", GOOD);
+        byte[] second = saltOf(c, "regen");
+        ok("re-registering the same username with the same password draws a new salt",
+                !Arrays.equals(first, second));
+        ok("the salt does not encode the username",
+                !new String(first, StandardCharsets.ISO_8859_1).contains("regen")
+                        && !new String(second, StandardCharsets.ISO_8859_1).contains("regen"));
+        ok("the salt does not encode the password",
+                !new String(first, StandardCharsets.ISO_8859_1).contains("correct"));
+        ok("the re-registered account authenticates", svc.authenticate(c, "regen", GOOD));
+    }
+
+    /**
+     * Whether {@code authenticate} rejected the credential within the budget. {@code false} means it
+     * either accepted the credential or was still deriving when the budget ran out.
+     */
+    private static boolean refusedWithin(UserAccountService svc, Connection c, String username,
+            char[] password, long budgetMillis) throws Exception {
+        final java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(1);
+        final boolean[] accepted = {true};
+        Thread worker = new Thread(() -> {
+            try {
+                accepted[0] = svc.authenticate(c, username, password);
+            } catch (SQLException e) {
+                accepted[0] = true;
+            } finally {
+                done.countDown();
+            }
+        });
+        worker.setDaemon(true);
+        worker.start();
+        // The latch return value, not Thread.isAlive(): isAlive() can still be true in the window
+        // between countDown() and the worker unwinding, which reads as a timeout.
+        boolean finished = done.await(budgetMillis, java.util.concurrent.TimeUnit.MILLISECONDS);
+        return finished && !accepted[0];
+    }
+
+    private static byte[] saltOf(Connection c, String username) throws SQLException {
+        try (java.sql.PreparedStatement ps = c.prepareStatement(
+                "SELECT salt FROM app_user WHERE username = ?")) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getBytes(1);
+            }
+        }
+    }
+
+    /**
+     * Verification must honour the parameters recorded in the row, not the service's current
+     * defaults: that is what lets the work factor be raised without locking anyone out.
+     */
+    private static void testStoredWorkFactorIsHonoured(UserAccountService svc, Connection c)
+            throws Exception {
+        int legacyIterations = 20_000;
+        byte[] legacySalt = new byte[16];
+        new java.security.SecureRandom().nextBytes(legacySalt);
+        byte[] legacyKey = referenceDerive(GOOD, legacySalt, legacyIterations,
+                UserAccountService.DEFAULT_ALGORITHM, 32);
+        svc.registerUser(c, "legacy", GOOD);
+        try (java.sql.PreparedStatement ps = c.prepareStatement(
+                "UPDATE app_user SET iterations = ?, salt = ?, password_hash = ?"
+                + " WHERE username = 'legacy'")) {
+            ps.setInt(1, legacyIterations);
+            ps.setBytes(2, legacySalt);
+            ps.setBytes(3, legacyKey);
+            ps.executeUpdate();
+        }
+        ok("an account stored at a cheaper work factor still authenticates",
+                svc.authenticate(c, "legacy", GOOD));
+        ok("and still rejects the wrong password", !svc.authenticate(c, "legacy", BAD));
+        ok("the service reports that the row should be upgraded",
+                svc.credentialsNeedUpgrade(legacyIterations));
+        ok("re-hashing at the current work factor is what fixes it",
+                !svc.credentialsNeedUpgrade(svc.iterations()));
+    }
+
+    /**
+     * A database failure during the insert must surface as the {@link SQLException} it is, not be
+     * laundered into "username already taken". Only a class-23 SQLState is a duplicate.
+     */
+    private static void testUnrelatedSqlErrorIsNotADuplicate(UserAccountService svc, Connection c)
+            throws Exception {
+        try (Connection missing = DriverManager.getConnection("jdbc:h2:mem:noSuchTable;DB_CLOSE_DELAY=-1")) {
+            Exception thrown = null;
+            try {
+                svc.registerUser(missing, "anyuser", GOOD);
+            } catch (Exception e) {
+                thrown = e;
+            }
+            ok("a failure with no unique constraint involved is reported", thrown != null);
+            ok("  and it is not dressed up as a duplicate username",
+                    !(thrown instanceof UserAccountService.DuplicateUsernameException));
+            ok("  and it is a SQLException carrying a SQLState",
+                    thrown instanceof SQLException && ((SQLException) thrown).getSQLState() != null);
+            ok("  and that SQLState is not integrity-constraint class 23",
+                    thrown instanceof SQLException
+                            && !((SQLException) thrown).getSQLState().startsWith("23"));
+        }
     }
 
     private static void testDelete(UserAccountService svc, Connection c) throws Exception {
@@ -284,7 +402,11 @@ public final class UserAccountServiceTest {
         go.countDown();
         List<String> results = Arrays.asList(f1.get(), f2.get());
         pool.shutdown();
-        eq("both racers settled", "[duplicate, registered]", results.toString());
+        // Which racer wins is nondeterministic; that exactly one of each happened is not.
+        List<String> sorted = new ArrayList<>(results);
+        java.util.Collections.sort(sorted);
+        eq("exactly one insert won and one reported a duplicate " + results,
+                "[duplicate, registered]", sorted.toString());
         try (Connection c = DriverManager.getConnection(url, "sa", "")) {
             eq("exactly one row for the contested username", 1,
                     count(c, "app_user WHERE username = 'racer'"));

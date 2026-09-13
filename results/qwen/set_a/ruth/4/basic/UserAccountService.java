@@ -143,9 +143,10 @@ public final class UserAccountService {
     }
 
     /**
-     * Creates the account table if it is not already there. The DDL uses only portable types
-     * ({@code VARBINARY} is {@code BYTEA} on PostgreSQL if you need to hand-edit it) so the same
-     * call works on H2, PostgreSQL, MySQL/MariaDB, SQL Server, Oracle and SQLite.
+     * Creates the account table if it is not already there. The types used are
+     * {@code VARCHAR}/{@code VARBINARY}/{@code INT}/{@code TIMESTAMP}, which H2, PostgreSQL,
+     * MySQL/MariaDB and SQL Server accept as written; on Oracle or SQLite replace
+     * {@code VARBINARY(n)} with {@code RAW(n)} / {@code BLOB(n)} before calling this.
      *
      * <p>Primary-key-on-username is what makes registration race-safe: two concurrent inserts of
      * the same username cannot both succeed, and the loser gets
@@ -248,7 +249,7 @@ public final class UserAccountService {
                     burnKeyDerivation();
                     return false;
                 }
-                stored = readCredential(rs, username);
+                stored = readCredential(rs);
             }
         }
         if (stored == null) {
@@ -281,7 +282,8 @@ public final class UserAccountService {
      * Whether stored credentials created by an older, cheaper work factor should be re-derived at
      * the current {@link #iterations()}. Call with the iteration count read back from a row; the
      * usual place to act on {@code true} is a successful login, when the plaintext password is
-     * available anyway.
+     * available anyway. This is detection only: the class has no write path for an existing row, so
+     * persisting the upgraded credential is the caller's operation.
      */
     public boolean credentialsNeedUpgrade(int storedIterations) {
         return storedIterations < iterations;
@@ -301,7 +303,7 @@ public final class UserAccountService {
      * truncated row must be refused, not fed to {@link PBEKeySpec} (which happily accepts an empty
      * salt) and not allowed to select an unbounded iteration count.
      */
-    private StoredCredential readCredential(ResultSet rs, String username) throws SQLException {
+    private StoredCredential readCredential(ResultSet rs) throws SQLException {
         String storedAlgorithm = rs.getString(1);
         int storedIterations = rs.getInt(2);
         byte[] salt = rs.getBytes(3);
@@ -325,8 +327,9 @@ public final class UserAccountService {
         if (e instanceof SQLIntegrityConstraintViolationException) {
             return true;
         }
-        // Drivers that do not use the JDBC 4 subclass still report the integrity-constraint class
-        // 23 in SQLState (23000 on MySQL/SQL Server, 23505 on PostgreSQL/H2, 23000 on Oracle).
+        // Some drivers report a unique violation as a bare SQLException, so SQLState has to be
+        // enough on its own. Class 23 is integrity constraint violation: MySQL/SQL Server 23000,
+        // PostgreSQL 23505, DB2 23505, H2 23505 (measured in every H2 compatibility mode).
         String sqlState = e.getSQLState();
         return sqlState != null && sqlState.startsWith("23");
     }

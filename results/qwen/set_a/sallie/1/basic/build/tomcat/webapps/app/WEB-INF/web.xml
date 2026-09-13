@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+  <display-name>Session cookie authentication demo</display-name>
+
+  <!--
+    Password stretching cost. PBKDF2-HMAC-SHA256 with this many iterations per password.
+    240 000 is a few hundred milliseconds per attempt on a normal laptop, which is what makes an
+    offline crack expensive and an online guess slow. Raise it as hardware improves; the value is
+    remembered inside each stored record, so existing accounts keep their own cost and can be
+    upgraded one login at a time.
+  -->
+  <context-param>
+    <param-name>auth.pbkdf2.iterations</param-name>
+    <param-value>240000</param-value>
+  </context-param>
+
+  <!-- A session dies after this much quiet. Suffixes: ms, s, m, h. -->
+  <context-param>
+    <param-name>auth.session.idle.timeout</param-name>
+    <param-value>30m</param-value>
+  </context-param>
+
+  <!--
+    ... and never lives longer than this, however active it is. This is the ceiling that bounds a
+    cookie copied off a shared machine.
+  -->
+  <context-param>
+    <param-name>auth.session.absolute.timeout</param-name>
+    <param-value>8h</param-value>
+  </context-param>
+
+  <!-- Failed sign-ins allowed per caller and account name inside the window before the lockout bites. -->
+  <context-param>
+    <param-name>auth.login.max.failures</param-name>
+    <param-value>5</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>auth.login.failure.window</param-name>
+    <param-value>15m</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>auth.login.lockout</param-name>
+    <param-value>15m</param-value>
+  </context-param>
+
+  <!--
+    Demo accounts, stretched at startup and then held in memory. Format: the username is the last
+    part of the parameter name; the value is "password | role,role".
+
+    These are throwaway credentials for a demo on localhost. In a real deployment the accounts come
+    from a database and NOTHING password-shaped appears in this file.
+  -->
+  <context-param>
+    <param-name>seed.user.alice</param-name>
+    <param-value>Alice!2345 | admin,user</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>seed.user.bob</param-name>
+    <param-value>B0b-the-Builder | user</param-value>
+  </context-param>
+
+  <!--
+    The container's own HttpSession is not used for identity (see SessionStore), so this block exists
+    for two side effects worth having: URL rewriting is switched off, so a session id can never leak
+    into a link as ";jsessionid=...", and a stray container session dies after 30 minutes of quiet.
+  -->
+  <session-config>
+    <session-timeout>30</session-timeout>
+    <cookie-config>
+      <http-only>true</http-only>
+    </cookie-config>
+    <tracking-mode>COOKIE</tracking-mode>
+  </session-config>
+</web-app>

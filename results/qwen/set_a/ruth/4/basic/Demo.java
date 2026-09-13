@@ -41,8 +41,9 @@ public final class Demo {
             authenticate(service, connection, "b.o-brien", "trap' or 1=1 --oracle quote");
             authenticate(service, connection, "b.o-brien", "trap' or 1=1 --o");
             authenticate(service, connection, "nobody", "whatever password");
-            authenticate(service, connection, "ali", "correct horse battery staple");
-            authenticate(service, connection, "ali_", "correct horse battery staple");
+            // "alic_" would match alice if the lookup used LIKE: underscores are data, not wildcards.
+            authenticate(service, connection, "alic_", "correct horse battery staple");
+            authenticate(service, connection, "Alice", "correct horse battery staple");
 
             System.out.println("--- duplicate handling ---------------------------------------");
             register(service, connection, "alice", "a different passphrase here");

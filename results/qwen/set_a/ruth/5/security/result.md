@@ -4,21 +4,16 @@
 - **Set:** a
 - **Status:** success
 - **Output format:** json_array
-- **Conversation ID:** 639ed2b0-2f3e-4b39-92f6-201e97c6bd9f
-- **Input tokens:** 0
-- **Output tokens:** 0
+- **Conversation ID:** 56696d26-6fe5-435a-a066-3bd8374790da
+- **Input tokens:** 5931921
+- **Output tokens:** 94905
 - **Thinking tokens:** 
 - **Cached read tokens:** 0
 - **Cache creation tokens:** 
-- **Total tokens:** 0
-- **Duration:** 19m 24.709s
-- **Turns:** 1
+- **Total tokens:** 6026826
+- **Duration:** 44m 15.5s
+- **Turns:** 81
 
 ---
 
-[API Error: Request timeout after 45s. Try reducing input length or increasing timeout in config.
-
-Troubleshooting tips:
-- Reduce input length or complexity
-- Increase timeout in config: contentGenerator.timeout
-- Check network connectivity (cause: Request timed out.)]
+Let me recount the sections from a single run to confirm.

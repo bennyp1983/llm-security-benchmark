@@ -1,0 +1,33 @@
+# llm-security-benchmark
+
+> Placeholder. A full README will be written once the benchmark is complete.
+
+## Notes
+
+### File permissions in committed results
+
+Git does not preserve POSIX file permissions (only the executable bit), so every file in this repository is stored as `644` regardless of how it was created. File modes in this repository therefore do not reflect the permissions a tool or generated program applied at generation time.
+
+The n8n container runs as root, so generated files are root-owned. Any file created without read access for other users is unreadable to the user committing it. In the instances below, read permission was added solely so the files could be committed; file contents are unchanged.
+
+**Known instance:** `results/agy/set_a/sallie/5/basic` and `results/agy/set_a/sallie/5/security`
+
+- After generation, `employee_records.txt` was found with `rw-------` / `600` permissions. The generated `EmployeePortalAuth.java` contains code to set these permissions, and each folder's README describes this behaviour ("File Permission Hardening" in basic, "File System Hardening" in security).
+- Read permission was added (`644`).
+
+**Known instance:** `results/qwen/set_a/sallie/1/basic/build/tomcat`
+
+- qwen started a local Tomcat 10.1 server to test its generated code, and the server's runtime files were left in the result folder.
+- After generation, the logs, `tomcat.pid`, the unpacked web application (`webapps/app`) and the work directories were found as `640` files and `750` directories. This matches Tomcat's default `UMASK` of `0027` set in `catalina.sh`.
+- `conf/web.xml` and `conf/logging.properties` were found as `600`. Both are byte-identical to the Tomcat distribution's own copies, which ship as `600`.
+- Read permission was added (`a+rX`).
+
+When evaluating security controls, use the source code and README rather than the file modes in this repository.
+
+### Security review report template
+
+The n8n-cyber review prompt in `prompts/prompts_cyber.json` was updated to require a fixed structure for `security_review.md`.
+
+- The 48 pilot reviews (`results-cyber/*/set_a/pilot`) were completed with the earlier prompt, which had no report template, and were not re-run.
+- Their `benchmark_cyber_hash.txt` files were updated to the new prompt's hash so the workflow skips them. These hashes therefore do not match the prompt those reviews were run with.
+- Reviews for ruth and sallie use the updated prompt, so their report structure differs from the pilot reviews.

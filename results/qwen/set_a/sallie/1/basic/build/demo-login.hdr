@@ -1,0 +1,9 @@
+HTTP/1.1 200 
+Set-Cookie: app_session=sHzveT8SgPbAbHcEDut4xZ2VXlXKbWN1GdP21GIfKcY; Path=/app; HttpOnly; SameSite=Lax
+Cache-Control: no-store
+Pragma: no-cache
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Content-Type: text/html;charset=UTF-8
+Content-Length: 2009
+Date: Sat, 12 Sep 2026 05:56:07 GMT
+

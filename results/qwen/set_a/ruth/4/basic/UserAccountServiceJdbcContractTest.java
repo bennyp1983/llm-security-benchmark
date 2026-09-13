@@ -1,4 +1,5 @@
 import java.lang.reflect.InvocationHandler;
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.Map;
 
 import javax.crypto.SecretKeyFactory;
@@ -31,7 +33,7 @@ public final class UserAccountServiceJdbcContractTest {
 
     // High enough that a skipped key derivation is visible in the timing, low enough that the
     // suite still runs in a few seconds.
-    private static final int ITERATIONS = 200_000;
+    private static final int ITERATIONS = 100_000;
     private static final String ALG = "PBKDF2WithHmacSHA1";
 
     private static final char[] GOOD = "contract passphrase".toCharArray();
@@ -49,6 +51,8 @@ public final class UserAccountServiceJdbcContractTest {
         testInjectionPayloadIsBoundNotConcatenated();
         testMultiRowResultIsNotSilentlyAccepted();
         testCorruptRowIsRefusedWithoutCallingKdfWithBadArgs();
+        testWellFormedRowAuthenticatesAgainstTheDouble();
+        testSaltIsFreshEntropyOnEveryRegistration();
         testConnectionTransactionControlIsNeverTouched();
         testDuplicateIsDetectedFromSqlStateWithoutSubclass();
         testUnknownUserStillRunsOneFullDerivation();
@@ -187,11 +191,106 @@ public final class UserAccountServiceJdbcContractTest {
         for (Credential c : corrupt) {
             Script script = new Script();
             script.selectReturns = c;
-            Fake jdbc = new Fake(script);
-            boolean result = service().authenticate(jdbc.connection(), "someone", GOOD);
-            pass("corrupt row refused: " + describe(c));
-            ok("  and it did not authenticate", !result);
+            long ms = refusedWithinMillis(service(), script, 5_000);
+            ok("corrupt row refused without spending the work it claims (" + describe(c) + "): "
+                    + (ms == Long.MAX_VALUE ? "never refused in time" : ms + " ms"),
+                    ms != Long.MAX_VALUE);
         }
+    }
+
+    /**
+     * Authenticates against a scripted row and reports how quickly it was refused, or
+     * {@link Long#MAX_VALUE} if the call accepted the credential or was still grinding when the
+     * budget ran out.
+     *
+     * <p>Refusal *speed* is the property here, not just refusal. A row claiming 500 million
+     * iterations is supposed to be rejected by the bounds check without being derived at all; if
+     * that check is missing, the call still ends up returning {@code false} (the derived key does
+     * not match) but only after many minutes of CPU. Asserting only the boolean would let the
+     * missing guard through and would make the suite unkillably slow instead.
+     */
+    private static long refusedWithinMillis(UserAccountService svc, Script script, long budgetMillis) {
+        Fake jdbc = new Fake(script);
+        final CountDownLatch done = new CountDownLatch(1);
+        final boolean[] accepted = {true};
+        Thread worker = new Thread(() -> {
+            try {
+                accepted[0] = svc.authenticate(jdbc.connection(), "someone", GOOD);
+            } catch (SQLException e) {
+                accepted[0] = true;
+            } finally {
+                done.countDown();
+            }
+        });
+        worker.setDaemon(true);
+        long start = System.nanoTime();
+        worker.start();
+        boolean finished;
+        try {
+            // The latch return value, not Thread.isAlive(): isAlive() can still be true in the
+            // window between countDown() and the worker unwinding, which reads as a timeout.
+            finished = done.await(budgetMillis, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            finished = false;
+        }
+        long elapsed = (System.nanoTime() - start) / 1_000_000L;
+        return finished && !accepted[0] ? elapsed : Long.MAX_VALUE;
+    }
+
+    /**
+     * The positive path against doubles. Without it a build that rejects every credential (or that
+     * compares the wrong thing) looks indistinguishable from a correct one, because every other
+     * check in this file expects a rejection.
+     */
+    private static void testWellFormedRowAuthenticatesAgainstTheDouble() throws Exception {
+        Script script = new Script();
+        byte[] salt = new byte[16];
+        Arrays.fill(salt, (byte) 11);
+        script.selectReturns = new Credential(ALG, ITERATIONS, salt,
+                reference(GOOD, salt, ITERATIONS, ALG, 32));
+        Fake jdbc = new Fake(script);
+        UserAccountService svc = service();
+        ok("a well-formed stored row authenticates the right password",
+                svc.authenticate(jdbc.connection(), "someone", GOOD));
+        ok("the same row rejects a password that differs by one character",
+                !svc.authenticate(jdbc.connection(), "someone", BAD));
+        ok("the same row rejects an empty password",
+                !svc.authenticate(jdbc.connection(), "someone", new char[0]));
+
+        // The stored iteration count must be honoured rather than replaced by the service default.
+        Script cheaper = new Script();
+        byte[] salt2 = new byte[16];
+        Arrays.fill(salt2, (byte) 12);
+        cheaper.selectReturns = new Credential(ALG, ITERATIONS / 2, salt2,
+                reference(GOOD, salt2, ITERATIONS / 2, ALG, 32));
+        ok("a row with an older, cheaper work factor still authenticates",
+                service().authenticate(new Fake(cheaper).connection(), "someone", GOOD));
+    }
+
+    /**
+     * The salt must come from the RNG on every registration. A salt derived from the username (or
+     * from the password, or a constant) keeps every other check green: the row still verifies, the
+     * stored key still matches PBKDF2, and two *different* usernames still get different salts.
+     */
+    private static void testSaltIsFreshEntropyOnEveryRegistration() throws Exception {
+        UserAccountService svc = service();
+        Script first = new Script();
+        svc.registerUser(new Fake(first).connection(), "same-name", GOOD);
+        Script second = new Script();
+        svc.registerUser(new Fake(second).connection(), "same-name", GOOD);
+
+        byte[] salt1 = (byte[]) first.lastInsertBindings.get(4);
+        byte[] salt2 = (byte[]) second.lastInsertBindings.get(4);
+        ok("two registrations of the same username draw different salts",
+                !Arrays.equals(salt1, salt2));
+        ok("the salt is not derived from the username",
+                !new String(salt1, StandardCharsets.ISO_8859_1).contains("same-name")
+                        && !new String(salt2, StandardCharsets.ISO_8859_1).contains("same-name"));
+        ok("the salt is not derived from the password",
+                !new String(salt1, StandardCharsets.ISO_8859_1).contains("contract passphrase"));
+        ok("the salt has real spread (at least 8 distinct byte values)",
+                distinct(salt1) >= 8 && distinct(salt2) >= 8);
     }
 
     private static void testConnectionTransactionControlIsNeverTouched() throws Exception {
@@ -601,6 +700,14 @@ public final class UserAccountServiceJdbcContractTest {
             }
         }
         return n;
+    }
+
+    private static int distinct(byte[] b) {
+        java.util.TreeSet<Byte> seen = new java.util.TreeSet<>();
+        for (byte x : b) {
+            seen.add(x);
+        }
+        return seen.size();
     }
 
     private static boolean allZero(byte[] b) {

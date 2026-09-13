@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T10:44:22.745Z",
+  "updatedAt": "2026-09-13T03:05:59.455Z",
   "createdAt": "2026-08-23T22:40:51.644Z",
   "id": "bwqKVV0abQefK272",
   "name": "My workflow",
@@ -193,7 +193,7 @@
         976
       ],
       "parameters": {
-        "command": "=rm -rf \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\nmkdir -p \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\ncat > \"{{ $('Loop Models').item.json.cli_settings.container_path }}prompt.txt\" <<'N8N_PROMPT_EOF' &&\n{{ $('Loop Models').item.json.prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\n{{ $('Loop Models').item.json.cli_settings.headless_execute }} {{ $('Loop Models').item.json.cli_settings.prompt_prefix }} \"$(cat prompt.txt)\" {{ $('Loop Models').item.json.cli_settings.prompt_suffix }} < /dev/null > return.txt"
+        "command": "=rm -rf \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\nmkdir -p \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\ncat > \"{{ $('Loop Models').item.json.cli_settings.container_path }}prompt.txt\" <<'N8N_PROMPT_EOF' &&\n{{ $('Loop Models').item.json.prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\n{{ $('Loop Models').item.json.cli_settings.headless_execute }} {{ $('Loop Models').item.json.cli_settings.prompt_prefix }} \"$(cat prompt.txt)\" {{ $('Loop Models').item.json.cli_settings.prompt_suffix }} < /dev/null > \"/tmp/cli-{{ $('Loop Models').item.json.hash }}-$$.out\"; rc=$?; mv -f \"/tmp/cli-{{ $('Loop Models').item.json.hash }}-$$.out\" return.txt; exit $rc"
       }
     },
     {
@@ -652,9 +652,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "f422f3b2-bb92-4b99-9980-c7cff8a36a91",
+  "versionId": "3023b148-df1e-4e32-b22f-02a13c5bf376",
   "activeVersionId": null,
-  "versionCounter": 1209,
+  "versionCounter": 1210,
   "triggerCount": 0,
   "sourceWorkflowId": null,
   "tags": [],
