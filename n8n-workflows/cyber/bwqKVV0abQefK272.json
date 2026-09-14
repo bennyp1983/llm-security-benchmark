@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-13T05:53:12.062Z",
+  "updatedAt": "2026-09-13T22:32:26.998Z",
   "createdAt": "2026-08-23T22:40:51.644Z",
   "id": "bwqKVV0abQefK272",
   "name": "My workflow",
@@ -178,7 +178,7 @@
         976
       ],
       "parameters": {
-        "command": "=rm -rf \"{{ $json.cli_settings.cyber_container_path }}\" &&\nmkdir -p \"{{ $json.cli_settings.cyber_container_path }}\" &&\ncp -r \"{{ $json.cli_settings.container_path }}.\" \"{{ $json.cli_settings.cyber_container_path }}\" &&\ncat > \"{{ $json.cli_settings.cyber_container_path }}cyber_prompt.txt\" <<'N8N_PROMPT_EOF' &&\nUse the skill at {{ $json.cli_settings.skill_path }} to review the code in this folder, following its workflow exactly, and complete this task:\n\n{{ $json.cyber_prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $json.cli_settings.cyber_container_path }}\" &&\n{{ $json.cli_settings.headless_execute }} {{ $json.cli_settings.prompt_prefix }} \"$(cat cyber_prompt.txt)\" {{ $json.cli_settings.prompt_suffix }} < /dev/null > \"/tmp/cyber-{{ $json.benchmark_cyber_hash }}-$$.out\"; rc=$?; mv -f \"/tmp/cyber-{{ $json.benchmark_cyber_hash }}-$$.out\" cyber_return.txt; exit $rc"
+        "command": "=rm -rf \"{{ $('Loop Models').item.json.cli_settings.cyber_container_path }}\" &&\nmkdir -p \"{{ $('Loop Models').item.json.cli_settings.cyber_container_path }}\" &&\ncp -r \"{{ $('Loop Models').item.json.cli_settings.container_path }}.\" \"{{ $('Loop Models').item.json.cli_settings.cyber_container_path }}\" &&\ncat > \"{{ $('Loop Models').item.json.cli_settings.cyber_container_path }}cyber_prompt.txt\" <<'N8N_PROMPT_EOF' &&\nUse the skill at {{ $('Loop Models').item.json.cli_settings.skill_path }} to review the code in this folder, following its workflow exactly, and complete this task:\n\n{{ $('Loop Models').item.json.cyber_prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $('Loop Models').item.json.cli_settings.cyber_container_path }}\" &&\n{{ $('Loop Models').item.json.cli_settings.headless_execute }} {{ $('Loop Models').item.json.cli_settings.prompt_prefix }} \"$(cat cyber_prompt.txt)\" {{ $('Loop Models').item.json.cli_settings.prompt_suffix }} < /dev/null > \"/tmp/cyber-{{ $('Loop Models').item.json.benchmark_cyber_hash }}-$$.out\"; rc=$?; mv -f \"/tmp/cyber-{{ $('Loop Models').item.json.benchmark_cyber_hash }}-$$.out\" cyber_return.txt; exit $rc"
       }
     },
     {
@@ -216,7 +216,7 @@
           "conditions": [
             {
               "id": "90f5a605-7f01-4e40-acf0-54d17a66d8bf",
-              "leftValue": "={{ $json.benchmark_cyber_hash }}",
+              "leftValue": "={{ $('Loop Models').item.json.benchmark_cyber_hash }}",
               "rightValue": "={{ $json.existing_benchmark_cyber_hash }}",
               "operator": {
                 "type": "string",
@@ -734,9 +734,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "4ee7bb3a-7b05-478e-aac0-cdd5fffc1ebe",
+  "versionId": "3d3ed6d0-7984-4c0b-a3fc-3529c976f18e",
   "activeVersionId": null,
-  "versionCounter": 1163,
+  "versionCounter": 1166,
   "triggerCount": 0,
   "sourceWorkflowId": null,
   "tags": [],

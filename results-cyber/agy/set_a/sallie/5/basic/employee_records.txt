@@ -1,0 +1,6 @@
+# Internal Employee Portal - Credential Records Store
+# DO NOT EDIT MANUALLY - Schema: username|salt_b64|hash_b64|employeeId|fullName|department|role|isLocked|failedAttempts|lastLogin
+jdoe|vZT/FrhN4JjIbVKuOkKtSw==|2MxN8AqMc43uSaQ9sgmV+S1UGSmvGUXdSPs+TYELa9s=|EMP-1001|John Doe|Engineering|Senior Software Engineer|false|0|Never
+asmith|ZY7CxeQ3lo4nBiQB1W6zsg==|+CPu6pQLOhVAY56+AJ0IbpwpoCk6E8m2Hxuak+Xe8a0=|EMP-1002|Alice Smith|Human Resources|HR Operations Lead|false|0|Never
+admin|04/JXO7iDkU4o2YWB3lJhw==|EAjGJW4vsOB6ynSEM3Tav4B9lZ39vgRHKJe4NtGPI1w=|EMP-0001|Marcus Vance|Information Security|IT Portal Administrator|false|0|Never
+bclark|BAp0fCicNbTzMvi+OTq0yA==|olOs/Y4PJh1E9AF8DTSWQ7h47bPU+vcq0gn2Dq+6yR4=|EMP-1003|Bob Clark|Finance|Senior Financial Analyst|false|0|Never
