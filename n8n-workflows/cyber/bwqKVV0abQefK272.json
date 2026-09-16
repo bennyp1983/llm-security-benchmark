@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-13T22:32:26.998Z",
+  "updatedAt": "2026-09-15T06:55:28.663Z",
   "createdAt": "2026-08-23T22:40:51.644Z",
   "id": "bwqKVV0abQefK272",
   "name": "My workflow",
@@ -391,8 +391,8 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        1776,
-        1024
+        1920,
+        1040
       ],
       "parameters": {
         "command": "=printf '%s' \"{{ $('Parse Cyber CLI Output').item.json.benchmark_cyber_hash }}\" > \"{{ $('Parse Cyber CLI Output').item.json.cli_settings.cyber_container_path }}benchmark_cyber_hash.txt\""
@@ -410,6 +410,22 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineAll",
+        "options": {}
+      }
+    },
+    {
+      "id": "7b2a2523-718d-437a-ae94-65ca831fb7dc",
+      "name": "Check Security Review",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput",
+      "position": [
+        1728,
+        1008
+      ],
+      "parameters": {
+        "fileSelector": "={{ $('Parse Cyber CLI Output').item.json.cli_settings.cyber_container_path }}security_review.md",
         "options": {}
       }
     }
@@ -688,7 +704,7 @@
       "main": [
         [
           {
-            "node": "Write Cyber Hash",
+            "node": "Check Security Review",
             "type": "main",
             "index": 0
           }
@@ -723,6 +739,24 @@
           }
         ]
       ]
+    },
+    "Check Security Review": {
+      "main": [
+        [
+          {
+            "node": "Write Cyber Hash",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -734,9 +768,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "3d3ed6d0-7984-4c0b-a3fc-3529c976f18e",
+  "versionId": "083679ae-c317-4f24-8cd5-afcb3300fdd7",
   "activeVersionId": null,
-  "versionCounter": 1166,
+  "versionCounter": 1172,
   "triggerCount": 0,
   "sourceWorkflowId": null,
   "tags": [],
