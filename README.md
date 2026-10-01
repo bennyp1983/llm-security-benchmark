@@ -22,6 +22,17 @@ The n8n container runs as root, so generated files are root-owned. Any file crea
 - `conf/web.xml` and `conf/logging.properties` were found as `600`. Both are byte-identical to the Tomcat distribution's own copies, which ship as `600`.
 - Read permission was added (`a+rX`).
 
+**Known instance:** `results/agy/set_a/post_research/4/security`
+
+- After generation, `data/`, `data/secure_store/`, `target/test-data-config/` and `target/test-data-service/` (including their per-run UUID subdirectories) were found as `700` directories, and `data/secure_store/user_auth_db.mv.db` as a `600` file.
+- An empty `data;INJECTION/` directory (`700`) was also left behind. Git does not track empty directories, so it is not in the repository.
+- Read permission was added (`a+rX`).
+
+**Known instance:** `results/codex/set_a/post_research/5/security`
+
+- After generation, `build.sh` was found as `700`, the `build/` directory tree as `700` directories, and the compiled `.class` files under `build/classes` and `build/test-classes` as `600`.
+- Read permission was added (`a+rX`).
+
 When evaluating security controls, use the source code and README rather than the file modes in this repository.
 
 ### Security review report template

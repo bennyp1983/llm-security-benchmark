@@ -1,0 +1,15 @@
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/AuthEvent.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/AuthEventLog.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/AuthenticationResult.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/AuthenticationService.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/CredentialRecord.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/CredentialStore.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/FileAuthEventLog.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/InMemoryCredentialStore.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/InputPolicy.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/LogSanitizer.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/LoginThrottle.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/PasswordHasher.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/Session.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/SessionCookie.java
+/data/results/claude/set_a/post_research/6/security/src/main/java/com/example/auth/SessionRegistry.java

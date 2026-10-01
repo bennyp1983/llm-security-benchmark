@@ -1,0 +1,16 @@
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/AdminCli.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/App.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/AuthConfig.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/AuthResult.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/AuthService.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/ConsoleIo.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/CredentialRepository.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/Database.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/Hashing.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/InputValidator.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/LogMasker.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/LoggingSetup.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/LoginThrottle.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/PasswordHasher.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/SessionCookie.java
+/data/results/claude/set_a/post_research/3/security/src/main/java/com/example/auth/SessionService.java
