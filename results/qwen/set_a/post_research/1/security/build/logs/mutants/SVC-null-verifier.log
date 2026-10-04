@@ -1,0 +1,2 @@
+killed(assert) FAILED x1
+FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / a missing verifier fails closed (expected <REFUSED_UNAUTHENTICATED> got <ISSUED>)

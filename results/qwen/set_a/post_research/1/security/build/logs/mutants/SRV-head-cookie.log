@@ -1,0 +1,4 @@
+killed(assert) FAILED x3
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / HEAD writes no body
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / HEAD issues no cookie
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / section servlet ran to completion (aborted with java.lang.NumberFormatException: Cannot parse null string)

@@ -1,0 +1,4 @@
+killed(assert) FAILED x3
+FAILED  COOKIE POLICY validation and invariants / rejects __Host- name combined with a subpath (no exception thrown)
+FAILED  TIMING: comparable work on every refusal, measured in microseconds / all outcomes stay within 2x of each other
+FAILED  TIMING: comparable work on every refusal, measured in microseconds / the availability refusal is padded too (it short-circuits before the others)

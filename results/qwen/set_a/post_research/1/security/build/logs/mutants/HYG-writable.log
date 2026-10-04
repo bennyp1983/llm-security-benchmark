@@ -1,0 +1,7 @@
+killed(assert) FAILED x6
+FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / a world-writable classpath entry is reported
+FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / the report names the location, not a secret
+FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / a writable entry whose name carries control characters is still reported
+FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / and the refusal reason cannot forge a second log line
+FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / a verifier discovered from a world-writable location is refused
+FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / and it is refused before any of its code has run

@@ -1,0 +1,169 @@
+PASS  the log file did not exist before the service started
+PASS  a successful login is recorded
+PASS  the log file is created 0600
+PASS  the log omits every secret and identifier
+PASS  the log omits the stored salt
+PASS  the log omits the stored digest
+PASS  the log omits the stored salt
+PASS  the log omits the stored digest
+PASS  the log omits the stored salt
+PASS  the log omits the stored digest
+PASS  the source address is recorded
+PASS  success is distinguished from failure
+PASS  the log is append-only across attempts
+PASS  selfCheck reports no problem while the log is healthy
+PASS  at least one line was captured
+PASS  line matches the field grammar: seq=1 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line matches the field grammar: seq=2 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line matches the field grammar: seq=3 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  sequence numbers increase
+PASS  sequence numbers increase
+PASS  sequence numbers increase
+PASS  the first line of this service restarts the counter
+PASS  the canonical form of the v6 source is what got logged
+PASS  a hostile name never authenticates
+PASS  a hostile name never authenticates
+PASS  a hostile name never authenticates
+PASS  a hostile name never authenticates
+PASS  one event per hostile attempt
+PASS  no injected line break or forged field survives
+PASS  the name never appears in the line
+PASS  no injected line break or forged field survives
+PASS  the name never appears in the line
+PASS  no injected line break or forged field survives
+PASS  the name never appears in the line
+PASS  no injected line break or forged field survives
+PASS  the name never appears in the line
+PASS  the hostile attempt is still attributed
+PASS  it is recorded as a failure
+PASS  the hostile attempt is still attributed
+PASS  it is recorded as a failure
+PASS  the hostile attempt is still attributed
+PASS  it is recorded as a failure
+PASS  the hostile attempt is still attributed
+PASS  it is recorded as a failure
+PASS  classpath entry the child inherits is absolute: /data/results/qwen/set_a/post_research/6/security/out/main
+PASS  classpath entry the child inherits is absolute: /data/results/qwen/set_a/post_research/6/security/out/test
+PASS  the child JVM exited cleanly
+PASS  the child process reported a persisted line
+PASS  the parent sees the child's append
+PASS  the child's line survived alongside the parent's
+PASS  the child did not overwrite the parent's first line
+PASS  sequence is per-process, not a cross-process key
+PASS  the durable payload of both writers is distinct
+PASS  login works while the log is writable
+PASS  a login is refused when its event cannot be persisted
+PASS  the refusal issues no session
+PASS  a log file readable by other users is never adopted
+PASS  the operator can see the hole in the trail
+PASS  selfCheck names unsaved events
+PASS  authentication recovers once the log is safe again
+PASS  recovered events are on disk
+PASS  an attempt whose log path became a symlink is refused
+PASS  nothing was written through the symlink
+PASS  a symlink at the log name stops the service from starting
+PASS  nothing accumulated through the symlink either
+PASS  the handle is open against the original inode
+PASS  an attempt whose log inode was replaced underneath us is refused
+PASS  the refusal issues no session
+PASS  the replacement file received something to account for the hole
+PASS  only the alert landed, never the attempt's own record: seq=2 ts=2023-11-14T22:13:20.000000Z typ
+PASS  no login outcome was recorded against the new inode
+PASS  the alert still satisfies the line grammar
+PASS  the operator can see the lost event
+PASS  selfCheck names the unsaved event
+PASS  authentication resumes against the replacement file
+PASS  the resumed event landed in the file that now has the name
+PASS  an attempt is refused once the open log becomes world-readable
+PASS  the refusal issues no session
+PASS  nothing was appended to the readable log
+PASS  authentication resumes once the mode is restricted again
+PASS  the in-memory ring is capped at maxEvents
+PASS  the file keeps every event
+PASS  the retained window holds the newest events
+PASS  persisted count agrees with the file
+PASS  an unsafe event is refused instead of written
+PASS  the reason is that the line was rejected
+PASS  the refused event left no bytes behind
+PASS  the refusal is counted as a hole in the trail
+PASS  the replacement alert is written
+PASS  exactly one line followed the refusal
+PASS  the alert is typed as a security alert
+PASS  the alert keeps the rejected event's account attribution
+PASS  it names the reason
+PASS  the hostile source value was not reintroduced by the alert
+PASS  the alert still satisfies the line grammar
+PASS  a safe event still writes after the refusal
+PASS  the fixture really ends mid-record
+PASS  the partial trailing record was discarded
+PASS  the repair is itself written to the trail
+PASS  the file is the surviving record plus the alert, with the fragment truncated away
+PASS  the repair is typed as a security alert
+PASS  the alert names the discarded record
+PASS  the alert says what was lost
+PASS  the alert satisfies the line grammar
+PASS  the first record survived the repair unchanged
+PASS  a later event lands after the repair
+PASS  every line of the repaired log parses: seq=1 ts=2023-11-14T22:13:20.001000Z type=logi
+PASS  no line is a mixture of the fragment and a real record
+PASS  every line of the repaired log parses: seq=1 ts=2026-10-04T14:22:45.488000Z type=secu
+PASS  no line is a mixture of the fragment and a real record
+PASS  every line of the repaired log parses: seq=2 ts=2023-11-14T22:13:20.002000Z type=logi
+PASS  no line is a mixture of the fragment and a real record
+PASS  the discarded record is reported once, not on every later write
+PASS  bytes discarded from someone else's write are not counted as events this process lost
+PASS  an attempt is refused while the log is gone
+PASS  authentication recovers against the recreated log
+PASS  the recreated log holds lines
+PASS  every line of the recreated log parses: seq=2 ts=2026-10-04T14:22:46.979000Z type=secu
+PASS  the fragment was truncated away instead of absorbing the next record
+PASS  every line of the recreated log parses: seq=2 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  the fragment was truncated away instead of absorbing the next record
+PASS  the discarded bytes are reported once, as their own record
+PASS  the events lost during the outage are still on the record
+PASS  a further sign-in works after the repair
+PASS  the repair does not grow the hole, only the trail
+PASS  and still reports the same outage and nothing new
+PASS  the logger refuses a target with others read
+PASS  and names the mode it required
+PASS  nothing was written into the others read file
+PASS  the logger refuses a target with others write
+PASS  and names the mode it required
+PASS  nothing was written into the others write file
+PASS  the logger refuses a target with group read
+PASS  and names the mode it required
+PASS  nothing was written into the group read file
+PASS  the logger opens a file that is exactly rw-------
+PASS  the log accepted events before the bound
+PASS  the bound engaged before the attempts ran out, after 5 records
+PASS  the refusal is a persistence failure
+PASS  the reason is the size limit, not the free-space floor
+PASS  the refused event is available to the alert path
+PASS  the file stops within one record of the ceiling: 1220 bytes
+PASS  a full log keeps refusing rather than growing
+PASS  a full log keeps refusing rather than growing
+PASS  a full log keeps refusing rather than growing
+PASS  a refused log does not grow by one byte
+PASS  every refusal is counted as a hole in the trail
+PASS  the ceiling does not close the handle, so rotation can recover
+PASS  the attempt that trips the lock is denied with no hint
+PASS  a wrong password never reveals the lock
+PASS  five failures and the lock they caused are all recorded
+PASS  line satisfies the grammar: seq=1 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line satisfies the grammar: seq=2 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line satisfies the grammar: seq=3 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line satisfies the grammar: seq=4 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line satisfies the grammar: seq=5 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  line satisfies the grammar: seq=6 ts=2023-11-14T22:13:20.000000Z type=logi
+PASS  exactly one line reports the lock engaging
+PASS  the failure that caused the lock is a credential mismatch
+PASS  that failure says the account exists
+PASS  the lock line agrees that the account exists
+PASS  the lock line is attributed to the same account
+PASS  the lock line reports a block
+PASS  the lock line carries the retry hint the denial withheld
+PASS  a locked account cannot log in even with the right password
+PASS  the locked response carries the retry hint
+PASS  the later lock refusal still names the account
+PASS  a lock check that looked nothing up claims no knowledge of it
+SUMMARY suite4-audit-durability passed=168 failed=0

@@ -1,0 +1,3 @@
+killed(assert) FAILED x2
+FAILED  RESPONSE BODIES: constant refusal, no echoed credential, escaped output / the escaped output respects the bound whatever the characters are
+FAILED  RESPONSE BODIES: constant refusal, no echoed credential, escaped output / an entity at the edge is whole or absent, never cut in half

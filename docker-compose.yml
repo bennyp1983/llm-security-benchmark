@@ -16,6 +16,7 @@ services:
       - N8N_RESTRICT_FILE_ACCESS_TO=/data
       - "NODES_EXCLUDE=[]"
       - QWEN_STREAM_IDLE_TIMEOUT_MS=900000
+      - QWEN_CODE_MAX_BACKGROUND_AGENTS=2
     volumes:
       - n8n-data:/root/.n8n
       - claude-auth:/root/.claude
@@ -59,6 +60,7 @@ services:
       - N8N_RESTRICT_FILE_ACCESS_TO=/data
       - "NODES_EXCLUDE=[]"
       - QWEN_STREAM_IDLE_TIMEOUT_MS=900000
+      - QWEN_CODE_MAX_BACKGROUND_AGENTS=2
     volumes:
       - n8n-cyber-data:/root/.n8n
       - claude-cyber-auth:/root/.claude

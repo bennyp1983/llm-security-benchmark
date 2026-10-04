@@ -1,0 +1,98 @@
+NOTE  target=http://127.0.0.1:8391/handoff mode=default
+  PASS  a sign-in request itself issues no cookie (no assertion exists yet)
+  PASS  the asserted handoff is granted
+  PASS  exactly one Set-Cookie header
+NOTE  Set-Cookie: __Host-PORTAL_SESSION=6hsZo7W3x1qkAHH5YSqUu6grLyjXOBJQ36_MjYEsm68; Path=/; Secure; HttpOnly; SameSite=Strict
+  PASS  cookie name carries the __Host- prefix and a base64url value
+  PASS  cookie value is 43 characters of base64url (256 bits)
+  PASS  the issued value is not derived from the ticket the client sent
+  PASS  SameSite is rendered into Set-Cookie by the container
+  PASS  SameSite is Strict
+  PASS  HttpOnly is rendered
+  PASS  Secure is rendered
+  PASS  Path=/ is rendered
+  PASS  no Domain attribute, so the cookie is host-only
+  PASS  no Max-Age attribute, so it is a browser-session cookie
+  PASS  no Expires attribute, so it is a browser-session cookie
+  PASS  no 1970 expiry sneaked in by the container
+  PASS  Cache-Control is no-store
+  PASS  X-Content-Type-Options is nosniff
+  PASS  the body names the cookie, never the credential
+  PASS  the credential appears in Set-Cookie and nowhere else
+  PASS  the container added no jsessionid anywhere
+  PASS  no Set-Cookie text appears inside the body
+  PASS  the same ticket yields the same session value (a real session, not a new one per request)
+  PASS  a different ticket yields a different session value
+  PASS  a request with no assertion is refused with 403
+  PASS  a refusal sets no cookie
+  PASS  the refusal body is generic
+  PASS  the refusal body names no account and no reason
+  PASS  a client-offered session cookie does not produce a handoff
+  PASS  the offered cookie is not echoed back
+  PASS  a client-offered cookie never becomes a Set-Cookie
+  PASS  every refusal body is byte-identical
+  PASS  a refusal body is never the granted body
+  PASS  a refusal never leaks the credential that was granted to someone else
+  PASS  a well-formed identifier the store does not know is refused
+  PASS  the unknown identifier never becomes a cookie
+  PASS  the unknown identifier is not echoed anywhere
+  PASS  a malformed assertion is refused
+  PASS  a malformed assertion issues no cookie
+  PASS  an empty assertion is refused
+  PASS  an over-long assertion is refused
+  PASS  an over-long assertion issues no cookie
+  PASS  the refused-assertion bodies are identical to the no-assertion body
+  PASS  POST is refused with 405
+  PASS  POST advertises only GET and HEAD
+  PASS  POST never issues a cookie
+  PASS  PUT is refused with 405
+  PASS  PUT advertises only GET and HEAD
+  PASS  PUT never issues a cookie
+  PASS  DELETE is refused with 405
+  PASS  DELETE advertises only GET and HEAD
+  PASS  DELETE never issues a cookie
+  PASS  OPTIONS is refused with 405
+  PASS  OPTIONS advertises only GET and HEAD
+  PASS  OPTIONS never issues a cookie
+  PASS  PATCH is refused (405 or 501)
+  PASS  PATCH never issues a cookie
+  PASS  TRACE is refused outright
+  PASS  TRACE does not echo the request line
+  PASS  a hostile login header cannot inject a second cookie (leak\r\nSet-Cookie: evil=1)
+  PASS  a hostile login header never leaks its payload (leak\r\nSet-Cookie: evil=1)
+  PASS  a hostile login header cannot inject a second cookie (leak\nSet-Cookie: evil=1)
+  PASS  a hostile login header never leaks its payload (leak\nSet-Cookie: evil=1)
+  PASS  a hostile login header cannot inject a second cookie (len=27)
+  PASS  a hostile login header never leaks its payload (len=27)
+  PASS  a hostile login header cannot inject a second cookie (x; Domain=evil.example)
+  PASS  a hostile login header never leaks its payload (x; Domain=evil.example)
+  PASS  a hostile login header cannot inject a second cookie (x" ; path=/etc)
+  PASS  a hostile login header never leaks its payload (x" ; path=/etc)
+  PASS  a hostile login header cannot inject a second cookie (len=30)
+  PASS  a hostile login header never leaks its payload (len=30)
+  PASS  a hostile login header cannot inject a second cookie (\x01\x02)
+  PASS  a hostile login header never leaks its payload (\x01\x02)
+  PASS  a hostile login header cannot inject a second cookie (len=300)
+  PASS  a hostile login header never leaks its payload (len=300)
+  PASS  a hostile login header cannot inject a second cookie (len=25)
+  PASS  a hostile login header never leaks its payload (len=25)
+  PASS  a hostile login header cannot inject a second cookie (../WEB-INF/web.xml)
+  PASS  a hostile login header never leaks its payload (../WEB-INF/web.xml)
+  PASS  a granted handoff after an injection attempt emits exactly one cookie
+  PASS  the emitted cookie is the server-generated one
+  PASS  no injected cookie reached the wire
+  PASS  an assertion containing CRLF is refused outright
+  PASS  an assertion containing CRLF never issues a cookie
+  PASS  at least one session is live before revocation
+  PASS  the scaffolding reports a session expired
+  PASS  the identical request that produced a cookie now produces a refusal
+  PASS  a revoked session produces no cookie
+  PASS  the revoked-session refusal body matches every other refusal body
+  PASS  HEAD with a valid assertion answers 200
+  PASS  HEAD issues no cookie
+  PASS  HEAD carries no body
+  PASS  HEAD declares a content length
+  PASS  an unmapped path is a 404
+  PASS  the error page discloses no stack trace or class name
+  PASS  a path traversal attempt does not return the deployment descriptor
+SUMMARY checks=95 failures=0

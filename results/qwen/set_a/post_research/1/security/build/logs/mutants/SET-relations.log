@@ -1,0 +1,2 @@
+killed(assert) FAILED x1
+FAILED  SETTINGS from the environment: validated, ranged, no permissive default / rejects a per-source ceiling above the global one (no exception thrown)

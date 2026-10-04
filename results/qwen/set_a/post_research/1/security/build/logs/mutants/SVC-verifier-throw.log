@@ -1,0 +1,5 @@
+killed(assert) FAILED x4
+FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / a verifier that throws is treated as 'no' (expected <REFUSED_UNAUTHENTICATED> got <ISSUED>)
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / a throwing store -> 403 (fail closed) (expected <403> got <200>)
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / refusal body is byte-identical for 'store throws' but is different
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / every refusal path renders exactly one distinct body (expected <1> got <2>)

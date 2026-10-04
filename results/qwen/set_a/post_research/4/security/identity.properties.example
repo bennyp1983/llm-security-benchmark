@@ -1,0 +1,64 @@
+# Runtime configuration for the identity service. NO SECRET BELONGS IN THIS FILE.
+#
+# The database passphrase is read only from the IDENTITY_DB_PASSWORD environment
+# variable, and Config.load refuses to start without it. A key in this file whose
+# name contains "password" or "secret" is itself a startup failure, so a copy-paste
+# of a passphrase here cannot go unnoticed.
+#
+# Every key below is REQUIRED. There are no defaults: a missing or out-of-range
+# value stops the program rather than silently weakening it.
+
+# Where the database and audit log live. Absolute, no ';' '=' NUL or '..'.
+# Each existing component is refused if it is a symlink or world-writable.
+# The environment variable IDENTITY_DATA_DIR overrides this, for deployments
+# that mount the data directory at a path only known at run time.
+db.dataDir=/var/lib/identity-portal
+
+# Database file name. Must match [a-z0-9][a-z0-9_-]{0,63}. The JDBC URL is built
+# from db.dataDir + db.name in code and is never read as a URL, which is what keeps
+# H2's INIT= property (arbitrary SQL, RUNSCRIPT file access) unreachable from here.
+db.name=identity
+
+# PBKDF2-HMAC-SHA256 iteration count for NEW credentials.
+# 600000 is the OWASP 2025 minimum for this primitive. Measured on the build
+# machine at about 850 ms per derivation; see README "Measured costs".
+security.pbkdf2Iterations=600000
+
+# Lowest cost an EXISTING stored credential may have and still be accepted. A row
+# below this is treated as corrupt rather than cheap, so a tampered row cannot
+# downgrade the KDF to near-zero work. Floor: 100000.
+security.pbkdf2MinIterations=300000
+
+# Hard ceiling on stored accounts. Enforced inside the registration transaction,
+# behind a row lock, so it cannot be raced by concurrent registrations.
+limits.maxAccounts=100000
+
+# Session lifetime. Enforced server-side on every use and bounded at 86400.
+# Sessions do not survive a process restart, by design.
+limits.sessionTtlSeconds=900
+
+# Per-account cap on live sessions; the oldest are pruned by one atomic DELETE.
+limits.maxSessionsPerAccount=5
+
+# Sign-in attempt window, and the counts within it.
+# The per-source limit is per asserted source; the per-account limit is global
+# across sources, which is why an attacker cannot use either to lock an
+# legitimate user out of their own account.
+limits.authWindowSeconds=900
+limits.authSourceMaxAttempts=20
+limits.authAccountMaxAttempts=8
+# Penalty grows 1s, 2s, 4s ... within the window, capped here and by the window.
+limits.authPenaltyCeilingSeconds=300
+
+# Registration budget within the window: per source, and one shared global bucket.
+limits.registerWindowSeconds=3600
+limits.registerSourceMax=3
+limits.registerGlobalMax=200
+
+# Audit log size cap in bytes. Past it, appends fail and the operation fails closed
+# rather than proceeding unaudited. Ceiling: 67108864.
+audit.maxBytes=8388608
+
+# Not negotiable: must be "true". Refuses to run with a group- or world-readable
+# audit log, so editing this to "false" does not get you one.
+audit.requirePrivateFile=true

@@ -1,0 +1,4 @@
+killed(assert) FAILED x3
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / throttle cache wording matches the grant's (expected <no-store, max-age=0> got <public, max-age=60>)
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / throttle pragma matches the grant's (expected <no-cache> got <cache>)
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / HEAD grant is uncacheable like the GET (expected <no-store, max-age=0> got <public, max-age=60>)

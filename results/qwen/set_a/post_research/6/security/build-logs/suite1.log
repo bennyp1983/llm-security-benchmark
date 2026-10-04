@@ -1,0 +1,381 @@
+PASS  accepts address 203.0.113.7
+PASS  accepts address 8.8.8.8
+PASS  accepts address 0.0.0.0
+PASS  accepts address 255.255.255.255
+PASS  canonicalises ::1
+PASS  canonicalises 0:0:0:0:0:0:0:1
+PASS  canonicalises 2001:db8::1
+PASS  canonicalises 2001:DB8::1
+PASS  canonicalises fe80::1
+PASS  canonicalises ::FFFF:127.0.0.1
+PASS  canonicalises ::ffff:203.0.113.7
+PASS  canonicalises ::1
+PASS  canonicalises 64:ff9b::192.0.2.33
+PASS  every v6 spelling of the loopback host shares one bucket
+PASS  a canonical address is itself re-acceptable
+PASS  rejects address <null>
+PASS  rejects address <>
+PASS  rejects address <\u0020>
+PASS  rejects address <\u0020\u0020>
+PASS  rejects address <\u0009>
+PASS  rejects address <\u000a>
+PASS  rejects address <localhost>
+PASS  rejects address <LOCALHOST>
+PASS  rejects address <example.com>
+PASS  rejects address <203.0.113.7\u0020>
+PASS  rejects address <\u0020203.0.113.7>
+PASS  rejects address <203.0.113.07>
+PASS  rejects address <203.0.113.256>
+PASS  rejects address <203.0.113>
+PASS  rejects address <203.0.113.7.1>
+PASS  rejects address <3232235777>
+PASS  rejects address <0x7f.1>
+PASS  rejects address <127.1>
+PASS  rejects address <203.0.113.7:8443>
+PASS  rejects address <[::1]>
+PASS  rejects address <http://203.0.113.7>
+PASS  rejects address <fe80::1%eth0>
+PASS  rejects address <fe80::1%25>
+PASS  rejects address <::1/>
+PASS  rejects address <203.0.113.7/24>
+PASS  rejects address <user@203.0.113.7>
+PASS  rejects address <::1#>
+PASS  rejects address <2001:db8::1;>
+PASS  rejects address <203.0.113.7\u000aseq=1\u0020...>
+PASS  rejects address <0377.0.0.1>
+PASS  rejects address <1.2.3.4\u0009>
+PASS  rejects address <2030.113.7.1>
+PASS  rejects address <:::1>
+PASS  rejects address <1:2:3:4:5:6:7:8:9>
+PASS  rejects address <::ffff:203.0.113.0...>
+PASS  rejects address <::ffff:203.0.113.2...>
+PASS  rejects address <::ffff:1.2.3.4.5>
+PASS  rejects address <::ffff:>
+PASS  longest accepted address is bounded
+PASS  accepts username <abc>
+PASS  accepts username <alice>
+PASS  accepts username <Alice>
+PASS  accepts username <alice.wu>
+PASS  accepts username <_private>
+PASS  accepts username <a-user>
+PASS  accepts username <user@example.com>
+PASS  accepts username <u1>
+PASS  accepts username <aaaaaaaaaaaaaaaaaa...>
+PASS  accepts username <\u00dcn\u00efcode-user>
+PASS  accepts username <\u7528\u6237\u540d>
+PASS  accepts username <ab@cd.ef-gh_ij>
+PASS  rejects username <null>
+PASS  rejects username <>
+PASS  rejects username <a>
+PASS  rejects username <aaaaaaaaaaaaaaaaaa...>
+PASS  rejects username <alice\u0020>
+PASS  rejects username <\u0020alice>
+PASS  rejects username <al\u0020ice>
+PASS  rejects username <ali\u000ace>
+PASS  rejects username <alice\u000d>
+PASS  rejects username <alice\u0009>
+PASS  rejects username <alice\u0000>
+PASS  rejects username <..>
+PASS  rejects username <a..b>
+PASS  rejects username <.alice>
+PASS  rejects username <alice.>
+PASS  rejects username <alice_>
+PASS  rejects username <-alice>
+PASS  rejects username <alice->
+PASS  rejects username <alice:admin>
+PASS  rejects username <alice;ls>
+PASS  rejects username <alice|ls>
+PASS  rejects username <alice$(id)>
+PASS  rejects username <alice*>
+PASS  rejects username <alice\u001b[31m>
+PASS  rejects username <alice\u200b>
+PASS  rejects username <alice\u0301>
+PASS  rejects username <alice\u00e9\u0301>
+PASS  rejects username <\u00adalice>
+PASS  rejects username <alice\u202e>
+PASS  rejects username <alice\u007f>
+PASS  rejects username <alice%00>
+PASS  rejects username <alice/dir>
+PASS  rejects username <alice\admin>
+PASS  rejects username <alice">
+PASS  rejects username <alice'>
+PASS  rejects username <alice<>>
+PASS  rejects username <alice=>
+PASS  rejects username <alice+admin>
+PASS  rejects username <alice#>
+PASS  rejects username <alice\ufe63admin>
+PASS  case is preserved
+PASS  no trimming happens
+PASS  isValidUsername agrees with validateUsername
+PASS  accepts password of length 16
+PASS  accepts password of length 10
+PASS  accepts password of length 28
+PASS  accepts password of length 14
+PASS  accepts password of length 18
+PASS  returns a private copy, not the caller's array
+PASS  wiping the caller's array does not wipe the copy
+PASS  rejects short password of length 0
+PASS  rejects short password of length 6
+PASS  rejects short password of length 9
+PASS  rejects a null password
+PASS  rejects an over-long password
+PASS  rejects a trailing tab
+PASS  rejects a leading tab
+PASS  rejects a trailing NUL
+PASS  rejects an embedded newline
+PASS  rejects DEL
+PASS  rejects an embedded ESC (terminal control)
+PASS  rejects a space
+PASS  rejects an unpaired high surrogate
+PASS  rejects an unpaired low surrogate
+PASS  accepts a paired surrogate
+PASS  that fixture really contains a surrogate pair
+PASS  an all-NUL buffer is rejected, not accepted for its length
+PASS  supplementary characters count as code points (10 chars -> 20 Java chars)
+PASS  a 10-code-point supplementary password is accepted
+PASS  UTF-8 encoding is used
+PASS  the unmutated configuration is accepted
+PASS  a complete environment is accepted
+PASS  absent AUTH_ACCOUNTS_FILE is refused
+PASS  blank AUTH_ACCOUNTS_FILE is refused
+PASS  absent AUTH_EVENT_LOG_FILE is refused
+PASS  blank AUTH_EVENT_LOG_FILE is refused
+PASS  absent AUTH_KEYSTORE_FILE is refused
+PASS  blank AUTH_KEYSTORE_FILE is refused
+PASS  absent AUTH_KEYSTORE_PASSWORD is refused
+PASS  blank AUTH_KEYSTORE_PASSWORD is refused
+PASS  absent AUTH_PASSWORD_ENTRY_ALIAS is refused
+PASS  blank AUTH_PASSWORD_ENTRY_ALIAS is refused
+PASS  absent AUTH_PBKDF2_ITERATIONS is refused
+PASS  blank AUTH_PBKDF2_ITERATIONS is refused
+PASS  absent AUTH_ACCOUNT_LOCK_AFTER is refused
+PASS  blank AUTH_ACCOUNT_LOCK_AFTER is refused
+PASS  absent AUTH_SOURCE_MAX_ATTEMPTS is refused
+PASS  blank AUTH_SOURCE_MAX_ATTEMPTS is refused
+PASS  refuses AUTH_PBKDF2_ITERATIONS=1000
+PASS  refuses AUTH_PBKDF2_ITERATIONS=119999
+PASS  refuses AUTH_PBKDF2_ITERATIONS=999999999
+PASS  refuses AUTH_PBKDF2_ITERATIONS=not-a-number
+PASS  refuses AUTH_PBKDF2_ITERATIONS=120000.5
+PASS  refuses AUTH_PBKDF2_ITERATIONS=-120000
+PASS  refuses AUTH_ACCOUNT_LOCK_AFTER=1
+PASS  refuses AUTH_ACCOUNT_LOCK_AFTER=2
+PASS  refuses AUTH_ACCOUNT_LOCK_AFTER=1000
+PASS  refuses AUTH_ACCOUNT_LOCK_SECONDS=5
+PASS  refuses AUTH_ACCOUNT_LOCK_SECONDS=999999
+PASS  refuses AUTH_SOURCE_MAX_ATTEMPTS=2
+PASS  refuses AUTH_SOURCE_MAX_ATTEMPTS=100000
+PASS  refuses AUTH_SESSION_TTL_SECONDS=30
+PASS  refuses AUTH_SESSION_TTL_SECONDS=99999999
+PASS  refuses AUTH_MAX_ACTIVE_SESSIONS=2
+PASS  refuses AUTH_MAX_EVENTS=3
+PASS  refuses AUTH_MIN_FREE_BYTES=10
+PASS  refuses AUTH_SOURCE_WINDOW_SECONDS=10
+PASS  refuses AUTH_SOURCE_BLOCK_SECONDS=1
+PASS  a misspelled key in the AUTH_ namespace is refused
+PASS  a key outside the namespace is ignored
+PASS  a relative path is refused
+PASS  a path to a missing file is refused
+PASS  a directory where a file is required is refused
+PASS  a path containing NUL is refused
+PASS  refuses a keystore with permissions [OWNER_READ, OWNER_WRITE, OTHERS_READ]
+PASS  refuses a keystore with permissions [OWNER_READ, OWNER_WRITE, GROUP_READ]
+PASS  accepts the keystore again once permissions are restored
+PASS  a wrong keystore password is refused
+PASS  a world-writable log directory is refused
+PASS  a path-like alias is refused
+PASS  an alias absent from the keystore is refused
+PASS  the problem text names the key
+PASS  the problem text omits the configured value
+PASS  AuthConfig.toString omits every path
+PASS  the environment path refuses a source budget below the account lock threshold
+PASS  and it names the sizing rule, not a range
+PASS  the same pair is accepted once the budget reaches the threshold
+PASS  the environment path refuses a minimum above the configured iteration count
+PASS  and it names the relation between the two
+PASS  a minimum equal to the configured count is accepted
+PASS  the builder refuses a starved source budget too
+PASS  the builder refuses an unreachable minimum too
+PASS  a namespace key holding a control character is refused
+PASS  and the problem text describes it as unsupported
+PASS  the raw key name is not echoed into the problem text
+PASS  no terminal control sequence survives
+PASS  an ordinary misspelling is still named exactly
+PASS  store rejects [bad name!:AAAAAAAAAAAAAAAAAA...]
+PASS  store rejects [alice:not-base64!!!:120000:A...]
+PASS  store rejects [alice:AwoRGB8mLTQ7QklQV15lbA...]
+PASS  store rejects [alice:AwoRGB8mLTQ7QklQV15lbA...]
+PASS  store rejects [alice:AwoRGB8mLTQ7QklQV15lbA...]
+PASS  store rejects [alice:AwoRGB8mLTQ7QklQV15lbA...]
+PASS  store rejects [alice::120000:AQYLEBUaHyQpLj...]
+PASS  store rejects [alice:AwoRGB8mLTQ7QklQV15lbA...]
+PASS  a case-colliding record pair is refused
+PASS  a record with a too-low iteration count is refused
+PASS  the salt fixture is 16 bytes of 64 characters ending in padding
+PASS  the non-canonical fixture decodes to the same bytes
+PASS  the non-canonical fixture is not encoder output
+PASS  non-canonical Base64 in a record is refused
+PASS  the digest fixture is 32 bytes of 44 characters ending in one pad
+PASS  the non-canonical digest fixture decodes to the same bytes
+PASS  the non-canonical digest fixture is not encoder output
+PASS  non-canonical Base64 in the digest field is refused
+PASS  the iteration spelling [+120000] is refused
+PASS  the iteration spelling [0120000] is refused
+PASS  the iteration spelling [120000 ] is refused
+PASS  the iteration spelling [ 120000] is refused
+PASS  the iteration spelling [??????] is refused
+PASS  the record-count fixture is under the byte bound
+PASS  too many records is refused by name
+PASS  an oversized store loads nothing
+PASS  the byte-bound fixture stays under the record bound
+PASS  the byte-bound fixture really exceeds the byte bound
+PASS  an over-large file is refused by name
+PASS  an over-large store loads nothing
+PASS  the long-name fixture exceeds the line bound
+PASS  an over-long record line is refused by name
+PASS  an over-long record loads nothing
+PASS  two valid records load
+PASS  lookup by exact name finds the record
+PASS  lookup by other ASCII case finds the same record
+PASS  lookup of an absent name is empty
+PASS  lookup of a null name is empty
+PASS  a homoglyph does not resolve to a real account
+PASS  a rendered record omits the digest
+PASS  a record that orders more work than the policy costs is refused at load
+PASS  and the refusal names the work factor
+PASS  a record at exactly the configured cost loads
+PASS  the configured cost still derives
+PASS  deriving above the configured cost is refused rather than performed
+PASS  a path that cannot be examined reports no mode at all
+PASS  a mode that cannot be read counts as exposed to others
+PASS  a mode that cannot be read counts as writable by others
+PASS  a mode that cannot be read is not accepted as owner-only
+PASS  a null path is refused rather than trusted
+PASS  all three predicates fail closed on an unreadable mode
+PASS  an owner-only file is not exposed
+PASS  an owner-only file is not group- or other-writable
+PASS  an owner-only file passes the strict check
+PASS  group read is exposure
+PASS  group read is not the writable case
+PASS  other write is the writable case
+PASS  group write on a directory is enough to reject it
+PASS  an owner-only directory is accepted
+PASS  a symlink is refused on its own bits
+PASS  and never accepted as owner-only
+PASS  a Cyrillic name passes the allow-list (documented, not refused)
+PASS  the Latin name is unaffected
+PASS  the two spellings are not the same text
+PASS  the logged identifier distinguishes them
+PASS  the throttle key distinguishes them
+PASS  one file may hold both spellings
+PASS  and the store keeps two records, not one
+PASS  the Latin record resolves
+PASS  the Cyrillic record resolves
+PASS  neither resolves to the other's credential
+PASS  the encoder builds no String from the password
+PASS  nor a char array from a String
+PASS  it reports rather than substitutes on an unencodable character
+PASS  and it wipes the oversized scratch buffer it encoded into
+PASS  the pepper is encoded through the same String-free path
+PASS  an accented password encodes
+PASS  and uses two bytes for the accented character
+PASS  an accented password and a literal question mark do not encode alike
+PASS  a supplementary code point encodes to four bytes
+PASS  an unpaired surrogate is refused rather than mapped to '?'
+PASS  an unpaired surrogate is refused rather than mapped to '?'
+PASS  an unreadable mode counts as exposed
+PASS  and never as safe
+PASS  every predicate in the gate answers the null case
+PASS  a directory is checked for group write as well as other write
+PASS  validatePassword proves the value encodable before returning a copy
+PASS  an issued identifier is present
+PASS  an identifier is 32 hex characters
+PASS  an identifier is lower-case hex
+PASS  a fresh identifier validates
+PASS  null is not valid
+PASS  an empty identifier is not valid
+PASS  a wrong-length identifier is not valid
+PASS  an uppercase identifier is not valid (no case folding)
+PASS  a random identifier is not valid
+PASS  a revoked identifier is not valid
+PASS  revoking twice is harmless
+PASS  200 issued identifiers are all distinct
+PASS  a live identifier validates
+PASS  an expired identifier does not validate
+PASS  use within the window keeps the identifier alive (step 0)
+PASS  use within the window keeps the identifier alive (step 1)
+PASS  use within the window keeps the identifier alive (step 2)
+PASS  use within the window keeps the identifier alive (step 3)
+PASS  use within the window keeps the identifier alive (step 4)
+PASS  use within the window keeps the identifier alive (step 5)
+PASS  use within the window keeps the identifier alive (step 6)
+PASS  use within the window keeps the identifier alive (step 7)
+PASS  use within the window keeps the identifier alive (step 8)
+PASS  use within the window keeps the identifier alive (step 9)
+PASS  issuing within capacity succeeds
+PASS  issuing within capacity succeeds
+PASS  issuing within capacity succeeds
+PASS  issuing within capacity succeeds
+PASS  the table never exceeds its cap
+PASS  issuing beyond capacity is refused rather than growing the table
+PASS  the refusal did not grow the table
+PASS  after the grace period a slot can be reclaimed
+PASS  the table still respects its cap
+PASS  a cookie directive is produced over TLS
+PASS  the cookie is HttpOnly
+PASS  the cookie is Secure
+PASS  the cookie is SameSite=Strict
+PASS  the cookie has the requested path
+PASS  the cookie Max-Age matches the configured ttl
+PASS  the cookie carries the identifier
+PASS  no cookie is produced over plaintext
+PASS  a path-traversal cookie name is refused
+PASS  a path with a CR is refused
+PASS  a non-absolute cookie path is refused
+PASS  a cookie name with a separator is refused
+PASS  a non-hex identifier gets no cookie
+PASS  the validity check does sweep expired entries
+PASS  it requires the exact identifier length
+PASS  it requires the identifier to be hex, so no case folding is possible
+PASS  both shape conditions are evaluated before the sweep
+PASS  a shaped identifier still validates
+PASS  every shipped source was inspected, 25 files
+PASS  no shipped source renders a credential record: []
+PASS  the credential store has no write path at all
+PASS  the shipped hasher exposes no encoder for a stored field
+PASS  the service exposes no credential serialiser
+PASS  and no provisioning record type
+PASS  the service performs exactly one derivation
+PASS  and that one is the decoy, never a stored record
+PASS  the fixture provisioner is the only place that renders records, in the test tree
+PASS  records built outside src/main load cleanly
+PASS  both records are there
+PASS  and the name resolves
+PASS  a well-formed event renders
+PASS  the rendered line omits the username
+PASS  the rendered line omits any password
+PASS  the rendered line omits any token
+PASS  the rendered line is one line
+PASS  the account is a one-way identifier
+PASS  the account presence flag is recorded
+PASS  case-folded names share one identifier
+PASS  different names get different identifiers
+PASS  the identifier is 64 hex characters
+PASS  a null name still yields a well-formed identifier
+PASS  the distinct-code-point hint counts code points
+PASS  surrogate pairs count once
+PASS  a name that reuses one character hints 1
+PASS  a long name with many repeats saturates rather than counting
+PASS  a source that is not a canonical address is refused
+PASS  a non-canonical address form is refused
+PASS  sequence 0 is refused
+PASS  the non-hex suffix fixture is long enough to reach the guard
+PASS  a session suffix that is not hex is refused
+PASS  a hex session suffix is accepted
+PASS  only six characters of the identifier are recorded
+PASS  the whole identifier is never recorded
+PASS  an absurd latency is refused
+PASS  an absurd retry hint is refused
+PASS  a rendered line stays within the bound
+PASS  toString of an event omits the account
+SUMMARY suite1-validation passed=380 failed=0
