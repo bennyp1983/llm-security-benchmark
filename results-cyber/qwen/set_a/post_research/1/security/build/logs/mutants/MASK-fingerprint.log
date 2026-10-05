@@ -1,5 +1,0 @@
-killed(assert) FAILED x4
-FAILED  MASKING of the identifier in every text path / toString hides the value
-FAILED  MASKING of the identifier in every text path / toString carries a 12-hex fingerprint
-FAILED  MASKING of the identifier in every text path / fingerprint is 12 lower-hex characters
-FAILED  MASKING of the identifier in every text path / no accessor other than value() yields the raw string

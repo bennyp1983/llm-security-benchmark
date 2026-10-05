@@ -1,4 +1,0 @@
-killed(assert) FAILED x3
-FAILED  VALIDATION of the externally supplied identifier / 31 characters rejected
-FAILED  VALIDATION of the externally supplied identifier / and the self-test still delegates the shape checks (expected <TOO_SHORT> got <NONE>)
-FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / 50 malformed requests did not consume the victim's single allowance (expected <ISSUED> got <LIMITED_SOURCE>)

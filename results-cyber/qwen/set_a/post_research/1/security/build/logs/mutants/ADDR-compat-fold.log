@@ -1,4 +1,0 @@
-killed(assert) FAILED x3
-FAILED  CLIENT ADDRESS canonicalisation (fair buckets, no DNS, no injection) / ::1 keeps a v6 lane and never asserts an IPv4 identity
-FAILED  CLIENT ADDRESS canonicalisation (fair buckets, no DNS, no injection) / two addresses inside one /64 share a bucket (expected <0.0.0.17/32> got <0.0.0.255/32>)
-FAILED  CLIENT ADDRESS canonicalisation (fair buckets, no DNS, no injection) / different /64 prefixes are separate buckets

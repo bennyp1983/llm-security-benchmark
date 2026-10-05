@@ -1,3 +1,0 @@
-killed(assert) FAILED x2
-FAILED  CLIENT ADDRESS canonicalisation (fair buckets, no DNS, no injection) / the obsolete IPv4-compatible form is refused outright
-FAILED  CLIENT ADDRESS canonicalisation (fair buckets, no DNS, no injection) / a compressed mixed form that is not ::ffff: is refused

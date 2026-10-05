@@ -1,4 +1,0 @@
-killed(assert) FAILED x3
-FAILED  COOKIE WRITER output and second validation gate / Cache-Control set to no-store (expected <no-store, max-age=0> got <public, max-age=86400>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / no-store on grant (expected <no-store, max-age=0> got <public, max-age=86400>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / throttle cache wording matches the grant's (expected <public, max-age=86400> got <no-store, max-age=0>)

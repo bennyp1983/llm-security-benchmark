@@ -1,3 +1,0 @@
-killed(assert) FAILED x2
-FAILED  ATTEMPT LIMITER: atomicity, fairness, bounded state / a sixth distinct source is shed, not tracked (expected <LIMITED_TRACKING_SATURATED> got <ALLOWED>)
-FAILED  ATTEMPT LIMITER: atomicity, fairness, bounded state / tracking stayed at the cap (expected <5> got <6>)

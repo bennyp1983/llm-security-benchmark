@@ -1,5 +1,0 @@
-killed(assert) FAILED x4
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / POST advertises only GET and HEAD (expected <GET, HEAD> got <GET, HEAD, POST, PUT, DELETE, PATCH>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / PUT advertises only GET and HEAD (expected <GET, HEAD> got <GET, HEAD, POST, PUT, DELETE, PATCH>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / DELETE advertises only GET and HEAD (expected <GET, HEAD> got <GET, HEAD, POST, PUT, DELETE, PATCH>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / OPTIONS advertises only GET and HEAD (expected <GET, HEAD> got <GET, HEAD, POST, PUT, DELETE, PATCH>)

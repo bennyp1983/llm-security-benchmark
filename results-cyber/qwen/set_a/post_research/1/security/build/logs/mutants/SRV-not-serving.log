@@ -1,2 +1,0 @@
-killed(assert) FAILED x1
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / the not-serving refusal is a decision, not a swallowed exception (expected <0> got <1>)

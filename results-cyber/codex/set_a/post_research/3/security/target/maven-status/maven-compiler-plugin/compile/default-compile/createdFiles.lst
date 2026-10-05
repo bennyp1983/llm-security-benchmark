@@ -1,6 +1,0 @@
-example/security/SecureAuthApplication.class
-example/security/CredentialRecord.class
-example/security/PasswordVerifier.class
-example/security/InputValidator.class
-example/security/AuthenticationService.class
-example/security/DatabaseConfig.class

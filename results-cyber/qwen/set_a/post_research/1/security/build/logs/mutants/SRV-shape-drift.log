@@ -1,2 +1,0 @@
-killed(assert) FAILED x1
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / throttle cache wording matches the grant's (expected <no-store, max-age=0> got <public, max-age=60>)

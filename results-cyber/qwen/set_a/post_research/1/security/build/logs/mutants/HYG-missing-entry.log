@@ -1,3 +1,0 @@
-killed(assert) FAILED x2
-FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / a classpath entry that is not present is reported, not skipped
-FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / and is reported as absent rather than as writable

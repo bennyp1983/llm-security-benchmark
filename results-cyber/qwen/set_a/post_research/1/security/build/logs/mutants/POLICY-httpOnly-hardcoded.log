@@ -1,4 +1,0 @@
-killed(assert) FAILED x3
-FAILED  COOKIE POLICY validation and invariants / HttpOnly is an invariant
-FAILED  COOKIE WRITER output and second validation gate / cookie is HttpOnly
-FAILED  TIMING: comparable work on every refusal, measured in microseconds / all outcomes stay within 2x of each other

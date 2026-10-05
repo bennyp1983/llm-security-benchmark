@@ -1,5 +1,0 @@
-killed(assert) FAILED x4
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / a throttled HEAD describes the document its GET wrote (expected <181> got <0>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / HEAD declares exactly the byte length GET would have written (expected <224> got <0>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / HEAD refusal declares the length its GET would have written (expected <181> got <0>)
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / unwired HEAD declares the refusal length as well (expected <181> got <0>)

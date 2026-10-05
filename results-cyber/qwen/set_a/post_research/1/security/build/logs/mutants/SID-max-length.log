@@ -1,7 +1,0 @@
-killed(assert) FAILED x6
-FAILED  VALIDATION of the externally supplied identifier / 129 characters rejected
-FAILED  COOKIE WRITER output and second validation gate / writer blocks a smuggled value len=200 head=aaaaaaaaaa
-FAILED  COOKIE WRITER output and second validation gate / no cookie written for the smuggled value len=200 head=aaaaaaaaaa
-FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / malformed assertion is refused before any lookup (expected <REFUSED_INVALID_ASSERTION> got <REFUSED_UNAUTHENTICATED>)
-FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / a malformed assertion never reaches the session store (expected <0> got <1>)
-FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / and it was the store that refused it (expected <1> got <2>)

@@ -1,2 +1,0 @@
-killed(assert) FAILED x1
-FAILED  DEPLOYMENT HYGIENE: refuse to load code from a writable location / and it is refused before any of its code has run

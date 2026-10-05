@@ -1,5 +1,0 @@
-killed(assert) FAILED x4
-FAILED  VALIDATION of the externally supplied identifier / a low-alphabet value is ACCEPTED by the request path (expected <NONE> got <LOW_CHAR_DIVERSITY>)
-FAILED  VALIDATION of the externally supplied identifier / a two-character repetition is ACCEPTED by the request path (expected <NONE> got <LOW_CHAR_DIVERSITY>)
-FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / a well-formed but degenerate assertion is decided by the store, not the shape check (expected <REFUSED_UNAUTHENTICATED> got <REFUSED_INVALID_ASSERTION>)
-FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / and it was the store that refused it (expected <1> got <0>)

@@ -1,5 +1,0 @@
-killed(assert) FAILED x4
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / configure() with no service still refuses to serve
-FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / section servlet ran to completion (aborted with java.lang.NullPointerException: Cannot invoke "com.acme.portal.session.SessionCookieWriter.policy()" because "<parameter2>" is null)
-FAILED  TIMING: comparable work on every refusal, measured in microseconds / all outcomes stay within 2x of each other
-FAILED  TIMING: comparable work on every refusal, measured in microseconds / the availability refusal is padded too (it short-circuits before the others)

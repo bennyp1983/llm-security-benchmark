@@ -1,3 +1,0 @@
-killed(assert) FAILED x2
-FAILED  SETTINGS from the environment: validated, ranged, no permissive default / rejects a zero window (no exception thrown)
-FAILED  SETTINGS from the environment: validated, ranged, no permissive default / rejects a negative ceiling (no exception thrown)
