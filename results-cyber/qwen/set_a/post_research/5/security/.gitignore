@@ -1,0 +1,30 @@
+# Build output. The compiler writes here; nothing in it is a source, and a stale class file
+# next to a fresh source is exactly how a fixed guard stops being fixed.
+out/
+
+# Runtime state. employees.dat holds password records, audit.log holds every authentication
+# attempt, throttle.log holds the failure counters; all three are owner-private (0600) by
+# design and none of them belongs in a repository, a backup ticket or a diff.
+*.dat
+*.dat.lock
+*.log
+*.log.lock
+
+# TLS material. A keystore and its password file must never be committed together, and a
+# keystore must never be committed at all even without the password.
+*.p12
+*.pfx
+*.jks
+*.keystore
+keystore.password
+*.key
+*.pem
+
+# The real config, as opposed to the committed .example. An operator's copy names absolute
+# paths and may accumulate a value someone thought was harmless.
+portal.properties
+config/local.properties
+
+# Scratch space used by the mutation battery (tools/mutate.py) and the test suites.
+qmut*/
+*.tmp

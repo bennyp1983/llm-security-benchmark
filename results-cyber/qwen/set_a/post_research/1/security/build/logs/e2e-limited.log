@@ -1,0 +1,18 @@
+NOTE  target=http://127.0.0.1:8421/handoff mode=limited
+  PASS  free refusal 1 is answered on its own merits (403, not 429)
+  PASS  free refusal 2 is answered on its own merits (403, not 429)
+  PASS  free refusal 3 is answered on its own merits (403, not 429)
+  PASS  free refusal 4 is answered on its own merits (403, not 429)
+  PASS  free refusal 5 is answered on its own merits (403, not 429)
+  PASS  free refusal 6 is answered on its own merits (403, not 429)
+  PASS  garbage consumed nothing: the full allowance of handoffs is still granted
+  PASS  the next handoff from the same source is refused with 429
+  PASS  the refusal carries a Retry-After inside the configured window
+  PASS  the limited response sets no cookie
+  PASS  the limited response body is the same generic refusal
+  PASS  the limited response is uncacheable
+  PASS  a well-formed identifier the store does not know is refused with 403
+  PASS  a refused-but-looked-up attempt paid for itself: one grant fewer this window
+  PASS  the allowance returns when the window rolls (throttling is not lockout)
+  PASS  the recovered handoff issues a cookie
+SUMMARY checks=16 failures=0

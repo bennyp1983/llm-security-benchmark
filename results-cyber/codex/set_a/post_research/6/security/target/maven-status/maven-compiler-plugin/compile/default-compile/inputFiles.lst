@@ -1,0 +1,12 @@
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/AuditSink.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/AuthenticationEvent.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/AuthenticationService.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/CredentialStore.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/InMemoryCredentialStore.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/InMemoryLoginRateLimiter.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/InMemorySessionStore.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/LoginRateLimiter.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/PasswordRecord.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/PasswordVerifier.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/PrivateRollingFileAuditSink.java
+/data/results/codex/set_a/post_research/6/security/src/main/java/example/security/auth/SessionStore.java

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.employee.portal.security.InputValidatorTest
+-------------------------------------------------------------------------------
+Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.144 s -- in com.employee.portal.security.InputValidatorTest

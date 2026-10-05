@@ -1,0 +1,2 @@
+killed(assert) FAILED x1
+FAILED  VALIDATION of the externally supplied identifier / and the self-test still delegates the shape checks (expected <TOO_SHORT> got <NONE>)

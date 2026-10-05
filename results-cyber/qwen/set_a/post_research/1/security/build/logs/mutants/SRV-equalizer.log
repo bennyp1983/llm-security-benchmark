@@ -1,0 +1,4 @@
+killed(assert) FAILED x3
+FAILED  TIMING: comparable work on every refusal, measured in microseconds / every outcome costs at least the padding it is supposed to do (floor 0 us vs padding 58 us)
+FAILED  TIMING: comparable work on every refusal, measured in microseconds / all outcomes stay within 2x of each other
+FAILED  TIMING: comparable work on every refusal, measured in microseconds / the availability refusal is padded too (it short-circuits before the others)

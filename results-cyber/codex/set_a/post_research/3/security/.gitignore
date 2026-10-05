@@ -1,0 +1,6 @@
+/target/
+*.log
+*.jfr
+hs_err_pid*
+core
+core.*

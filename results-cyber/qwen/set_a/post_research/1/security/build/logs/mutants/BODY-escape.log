@@ -1,0 +1,2 @@
+killed(assert) FAILED x1
+FAILED  RESPONSE BODIES: constant refusal, no echoed credential, escaped output / HTML escaping neutralises markup (expected <&lt;script&gt;&amp;&#39;&quot;> got <<script&gt;&amp;&#39;&quot;>)

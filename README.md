@@ -48,6 +48,8 @@ The n8n container runs as root, so generated files are root-owned. Any file crea
 
 Some generated files match ignore rules (`*.log` in the repository `.gitignore`, and `.gitignore` files written by the tools themselves, such as `/target/` for codex post_research tasks 3 and 4 and `out/` for qwen post_research task 5). They are part of the generated output, so they were added with `git add -f`.
 
+The same applies in `results-cyber/`: `target/` for codex post_research tasks 3 and 4, `build/*.log` (and `build/logs/`) for qwen post_research task 1, `out/` for qwen post_research task 5, and `build-logs/` for qwen post_research task 6. These were likewise added with `git add -f`.
+
 When evaluating security controls, use the source code and README rather than the file modes in this repository.
 
 ### Security review report template
@@ -57,3 +59,9 @@ The n8n-cyber review prompt in `prompts/prompts_cyber.json` was updated to requi
 - The 48 pilot reviews (`results-cyber/*/set_a/pilot`) were completed with the earlier prompt, which had no report template, and were not re-run.
 - Their `benchmark_cyber_hash.txt` files were updated to the new prompt's hash so the workflow skips them. These hashes therefore do not match the prompt those reviews were run with.
 - Reviews for ruth and sallie use the updated prompt, so their report structure differs from the pilot reviews.
+
+### Cyber review status — post_research
+
+- claude and codex: all six tasks (`1`–`6`) complete, `benchmark_cyber_hash.txt` present for each.
+- agy: tasks `2`–`6` complete. Task `1` failed with a 293s API timeout (see `cyber_return.txt`); no `benchmark_cyber_hash.txt` was written, so the result is committed as a recorded failure, not a completed review.
+- qwen: no task completed. The vLLM backend was taken offline while these reviews were running; all six attempts failed with a 45s request timeout (0 tokens processed, error recorded in `cyber_result.md`), and no `benchmark_cyber_hash.txt` was written for any task.

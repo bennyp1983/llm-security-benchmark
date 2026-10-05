@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Deployment example, and the descriptor the end-to-end test deploys.
+
+  Two things here are security-relevant and easy to get wrong:
+
+  1. session-config/tracking-mode is COOKIE. Without it a container may append
+     ";jsessionid=..." to a redirect target, which puts a session identifier in a URL, and URLs leak
+     through Referer headers, proxy logs and browser history. This component never creates a
+     container-managed session, so the element exists to guarantee the container cannot either.
+
+  2. session-config/cookie-config has http-only set. It only governs a container-managed session
+     cookie, which this component does not use; it is stated anyway so a reviewer scanning the
+     descriptor can see the intent, and so a future change that does introduce a container session
+     inherits the hardened attribute instead of the default.
+
+  There is no transport-guarantee element. Enforcing HTTPS is the deployment's job (a TLS terminator
+  plus HSTS), and claiming it here without a keystore configured would be decoration. The cookie is
+  always Secure regardless, so a plain-HTTP deployment simply stops working rather than leaking.
+-->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+  <display-name>Session handoff</display-name>
+
+  <session-config>
+    <tracking-mode>COOKIE</tracking-mode>
+    <cookie-config>
+      <http-only>true</http-only>
+      <secure>true</secure>
+    </cookie-config>
+  </session-config>
+
+  <servlet>
+    <servlet-name>SessionHandoff</servlet-name>
+    <servlet-class>com.acme.portal.session.SessionHandoffServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>SessionHandoff</servlet-name>
+    <url-pattern>/session/handoff</url-pattern>
+  </servlet-mapping>
+
+  <!--
+    This is the descriptor a deployment copies, so it declares nothing that only exists to be tested
+    against. The end-to-end build adds its test-only elements (the stand-in authenticator filter and
+    the session expiry switch) by replacing the marker line below with deploy/web.test-only.xml; the
+    descriptor it actually deploys is the assembled copy under build/stage-*. The authenticator is
+    the integrator's responsibility: it must run before the handoff servlet, in the same JVM, and set
+    the assertion request attribute named by PORTAL_ASSERTION_ATTRIBUTE.
+  -->
+  <!-- test-only-elements -->
+
+  <!--
+    Route every error to a page that cannot disclose anything. A container error page prints the
+    exception class, message and stack, which is exactly what must never reach a client. The page is
+    a static file with no scriptlet and no request data.
+  -->
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/static/error.html</location>
+  </error-page>
+
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/static/error.html</location>
+  </error-page>
+
+  <error-page>
+    <exception-type>java.lang.Throwable</exception-type>
+    <location>/WEB-INF/static/error.html</location>
+  </error-page>
+</web-app>

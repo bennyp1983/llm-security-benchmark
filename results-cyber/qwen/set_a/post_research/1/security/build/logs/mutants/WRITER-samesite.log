@@ -1,0 +1,2 @@
+killed(assert) FAILED x1
+FAILED  COOKIE WRITER output and second validation gate / SameSite rendered by the component (expected <Strict> got <None>)

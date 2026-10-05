@@ -1,0 +1,5 @@
+killed(assert) FAILED x4
+FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / 50 malformed requests did not consume the victim's single allowance (expected <ISSUED> got <LIMITED_SOURCE>)
+FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / first handoff allowed (expected <ISSUED> got <LIMITED_SOURCE>)
+FAILED  HANDOFF DECISION: fail closed, uniform refusal, budget fairness / a different source is unaffected by one source's limit (expected <ISSUED> got <LIMITED_SOURCE>)
+FAILED  HTTP LAYER: status codes, headers, method handling, fail-closed wiring / first request allowed (expected <200> got <429>)

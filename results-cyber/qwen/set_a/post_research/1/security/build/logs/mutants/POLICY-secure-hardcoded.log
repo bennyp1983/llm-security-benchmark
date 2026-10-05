@@ -1,0 +1,3 @@
+killed(assert) FAILED x2
+FAILED  COOKIE POLICY validation and invariants / Secure is an invariant
+FAILED  COOKIE WRITER output and second validation gate / cookie is Secure
