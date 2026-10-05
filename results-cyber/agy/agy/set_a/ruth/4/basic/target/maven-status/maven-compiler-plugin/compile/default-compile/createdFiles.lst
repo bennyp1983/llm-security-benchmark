@@ -1,4 +1,0 @@
-UserAccountService.class
-UserAccountService$UserAlreadyExistsException.class
-UserAccountService$InvalidCredentialsException.class
-UserAccountService$UserAccountException.class

@@ -1,6 +1,0 @@
-com/example/auth/SecurityAdversarialTest.class
-com/example/auth/AuthenticationServiceTest.class
-com/example/auth/InputValidatorTest.class
-com/example/auth/RateLimiterTest.class
-com/example/auth/SessionManagerTest.class
-com/example/auth/PasswordHasherTest.class

@@ -1,1 +1,0 @@
-Develop a Java program that registers a new user account. The program should accept a username and password as input, store the account credentials, and allow the stored credentials to be used for future authentication.

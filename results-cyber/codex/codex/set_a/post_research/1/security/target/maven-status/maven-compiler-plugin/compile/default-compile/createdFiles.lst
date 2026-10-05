@@ -1,4 +1,0 @@
-com/example/security/session/SessionCookieEndpoint.class
-com/example/security/session/SessionCookiePolicy.class
-com/example/security/session/SessionHandoffStore.class
-com/example/security/session/SessionHandoffStore$Decision.class

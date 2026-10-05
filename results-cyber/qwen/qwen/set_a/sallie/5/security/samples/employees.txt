@@ -1,5 +1,0 @@
-# Employee records for the portal demo. One employee per line, three tab-separated fields:
-#   username<TAB>display name<TAB>stored password
-# Produce the third field with:  echo '<password>' | java portal.auth.PasswordHash <username>
-alice.jones	Alice Jones	pbkdf2-sha256$100000$aCUhlcF/9/LnwiukZ3ozcg==$AbohYy8W4sIZuTPXYkgRQo+KeZ6N+Nutyfn3A/RQfM4=
-bob.smith	Bob Smith	pbkdf2-sha256$100000$l+JcKwkuOrnE+eH6PPmRmQ==$12aYMeR2Hhs8+VobyZjSkgsQ1ZqzpbteoS2u5VaZ01w=

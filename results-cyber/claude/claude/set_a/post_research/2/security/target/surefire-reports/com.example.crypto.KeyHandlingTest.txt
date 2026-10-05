@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.example.crypto.KeyHandlingTest
--------------------------------------------------------------------------------
-Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.549 s -- in com.example.crypto.KeyHandlingTest

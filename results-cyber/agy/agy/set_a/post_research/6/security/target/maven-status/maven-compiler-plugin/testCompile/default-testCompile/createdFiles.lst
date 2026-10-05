@@ -1,8 +1,0 @@
-com/security/auth/logging/SecureFileEventLoggerTest.class
-com/security/auth/TimingAttackResistanceTest$InstrumentedPasswordHasher.class
-com/security/auth/AuthenticationServiceTest.class
-com/security/auth/TimingAttackResistanceTest.class
-com/security/auth/ConcurrencySecurityTest.class
-com/security/auth/crypto/PasswordHasherTest.class
-com/security/auth/ratelimit/RateLimiterTest.class
-com/security/auth/validation/InputValidatorTest.class
