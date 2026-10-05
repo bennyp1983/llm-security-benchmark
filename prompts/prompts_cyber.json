@@ -1,40 +1,57 @@
 {
-    "cli_settings": [
-        {
-            "name": "Google Antigravity",
-            "cyber_container_path": "/data/results-cyber/agy",
-            "skill_path": "/root/.gemini/config/skills/review-code-for-security-vulnerabilities/SKILL.md"
-        },
-        {
-            "name": "Claude Code",
-            "cyber_container_path": "/data/results-cyber/claude",
-            "skill_path": "/root/.claude/skills/review-code-for-security-vulnerabilities/SKILL.md"
-        },
-        {
-            "name": "ChatGPT Codex",
-            "cyber_container_path": "/data/results-cyber/codex",
-            "skill_path": "/root/.codex/skills/review-code-for-security-vulnerabilities/SKILL.md"
-        },
-        {
-            "name": "Qwen",
-            "cyber_container_path": "/data/results-cyber/qwen",
-            "skill_path": "/root/.qwen/skills/review-code-for-security-vulnerabilities/SKILL.md"
-        }
+  "run_config": {
+    "reviewers": [
+      "agy",
+      "claude",
+      "codex"
     ],
-    "analyst": [
+    "target_folders": [
+      "post_research"
+    ],
+    "target_tasks": [],
+    "target_styles": [],
+    "target_models": []
+  },
+  "cli_settings": [
+    {
+      "id": "agy",
+      "name": "Google Antigravity",
+      "cyber_container_path": "/data/results-cyber/agy",
+      "skill_path": "/root/.gemini/config/skills/review-code-for-security-vulnerabilities/SKILL.md"
+    },
+    {
+      "id": "claude",
+      "name": "Claude Code",
+      "cyber_container_path": "/data/results-cyber/claude",
+      "skill_path": "/root/.claude/skills/review-code-for-security-vulnerabilities/SKILL.md"
+    },
+    {
+      "id": "codex",
+      "name": "ChatGPT Codex",
+      "cyber_container_path": "/data/results-cyber/codex",
+      "skill_path": "/root/.codex/skills/review-code-for-security-vulnerabilities/SKILL.md"
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen",
+      "cyber_container_path": "/data/results-cyber/qwen",
+      "skill_path": "/root/.qwen/skills/review-code-for-security-vulnerabilities/SKILL.md"
+    }
+  ],
+  "analyst": [
+    {
+      "name": "llm_analyst",
+      "task": [
         {
-            "name": "llm_analyst",
-            "task": [
-                {
-                    "task_number": 1,
-                    "prompts": [
-                        {
-                            "style": "review",
-                            "prompt": "Review all the code in this folder for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in this folder. Do not create or modify any other file.\n\nWrite security_review.md in Markdown using exactly this structure:\n\n# Security Review: <component name>\n\n## 1. Executive Summary\n<Short overview of what the code does and the most important findings.>\n\n## 2. Scope\n| File | Purpose | Security-relevant behaviour |\n|---|---|---|\n| `<file>` | <purpose> | <behaviour> |\n\n## 3. Skills Applied\n- `<skill name>`: <what it was applied to>\n- <Any behaviour reviewed against general OWASP Top 10 / CWE knowledge because no skill matched.>\n\n## 4. Summary of Findings\n| ID | Title | Severity | CWE | Location |\n|---|---|---|---|---|\n| SEC-01 | <title> | <severity> | CWE-<id> | `<file>:<line>` |\n\n## 5. Detailed Findings\n\n### SEC-01: <title>\n- **Severity:** <Critical, High, Medium or Low>\n- **CWE:** CWE-<id>: <CWE name>\n- **Location:** `<file>:<line or line range>`\n\n**Vulnerable code:**\n```<language>\n// <file>:<line range>\n<exact excerpt from the file>\n```\n\n**Why it is a problem:** <explanation>\n\n**Fix:** <explanation>\n```<language>\n<corrected code>\n```\n\n## 6. Verified Controls and Checks With No Finding\n- <Control or check>: <what was verified and where>\n\nRules:\n- Every finding must include the vulnerable code copied exactly from the file and a corrected code block, even if the excerpt is a single line.\n- Number findings SEC-01, SEC-02 and so on, ordered by severity, and use the same IDs in the summary table.\n- Use exactly one level-1 heading, keep the heading levels shown, and tag every fenced code block with its language.\n- If there are no findings, keep every section, state in sections 4 and 5 that no vulnerabilities were found, and list what was checked in section 6."
-                        }
-                    ]
-                }
-            ]
+          "task_number": 1,
+          "prompts": [
+            {
+              "style": "review",
+              "prompt": "Review all the code in this folder for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in this folder. Do not create or modify any other file.\n\nWrite security_review.md in Markdown using exactly this structure:\n\n# Security Review: <component name>\n\n## 1. Executive Summary\n<Short overview of what the code does and the most important findings.>\n\n## 2. Scope\n| File | Purpose | Security-relevant behaviour |\n|---|---|---|\n| `<file>` | <purpose> | <behaviour> |\n\n## 3. Skills Applied\n- `<skill name>`: <what it was applied to>\n- <Any behaviour reviewed against general OWASP Top 10 / CWE knowledge because no skill matched.>\n\n## 4. Summary of Findings\n| ID | Title | Severity | CWE | Location |\n|---|---|---|---|---|\n| SEC-01 | <title> | <severity> | CWE-<id> | `<file>:<line>` |\n\n## 5. Detailed Findings\n\n### SEC-01: <title>\n- **Severity:** <Critical, High, Medium or Low>\n- **CWE:** CWE-<id>: <CWE name>\n- **Location:** `<file>:<line or line range>`\n\n**Vulnerable code:**\n```<language>\n// <file>:<line range>\n<exact excerpt from the file>\n```\n\n**Why it is a problem:** <explanation>\n\n**Fix:** <explanation>\n```<language>\n<corrected code>\n```\n\n## 6. Verified Controls and Checks With No Finding\n- <Control or check>: <what was verified and where>\n\nRules:\n- Every finding must include the vulnerable code copied exactly from the file and a corrected code block, even if the excerpt is a single line.\n- Number findings SEC-01, SEC-02 and so on, ordered by severity, and use the same IDs in the summary table.\n- Use exactly one level-1 heading, keep the heading levels shown, and tag every fenced code block with its language.\n- If there are no findings, keep every section, state in sections 4 and 5 that no vulnerabilities were found, and list what was checked in section 6."
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }
