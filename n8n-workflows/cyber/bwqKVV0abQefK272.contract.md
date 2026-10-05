@@ -83,3 +83,16 @@ All-RvR redesign adds ONLY: `reviewer_id, target_id, folder, task_number` (debug
 redefines `container_path` = TARGET's code path and `cyber_container_path` =
 `<reviewer parent>/<target_id>/…` — same key names ⇒ the 19 downstream references
 (#13, #15–#18, #20–#25 expressions above) need zero edits.
+
+## Run knobs ? run_config in prompts/prompts_cyber.json (v1174, 2026-10-05)
+
+| Key | Selects | Tokens |
+|---|---|---|
+| `reviewers` | which models RUN the review | empty or `["all"]` = all; ids: agy/claude/codex/qwen |
+| `target_folders` | which student folder is read (pilot/post_research/ruth) | empty or `["all"]` = all |
+| `target_prompt_tasks_num` | task numbers within folder | empty or `["all"]` = all; int or string |
+| `target_prompt_style` | prompt style | empty or `["all"]` = all |
+| `target_models` | WHOSE code gets reviewed | empty or `["all"]` = all; **`self` = the reviewer's own code** (per-job, mixable with ids) |
+
+Diagonal-only run (each model reviews only its own code): `reviewers:["all"], target_models:["self"]`.
+Grid = reviewers x folders x tasks x styles x models; hash markers still decide actual work.
