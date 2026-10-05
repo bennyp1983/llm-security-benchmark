@@ -60,9 +60,21 @@
     }
   ],
   "reviewer_cli": {
-    "agy": "--add-dir",
-    "claude": "--add-dir",
-    "codex": "--add-dir",
-    "qwen": "--add-dir"
+    "agy": {
+      "flag": "--add-dir",
+      "placement": "suffix"
+    },
+    "claude": {
+      "flag": "--add-dir",
+      "placement": "suffix"
+    },
+    "codex": {
+      "flag": "--add-dir",
+      "placement": "prefix"
+    },
+    "qwen": {
+      "flag": "--add-dir",
+      "placement": "suffix"
+    }
   }
 }
