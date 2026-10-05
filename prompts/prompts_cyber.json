@@ -2,8 +2,6 @@
   "run_config": {
     "_doc": "Allow-lists. Empty list or [\"all\"] = everything. target_models also accepts \"self\" (= reviewer reviews own code), mixable with ids.",
     "reviewers": [
-      "agy",
-      "claude",
       "codex"
     ],
     "target_folders": [
@@ -11,7 +9,9 @@
     ],
     "target_prompt_tasks_num": [],
     "target_prompt_style": [],
-    "target_models": []
+    "target_models": [
+      "self"
+    ]
   },
   "cli_settings": [
     {
