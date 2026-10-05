@@ -14,7 +14,7 @@
       "security"
     ],
     "target_models": [
-      "self"
+      "claude"
     ]
   },
   "cli_settings": [
@@ -58,5 +58,11 @@
         }
       ]
     }
-  ]
+  ],
+  "reviewer_cli": {
+    "agy": "--add-dir",
+    "claude": "--add-dir",
+    "codex": "--add-dir",
+    "qwen": "--add-dir"
+  }
 }
