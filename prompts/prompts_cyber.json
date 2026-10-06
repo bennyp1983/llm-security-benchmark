@@ -3,7 +3,8 @@
     "_doc": "Allow-lists. Empty list or [\"all\"] = everything. target_models also accepts \"self\" (= reviewer reviews own code), mixable with ids.",
     "reviewers": [
       "agy",
-      "claude"
+      "claude",
+      "codex"
     ],
     "target_folders": [
       "post_research"
