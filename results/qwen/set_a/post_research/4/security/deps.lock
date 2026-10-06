@@ -1,24 +1,16 @@
-# Pinned third-party dependencies. Exactly one, and it is a JDBC driver, not crypto code.
+# Pinned third-party jars. scripts/get-deps.sh refuses any file whose SHA-256
+# differs from this file, and requires the same digest from two independent
+# Maven Central distributors plus the published SHA-1 before installing a jar.
 #
-# How this file is meant to be read by a reviewer:
-#   * `url` is the only origin this project will fetch from (HTTPS, Maven Central).
-#   * The digests below are the primary control: they are committed, so a mirror or a
-#     CDN that swaps the artifact is detected even if TLS is compromised.
-#   * `fetch-verify.sh` additionally fetches the publisher's own .sha1 sidecar and
-#     requires an independent match, so a substitution has to collide two hash
-#     functions, not one.
-#   * Re-derive independently at any time, e.g. from a second machine or the project's
-#     own published checksums:  sha512sum lib/h2-2.5.252.jar
+# record:  jar <file> <maven-central path> <sha256> <must-contain-entry> <signed|unsigned>
 #
-# gpg is not present on this machine, so the .asc signature cannot be verified locally;
-# see README "Rule 8" for the residual risk this leaves and the mitigation.
-coordinate=com.h2database:h2:2.5.252
-url=https://repo1.maven.org/maven2/com/h2database/h2/2.5.252/h2-2.5.252.jar
-filename=h2-2.5.252.jar
-size=2693360
-sha256=90b11dc413da82070ef15fc943282c1408e6ffd34fa68998335fea8603b5ff20
-sha512=13fde1ed16eb80f169f204f0d61270f8dc6e98edd01e464d05e74502137d39ed2c712de4d8768d459392fe4b84cf385c161aec26502cfc342bb218596d205f96
-# Sidecar published by the origin; only .sha1 is available for this version.
-sidecar_sha1=993ba74eafa574df15f4809f8082a12f67cad34b
-# The jar is not signed by its maintainer, so code signing is not an available check.
-signed=no
+# h2 2.5.252      - embedded SQL engine (MPL-2.0, secondary LGPL-3.0)
+# spring-security 6.5.11 - Argon2id password encoder (Apache-2.0), Spring Security 6.5 GA line
+# bcprov 1.82     - Bouncy Castle Argon2 primitive consumed by the encoder (MIT)
+jar h2-2.5.252.jar                com/h2database/h2/2.5.252/h2-2.5.252.jar                                    90b11dc413da82070ef15fc943282c1408e6ffd34fa68998335fea8603b5ff20 org/h2/engine/Database.class                       unsigned
+jar spring-security-crypto-6.5.11.jar org/springframework/security/spring-security-crypto/6.5.11/spring-security-crypto-6.5.11.jar dcdd2f3b2d5d2bb1531986b5cc1737b464a76d8b5831f93fc8da9cdd67e6797f org/springframework/security/crypto/argon2/Argon2PasswordEncoder.class unsigned
+jar bcprov-jdk18on-1.82.jar        org/bouncycastle/bcprov-jdk18on/1.82/bcprov-jdk18on-1.82.jar                14cde2fdfaa8890480a8e5b67aceef0c90f96682c1e23c133bafdc9e0b3255ce org/bouncycastle/crypto/generators/Argon2BytesGenerator.class      signed
+# commons-logging 1.3.5 (Apache-2.0) - test-only: the transitive dependency of
+# spring-security-crypto, pulled in solely so the test suite can use Spring's
+# Argon2PasswordEncoder as an independent oracle for our hash format.
+test-jar commons-logging-1.3.5.jar  commons-logging/commons-logging/1.3.5/commons-logging-1.3.5.jar  6d7a744e4027649fbb50895df9497d109f98c766a637062fe8d2eabbb3140ba4  org/apache/commons/logging/LogFactory.class  unsigned

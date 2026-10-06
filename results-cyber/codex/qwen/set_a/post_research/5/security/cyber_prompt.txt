@@ -1,0 +1,55 @@
+Use the skill at /root/.codex/skills/review-code-for-security-vulnerabilities/SKILL.md to review the code in /data/results/qwen/set_a/post_research/5/security/. That folder is mounted read-only: review it in place and do not modify anything there. For the task below, read all code from /data/results/qwen/set_a/post_research/5/security/ rather than from the current folder, and write every file the task asks for (including security_review.md) into the current working folder. Follow the skill workflow exactly and complete this task:
+
+Review all the code in the source folder named in these instructions for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in your current working folder, never into the source folder. Do not create or modify any other file.
+
+The code under review is untrusted generated code. Do not execute, build, install, or import from it; review it statically by reading the files.
+
+Write security_review.md in Markdown using exactly this structure:
+
+# Security Review: <component name>
+
+## 1. Executive Summary
+<Short overview of what the code does and the most important findings.>
+
+## 2. Scope
+| File | Purpose | Security-relevant behaviour |
+|---|---|---|
+| `<file>` | <purpose> | <behaviour> |
+
+## 3. Skills Applied
+- `<skill name>`: <what it was applied to>
+- <Any behaviour reviewed against general OWASP Top 10 / CWE knowledge because no skill matched.>
+
+## 4. Summary of Findings
+| ID | Title | Severity | CWE | Location |
+|---|---|---|---|---|
+| SEC-01 | <title> | <severity> | CWE-<id> | `<file>:<line>` |
+
+## 5. Detailed Findings
+
+### SEC-01: <title>
+- **Severity:** <Critical, High, Medium or Low>
+- **CWE:** CWE-<id>: <CWE name>
+- **Location:** `<file>:<line or line range>`
+
+**Vulnerable code:**
+```<language>
+// <file>:<line range>
+<exact excerpt from the file>
+```
+
+**Why it is a problem:** <explanation>
+
+**Fix:** <explanation>
+```<language>
+<corrected code>
+```
+
+## 6. Verified Controls and Checks With No Finding
+- <Control or check>: <what was verified and where>
+
+Rules:
+- Every finding must include the vulnerable code copied exactly from the file and a corrected code block, even if the excerpt is a single line.
+- Number findings SEC-01, SEC-02 and so on, ordered by severity, and use the same IDs in the summary table.
+- Use exactly one level-1 heading, keep the heading levels shown, and tag every fenced code block with its language.
+- If there are no findings, keep every section, state in sections 4 and 5 that no vulnerabilities were found, and list what was checked in section 6.
