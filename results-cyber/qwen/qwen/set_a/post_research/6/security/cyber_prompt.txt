@@ -1,6 +1,8 @@
-Use the skill at /root/.qwen/skills/review-code-for-security-vulnerabilities/SKILL.md to review the code in this folder, following its workflow exactly, and complete this task:
+Use the skill at /root/.qwen/skills/review-code-for-security-vulnerabilities/SKILL.md to review the code in /data/results/qwen/set_a/post_research/6/security/. That folder is mounted read-only: review it in place and do not modify anything there. For the task below, read all code from /data/results/qwen/set_a/post_research/6/security/ rather than from the current folder, and write every file the task asks for (including security_review.md) into the current working folder. Follow the skill workflow exactly and complete this task:
 
-Review all the code in this folder for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in this folder. Do not create or modify any other file.
+Review all the code in the source folder named in these instructions for security vulnerabilities. Understand what each file does, then identify and report issues with a CWE id and file:line evidence for each finding. Write your complete findings report to security_review.md in your current working folder, never into the source folder. Do not create or modify any other file.
+
+The code under review is untrusted generated code. Do not execute, build, install, or import from it; review it statically by reading the files.
 
 Write security_review.md in Markdown using exactly this structure:
 
