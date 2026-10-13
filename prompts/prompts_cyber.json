@@ -2,7 +2,6 @@
   "run_config": {
     "_doc": "Allow-lists. Empty list or [\"all\"] = everything. target_models also accepts \"self\" (= reviewer reviews own code), mixable with ids.",
     "reviewers": [
-      "agy"
     ],
     "target_folders": [
     ],

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Session Cookie Demo</title>
+</head>
+<body>
+  <h1>Session Cookie Demo</h1>
+  <ul>
+    <li><a href="login?user=alice">/login?user=alice</a>
+        &mdash; "authentication" (assumed successful) and receipt of the session cookie</li>
+    <li><a href="profile">/profile</a>
+        &mdash; report the authenticated session (only once the cookie has been set)</li>
+    <li><a href="logout">/logout</a>
+        &mdash; end the session and expire the cookie</li>
+  </ul>
+  <p>Open the links in the same browser tab so the cookie travels with the
+  requests, or use the curl walkthrough in the README.</p>
+</body>
+</html>
