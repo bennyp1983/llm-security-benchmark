@@ -355,19 +355,19 @@
       }
     },
     {
-      "id": "334f4ffa-b8e3-493a-9c99-b76c00dbc62b",
-      "name": "Merge",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ Object.assign({}, $('Loop Models').item.json, { return_txt: $json.return_txt }) }}",
+        "options": {}
+      },
+      "id": "a41707cd-e738-4fc6-968b-c35d7958cf66",
+      "name": "Attach Job Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
         784,
         928
-      ],
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineAll",
-        "options": {}
-      }
+      ]
     }
   ],
   "connections": {
@@ -486,11 +486,6 @@
             "node": "Generate Code",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -518,11 +513,6 @@
         [
           {
             "node": "Generate Code",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -562,9 +552,9 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Attach Job Context",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
@@ -631,7 +621,7 @@
         ]
       ]
     },
-    "Merge": {
+    "Attach Job Context": {
       "main": [
         [
           {

@@ -18,10 +18,14 @@ Regenerate by fetching a recent successful execution:
 2. **Dead-end extractors destroy fields:** `Read Cyber Hash` → `Extract Cyber Hash`
    output ONLY `existing_benchmark_cyber_hash` (file metadata/`existing_*` key) —
    `cli_settings`/`benchmark_cyber_hash` are GONE on that branch.
-3. **`Merge` (combineAll) re-attaches the job** to the `return_txt`/`error` branch
-   via item-pairing; the branch surviving the dead end contributes its small key set,
-   the job branch contributes the full job. Failed `Review Code` runs union an
-   `error` key into the merged item (survives into Parse; harmless today).
+3. **`Attach Job Context` (Edit Fields, raw JSON) re-attaches the job** to
+   `return_txt`: `Object.assign({}, $('Loop Models').item.json, {return_txt})`. It
+   replaced the old `Merge` (combineAll). It has a single input (`Extract Cyber CLI
+   Return`), so it only runs when the return file was actually read. A failed
+   `Review Code` (e.g. exit 78 when the benchmark output has no `prompt_hash.txt`)
+   leaves no `cyber_return.txt`, `Read Cyber CLI Return` takes its error output
+   back to `Loop Models`, and Parse/Write are never reached (the old Merge released
+   with only its job input and wrote into a never-created folder -> ENOENT).
 4. **Error-output lifecycle:** `Read Cyber Hash`, `Read Cyber CLI Return`,
    `Check Security Review` = `onError: continueErrorOutput` (missing file → out1,
    which carries the *input* item, i.e. full job fields). `Review Code` =
@@ -56,11 +60,11 @@ Regenerate by fetching a recent successful execution:
 | 12 | Loop Models (splitInBatches) | — | out1: job (per item); out0 when done | 1/iter |
 | 13 | Read Cyber Hash | `cli_settings.cyber_container_path` (inline=$json from loop) + `benchmark_cyber_hash.txt` | out0: file meta + binary (fields DESTROYED, note 2); out1 on missing file: **job** | 144 / 24 |
 | 14 | Extract Cyber Hash | binary → `existing_benchmark_cyber_hash` | `{existing_benchmark_cyber_hash}` only | 144 |
-| 15 | If Cyber Hash Matches | `$('Loop Models')…benchmark_cyber_hash` == `$json.existing_benchmark_cyber_hash` | pass-through in; out0=skip→loop, out1=review→Review Code+Merge | 144 / 0* |
+| 15 | If Cyber Hash Matches | `$('Loop Models')…benchmark_cyber_hash` == `$json.existing_benchmark_cyber_hash` | pass-through in; out0=skip→loop, out1=review→Review Code | 144 / 0* |
 | 16 | Review Code (exec) | `$('Loop Models')`: cyber_container_path ×4, container_path, skill_path, cyber_prompt, headless_execute, prompt_prefix, prompt_suffix, benchmark_cyber_hash ×2 | `{exitCode,stderr,stdout}`; onError→`{error}` | 24 (1 err) |
 | 17 | Read Cyber CLI Return | `$('Loop Models')…cyber_container_path` + `cyber_return.txt` | out0 file meta+binary; out1: job | |
 | 18 | Extract Cyber CLI Return | binary → `return_txt` | `{return_txt}` only | |
-| 19 | Merge (combineAll) | — | job ∪ branch (∪ `error` if failed run) | 24 |
+| 19 | Attach Job Context (Edit Fields) | `$('Loop Models').item.json` + `$json.return_txt` | job ∪ `return_txt` | 24 |
 | 20 | Parse Cyber CLI Output (python) | `_items[0].json` → `return_txt`, `cli_settings`, + passthrough | merged job ∪ `{parse_success, parse_error, parse_mode, result_md, response, status, conversation_id, input/output/thinking/total/cached_read/cache_creation_tokens, num_turns, duration_*}` | |
 | 21 | Convert Cyber Result to File (`result_md`→`result_md_data`) | `$json.result_md` | json EMPTY, `binary.result_md_data` | |
 | 22 | Write Cyber Result.md | `$('Parse Cyber CLI Output')…cli_settings.cyber_container_path` + `cyber_result.md`; `dataPropertyName=result_md_data` | `{fileName}` + binary kept | |
