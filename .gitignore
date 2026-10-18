@@ -9,3 +9,12 @@
 __pycache__/
 .venv*/
 
+
+# Report: Quarto's cache, and everything the cyber workflow generates except the final report
+report/.quarto/
+report/**/*.quarto_ipynb
+report/final_report.qmd
+report/**/*_files/
+report/docs/*
+!report/docs/final_report.html
+!report/docs/final_report.docx
