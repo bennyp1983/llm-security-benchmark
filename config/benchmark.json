@@ -136,7 +136,7 @@
             }
         }
     ],
-    "student": [
+    "prompt_sets": [
         {
             "name": "ben",
             "task": [

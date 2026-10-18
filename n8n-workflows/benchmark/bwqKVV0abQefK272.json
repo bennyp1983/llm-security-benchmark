@@ -2,7 +2,7 @@
   "updatedAt": "2026-09-13T03:05:59.455Z",
   "createdAt": "2026-08-23T22:40:51.644Z",
   "id": "bwqKVV0abQefK272",
-  "name": "My workflow",
+  "name": "benchmark",
   "description": null,
   "active": false,
   "isArchived": false,
@@ -44,7 +44,7 @@
       ],
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "import hashlib\n\nLLM_SET = \"a\"\n\ndata = _items[0][\"json\"][\"prompts_json\"]\nstudents = data[\"student\"]\ncli_settings = data[\"cli_settings\"]\n\nfor student in students:\n    for task in student[\"task\"]:\n        for prompt in task[\"prompts\"]:\n\n            # Hash the prompt\n            prompt[\"hash\"] = hashlib.sha256(\n                prompt[\"prompt\"].encode(\"utf-8\")\n            ).hexdigest()\n\n            # Build the prompt-specific path\n            path = f'/{student[\"name\"]}/{task[\"task_number\"]}/{prompt[\"style\"]}/'\n\n            if prompt.get(\"turn\") is not None:\n                path += f'{prompt[\"turn\"]}/'\n\n            prompt[\"cli_settings\"] = []\n\n            for cli in cli_settings:\n                for cli_set in cli[\"input\"][\"set\"]:\n\n                    # Only use the selected LLM set\n                    if cli_set[\"id\"] != LLM_SET:\n                        continue\n\n                    prompt[\"cli_settings\"].append({\n                        # CLI-level fields\n                        \"name\": cli[\"name\"],\n                        \"set_id\": cli_set[\"id\"],\n\n                        # Flatten common input fields, excluding nested set\n                        **{\n                            key: value\n                            for key, value in cli[\"input\"].items()\n                            if key != \"set\"\n                        },\n\n                        # Flatten selected set fields, excluding id\n                        **{\n                            key: value\n                            for key, value in cli_set.items()\n                            if key != \"id\"\n                        },\n\n                        # Build unique result path\n                        \"container_path\":\n                            f'{cli[\"container_path\"]}/set_{cli_set[\"id\"]}{path}',\n\n                        # Flatten json_output with json_output_ prefix\n                        **{\n                            f\"json_output_{key}\": value\n                            for key, value in cli[\"json_output\"].items()\n                        }\n                    })\n\nreturn students"
+        "pythonCode": "import hashlib\n\nLLM_SET = \"a\"\n\ndata = _items[0][\"json\"][\"prompts_json\"]\nstudents = data[\"prompt_sets\"]\ncli_settings = data[\"cli_settings\"]\n\nfor student in students:\n    for task in student[\"task\"]:\n        for prompt in task[\"prompts\"]:\n\n            # Hash the prompt\n            prompt[\"hash\"] = hashlib.sha256(\n                prompt[\"prompt\"].encode(\"utf-8\")\n            ).hexdigest()\n\n            # Build the prompt-specific path\n            path = f'/{student[\"name\"]}/{task[\"task_number\"]}/{prompt[\"style\"]}/'\n\n            if prompt.get(\"turn\") is not None:\n                path += f'{prompt[\"turn\"]}/'\n\n            prompt[\"cli_settings\"] = []\n\n            for cli in cli_settings:\n                for cli_set in cli[\"input\"][\"set\"]:\n\n                    # Only use the selected LLM set\n                    if cli_set[\"id\"] != LLM_SET:\n                        continue\n\n                    prompt[\"cli_settings\"].append({\n                        # CLI-level fields\n                        \"name\": cli[\"name\"],\n                        \"set_id\": cli_set[\"id\"],\n\n                        # Flatten common input fields, excluding nested set\n                        **{\n                            key: value\n                            for key, value in cli[\"input\"].items()\n                            if key != \"set\"\n                        },\n\n                        # Flatten selected set fields, excluding id\n                        **{\n                            key: value\n                            for key, value in cli_set.items()\n                            if key != \"id\"\n                        },\n\n                        # Build unique result path\n                        \"container_path\":\n                            f'{cli[\"container_path\"]}/set_{cli_set[\"id\"]}{path}',\n\n                        # Flatten json_output with json_output_ prefix\n                        **{\n                            f\"json_output_{key}\": value\n                            for key, value in cli[\"json_output\"].items()\n                        }\n                    })\n\nreturn students"
       }
     },
     {
@@ -111,7 +111,7 @@
     },
     {
       "id": "3ae1f336-e46d-429f-94e7-0edee55c75b0",
-      "name": "Read prompts.json",
+      "name": "Read benchmark.json",
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
@@ -375,7 +375,7 @@
       "main": [
         [
           {
-            "node": "Read prompts.json",
+            "node": "Read benchmark.json",
             "type": "main",
             "index": 0
           }
@@ -436,17 +436,6 @@
           }
         ],
         []
-      ]
-    },
-    "Read prompts.json": {
-      "main": [
-        [
-          {
-            "node": "Extract Prompts JSON",
-            "type": "main",
-            "index": 0
-          }
-        ]
       ]
     },
     "Split models": {
@@ -626,6 +615,17 @@
         [
           {
             "node": "Parse CLI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read benchmark.json": {
+      "main": [
+        [
+          {
+            "node": "Extract Prompts JSON",
             "type": "main",
             "index": 0
           }
