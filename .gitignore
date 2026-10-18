@@ -8,5 +8,8 @@
 # Python
 __pycache__/
 
-# Quarto render output
-report/render/
+# Rendered report output: add back at final submission only
+report/docs/
+
+# Reworking locally: re-added when the report source reaches its final form
+report/
