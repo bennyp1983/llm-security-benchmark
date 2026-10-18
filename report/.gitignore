@@ -1,2 +1,7 @@
 /.quarto/
 **/*.quarto_ipynb
+
+# Previous report template and its rendered output: kept locally, no longer
+# tracked (being replaced by the generated data report)
+report.qmd
+docs/
