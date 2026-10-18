@@ -16,3 +16,18 @@ COPY custom-skills/review-code-for-security-vulnerabilities /root/.claude/skills
 COPY custom-skills/review-code-for-security-vulnerabilities /root/.codex/skills/review-code-for-security-vulnerabilities
 COPY custom-skills/review-code-for-security-vulnerabilities /root/.qwen/skills/review-code-for-security-vulnerabilities
 COPY custom-skills/review-code-for-security-vulnerabilities /root/.gemini/config/skills/review-code-for-security-vulnerabilities
+
+# Report rendering (html + docx only, so no LaTeX). Pinned to the version the report
+# was verified against locally, so container renders match local ones.
+ARG QUARTO_VERSION=1.10.19
+RUN apt-get update && apt-get install -y python3-venv python3-pip && \
+    curl -fsSL -o /tmp/quarto.deb \
+      "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-$(dpkg --print-architecture).deb" && \
+    apt-get install -y /tmp/quarto.deb && rm /tmp/quarto.deb
+
+# Report Python deps are baked in, not read from the /data/report mount. A venv because
+# bookworm's system pip refuses installs (PEP 668).
+COPY report/requirements.txt /opt/report-requirements.txt
+RUN python3 -m venv /opt/report-venv && \
+    /opt/report-venv/bin/pip install --no-cache-dir -r /opt/report-requirements.txt
+ENV QUARTO_PYTHON=/opt/report-venv/bin/python
