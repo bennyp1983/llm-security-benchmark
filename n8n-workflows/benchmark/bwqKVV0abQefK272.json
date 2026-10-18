@@ -119,7 +119,7 @@
         16
       ],
       "parameters": {
-        "fileSelector": "=/data/prompts/prompts_2.json",
+        "fileSelector": "=/data/config/benchmark.json",
         "options": {}
       }
     },

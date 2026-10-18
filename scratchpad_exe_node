@@ -1,9 +1,0 @@
-mkdir -p {{ $json.cli_settings.container_path }} &&
-printf '%s'  "{{ $json.prompt }}" > {{ $json.cli_settings.container_path }}prompt.txt &&
-cd {{ $json.cli_settings.container_path }} && {{ $json.cli_settings.cli_name }} "{{ $json.prompt }}" < /dev/null > return.txt &&
-printf '%s' "{{ $json.hash }}" > {{ $json.cli_settings.container_path }}prompt_hash.txt
-
-mkdir -p {{ $json.cli_settings.container_path }} &&
-printf '%s' "{{ $json.prompt }}" > {{ $json.cli_settings.container_path }}prompt.txt &&
-cd {{ $json.cli_settings.container_path }} && {{ $json.cli_settings.cli_name }} "{{ $json.prompt }}" < /dev/null > return.txt &&
-printf '%s' "{{ $json.hash }}" > {{ $json.cli_settings.container_path }}prompt_hash.txt

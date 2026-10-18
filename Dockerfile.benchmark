@@ -1,4 +1,4 @@
-# Run for detailed build sudo docker build --no-cache --progress=plain -t n8n-benchmark .
+# Run for detailed build sudo docker build --no-cache --progress=plain -f Dockerfile.benchmark -t n8n-benchmark .
 # Run for clean rebuild: docker compose build --no-cache
 
 # Pin n8n version to current latest version. (npm-based installs are deprecated from n8n 3.0)

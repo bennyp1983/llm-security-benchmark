@@ -1,6 +1,14 @@
+# Pin the project name: Docker prefixes volume names with it (n8n-uni_claude-auth ...).
+# Without this, cloning into a differently named folder creates new empty volumes,
+# losing n8n workflows and CLI logins.
+name: n8n-uni
+
 services:
   n8n:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.benchmark
+    image: n8n-benchmark:latest
     container_name: n8n-benchmark
     ports:
       - "5678:5678"
@@ -23,11 +31,11 @@ services:
       - codex-auth:/root/.codex
       - qwen-auth:/root/.qwen
       - agy-auth:/root/.gemini
-      - ./results/agy:/data/results/agy
-      - ./results/claude:/data/results/claude
-      - ./results/codex:/data/results/codex
-      - ./results/qwen:/data/results/qwen
-      - ./prompts:/data/prompts/
+      - ./results-benchmark/agy:/data/results-benchmark/agy
+      - ./results-benchmark/claude:/data/results-benchmark/claude
+      - ./results-benchmark/codex:/data/results-benchmark/codex
+      - ./results-benchmark/qwen:/data/results-benchmark/qwen
+      - ./config:/data/config:ro
     restart: unless-stopped
 
   n8n-runners:
@@ -45,6 +53,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.cyber
+    image: n8n-cyber:latest
     container_name: n8n-cyber
     ports:
       - "5688:5678"
@@ -67,15 +76,16 @@ services:
       - codex-cyber-auth:/root/.codex
       - qwen-cyber-auth:/root/.qwen
       - agy-cyber-auth:/root/.gemini
-      - ./results/agy:/data/results/agy:ro
-      - ./results/claude:/data/results/claude:ro
-      - ./results/codex:/data/results/codex:ro
-      - ./results/qwen:/data/results/qwen:ro
+      - ./results-benchmark/agy:/data/results-benchmark/agy:ro
+      - ./results-benchmark/claude:/data/results-benchmark/claude:ro
+      - ./results-benchmark/codex:/data/results-benchmark/codex:ro
+      - ./results-benchmark/qwen:/data/results-benchmark/qwen:ro
       - ./results-cyber/agy:/data/results-cyber/agy
       - ./results-cyber/claude:/data/results-cyber/claude
       - ./results-cyber/codex:/data/results-cyber/codex
       - ./results-cyber/qwen:/data/results-cyber/qwen
-      - ./prompts:/data/prompts/
+      - ./config:/data/config:ro
+      - ./report:/data/report
     restart: unless-stopped
 
   n8n-cyber-runners:

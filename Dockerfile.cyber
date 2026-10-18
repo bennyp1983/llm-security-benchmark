@@ -1,4 +1,4 @@
-FROM n8n-uni-n8n:latest
+FROM n8n-benchmark:latest
 
 # Cybersecurity skill library (mukul975/Anthropic-Cybersecurity-Skills); latest on each build.
 RUN mkdir -p /opt/security-tools && \
