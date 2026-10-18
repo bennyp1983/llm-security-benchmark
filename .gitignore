@@ -13,3 +13,6 @@ report/docs/
 
 # Reworking locally: re-added when the report source reaches its final form
 report/
+
+# Python virtualenvs (any machine)
+.venv*/
