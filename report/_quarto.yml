@@ -1,0 +1,3 @@
+# Quarto project: everything renders into docs/, whatever folder you render from
+project:
+  output-dir: docs

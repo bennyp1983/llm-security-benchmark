@@ -1,0 +1,250 @@
+CWE-ID,owasp,owasp_title
+5,A02,Security Misconfiguration
+11,A02,Security Misconfiguration
+13,A02,Security Misconfiguration
+15,A02,Security Misconfiguration
+16,A02,Security Misconfiguration
+20,A05,Injection
+22,A01,Broken Access Control
+23,A01,Broken Access Control
+36,A01,Broken Access Control
+59,A01,Broken Access Control
+61,A01,Broken Access Control
+65,A01,Broken Access Control
+73,A06,Insecure Design
+74,A05,Injection
+76,A05,Injection
+77,A05,Injection
+78,A05,Injection
+79,A05,Injection
+80,A05,Injection
+83,A05,Injection
+86,A05,Injection
+88,A05,Injection
+89,A05,Injection
+90,A05,Injection
+91,A05,Injection
+93,A05,Injection
+94,A05,Injection
+95,A05,Injection
+96,A05,Injection
+97,A05,Injection
+98,A05,Injection
+99,A05,Injection
+103,A05,Injection
+104,A05,Injection
+112,A05,Injection
+113,A05,Injection
+114,A05,Injection
+115,A05,Injection
+116,A05,Injection
+117,A09,Security Logging and Alerting Failures
+129,A05,Injection
+159,A05,Injection
+183,A06,Insecure Design
+200,A01,Broken Access Control
+201,A01,Broken Access Control
+209,A10,Mishandling of Exceptional Conditions
+215,A10,Mishandling of Exceptional Conditions
+219,A01,Broken Access Control
+221,A09,Security Logging and Alerting Failures
+223,A09,Security Logging and Alerting Failures
+234,A10,Mishandling of Exceptional Conditions
+235,A10,Mishandling of Exceptional Conditions
+248,A10,Mishandling of Exceptional Conditions
+252,A10,Mishandling of Exceptional Conditions
+256,A06,Insecure Design
+258,A07,Authentication Failures
+259,A07,Authentication Failures
+260,A02,Security Misconfiguration
+261,A04,Cryptographic Failures
+266,A06,Insecure Design
+269,A06,Insecure Design
+274,A10,Mishandling of Exceptional Conditions
+276,A01,Broken Access Control
+280,A10,Mishandling of Exceptional Conditions
+281,A01,Broken Access Control
+282,A01,Broken Access Control
+283,A01,Broken Access Control
+284,A01,Broken Access Control
+285,A01,Broken Access Control
+286,A06,Insecure Design
+287,A07,Authentication Failures
+288,A07,Authentication Failures
+289,A07,Authentication Failures
+290,A07,Authentication Failures
+291,A07,Authentication Failures
+293,A07,Authentication Failures
+294,A07,Authentication Failures
+295,A07,Authentication Failures
+296,A04,Cryptographic Failures
+297,A07,Authentication Failures
+298,A07,Authentication Failures
+299,A07,Authentication Failures
+300,A07,Authentication Failures
+302,A07,Authentication Failures
+303,A07,Authentication Failures
+304,A07,Authentication Failures
+305,A07,Authentication Failures
+306,A07,Authentication Failures
+307,A07,Authentication Failures
+308,A07,Authentication Failures
+309,A07,Authentication Failures
+311,A06,Insecure Design
+312,A06,Insecure Design
+313,A06,Insecure Design
+315,A02,Security Misconfiguration
+316,A06,Insecure Design
+319,A04,Cryptographic Failures
+320,A04,Cryptographic Failures
+321,A04,Cryptographic Failures
+322,A04,Cryptographic Failures
+323,A04,Cryptographic Failures
+324,A04,Cryptographic Failures
+325,A04,Cryptographic Failures
+326,A04,Cryptographic Failures
+327,A04,Cryptographic Failures
+328,A04,Cryptographic Failures
+329,A04,Cryptographic Failures
+330,A04,Cryptographic Failures
+331,A04,Cryptographic Failures
+332,A04,Cryptographic Failures
+334,A04,Cryptographic Failures
+335,A04,Cryptographic Failures
+336,A04,Cryptographic Failures
+337,A04,Cryptographic Failures
+338,A04,Cryptographic Failures
+340,A04,Cryptographic Failures
+342,A04,Cryptographic Failures
+345,A08,Software or Data Integrity Failures
+346,A07,Authentication Failures
+347,A04,Cryptographic Failures
+350,A07,Authentication Failures
+352,A01,Broken Access Control
+353,A08,Software or Data Integrity Failures
+359,A01,Broken Access Control
+362,A06,Insecure Design
+369,A10,Mishandling of Exceptional Conditions
+377,A01,Broken Access Control
+379,A01,Broken Access Control
+382,A06,Insecure Design
+384,A07,Authentication Failures
+390,A10,Mishandling of Exceptional Conditions
+391,A10,Mishandling of Exceptional Conditions
+394,A10,Mishandling of Exceptional Conditions
+396,A10,Mishandling of Exceptional Conditions
+397,A10,Mishandling of Exceptional Conditions
+402,A01,Broken Access Control
+419,A06,Insecure Design
+424,A01,Broken Access Control
+425,A01,Broken Access Control
+426,A08,Software or Data Integrity Failures
+427,A08,Software or Data Integrity Failures
+434,A06,Insecure Design
+436,A06,Insecure Design
+441,A01,Broken Access Control
+444,A06,Insecure Design
+447,A03,Software Supply Chain Failures
+451,A06,Insecure Design
+454,A06,Insecure Design
+460,A10,Mishandling of Exceptional Conditions
+470,A05,Injection
+472,A06,Insecure Design
+476,A10,Mishandling of Exceptional Conditions
+478,A10,Mishandling of Exceptional Conditions
+484,A10,Mishandling of Exceptional Conditions
+489,A02,Security Misconfiguration
+493,A05,Injection
+494,A08,Software or Data Integrity Failures
+497,A01,Broken Access Control
+500,A05,Injection
+501,A06,Insecure Design
+502,A08,Software or Data Integrity Failures
+506,A08,Software or Data Integrity Failures
+509,A08,Software or Data Integrity Failures
+521,A07,Authentication Failures
+522,A06,Insecure Design
+523,A04,Cryptographic Failures
+525,A06,Insecure Design
+526,A02,Security Misconfiguration
+532,A09,Security Logging and Alerting Failures
+538,A01,Broken Access Control
+539,A06,Insecure Design
+540,A01,Broken Access Control
+547,A02,Security Misconfiguration
+548,A01,Broken Access Control
+550,A10,Mishandling of Exceptional Conditions
+552,A01,Broken Access Control
+564,A05,Injection
+565,A08,Software or Data Integrity Failures
+566,A01,Broken Access Control
+598,A06,Insecure Design
+601,A01,Broken Access Control
+602,A06,Insecure Design
+610,A05,Injection
+611,A02,Security Misconfiguration
+613,A07,Authentication Failures
+614,A02,Security Misconfiguration
+615,A01,Broken Access Control
+620,A07,Authentication Failures
+628,A06,Insecure Design
+636,A10,Mishandling of Exceptional Conditions
+639,A01,Broken Access Control
+640,A07,Authentication Failures
+642,A06,Insecure Design
+643,A05,Injection
+644,A05,Injection
+646,A06,Insecure Design
+653,A06,Insecure Design
+656,A06,Insecure Design
+657,A06,Insecure Design
+668,A01,Broken Access Control
+676,A06,Insecure Design
+693,A06,Insecure Design
+703,A10,Mishandling of Exceptional Conditions
+732,A01,Broken Access Control
+749,A01,Broken Access Control
+754,A10,Mishandling of Exceptional Conditions
+755,A10,Mishandling of Exceptional Conditions
+756,A10,Mishandling of Exceptional Conditions
+757,A04,Cryptographic Failures
+759,A04,Cryptographic Failures
+760,A04,Cryptographic Failures
+776,A02,Security Misconfiguration
+778,A09,Security Logging and Alerting Failures
+780,A04,Cryptographic Failures
+784,A08,Software or Data Integrity Failures
+798,A07,Authentication Failures
+799,A06,Insecure Design
+807,A06,Insecure Design
+829,A08,Software or Data Integrity Failures
+830,A08,Software or Data Integrity Failures
+841,A06,Insecure Design
+862,A01,Broken Access Control
+863,A01,Broken Access Control
+915,A08,Software or Data Integrity Failures
+916,A04,Cryptographic Failures
+917,A05,Injection
+918,A01,Broken Access Control
+922,A01,Broken Access Control
+926,A08,Software or Data Integrity Failures
+940,A07,Authentication Failures
+941,A07,Authentication Failures
+942,A02,Security Misconfiguration
+1004,A02,Security Misconfiguration
+1021,A06,Insecure Design
+1022,A06,Insecure Design
+1035,A03,Software Supply Chain Failures
+1104,A03,Software Supply Chain Failures
+1125,A06,Insecure Design
+1174,A02,Security Misconfiguration
+1240,A04,Cryptographic Failures
+1241,A04,Cryptographic Failures
+1275,A01,Broken Access Control
+1329,A03,Software Supply Chain Failures
+1357,A03,Software Supply Chain Failures
+1390,A07,Authentication Failures
+1391,A07,Authentication Failures
+1392,A07,Authentication Failures
+1393,A07,Authentication Failures
+1395,A03,Software Supply Chain Failures

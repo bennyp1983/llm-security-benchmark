@@ -7,14 +7,8 @@
 
 # Python
 __pycache__/
+.venv*/
 
 # Rendered report output: add back at final submission only
 report/docs/
 
-# Reworking locally: re-added when the report source reaches its final form.
-# requirements.txt stays tracked: Dockerfile.cyber COPYs it at build time.
-report/*
-!report/requirements.txt
-
-# Python virtualenvs (any machine)
-.venv*/
