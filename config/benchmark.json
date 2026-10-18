@@ -2,7 +2,7 @@
     "cli_settings": [
         {
             "name": "Google Antigravity",
-            "container_path": "/data/results-benchmark/agy",
+            "container_path": "/data/results/agy",
             "input": {
                 "headless_execute": "agy -p",
                 "set": [
@@ -35,7 +35,7 @@
         },
         {
             "name": "Claude Code",
-            "container_path": "/data/results-benchmark/claude",
+            "container_path": "/data/results/claude",
             "input": {
                 "headless_execute": "IS_SANDBOX=1 claude -p",
                 "set": [
@@ -69,7 +69,7 @@
         },
         {
             "name": "ChatGPT Codex",
-            "container_path": "/data/results-benchmark/codex",
+            "container_path": "/data/results/codex",
             "input": {
                 "headless_execute": "codex exec",
                 "set": [
@@ -102,7 +102,7 @@
         },
         {
             "name": "Qwen",
-            "container_path": "/data/results-benchmark/qwen",
+            "container_path": "/data/results/qwen",
             "input": {
                 "headless_execute": "qwen -p",
                 "set": [

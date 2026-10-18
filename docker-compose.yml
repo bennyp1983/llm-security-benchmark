@@ -31,10 +31,10 @@ services:
       - codex-auth:/root/.codex
       - qwen-auth:/root/.qwen
       - agy-auth:/root/.gemini
-      - ./results-benchmark/agy:/data/results-benchmark/agy
-      - ./results-benchmark/claude:/data/results-benchmark/claude
-      - ./results-benchmark/codex:/data/results-benchmark/codex
-      - ./results-benchmark/qwen:/data/results-benchmark/qwen
+      - ./results/agy:/data/results/agy
+      - ./results/claude:/data/results/claude
+      - ./results/codex:/data/results/codex
+      - ./results/qwen:/data/results/qwen
       - ./config:/data/config:ro
     restart: unless-stopped
 
@@ -76,10 +76,10 @@ services:
       - codex-cyber-auth:/root/.codex
       - qwen-cyber-auth:/root/.qwen
       - agy-cyber-auth:/root/.gemini
-      - ./results-benchmark/agy:/data/results-benchmark/agy:ro
-      - ./results-benchmark/claude:/data/results-benchmark/claude:ro
-      - ./results-benchmark/codex:/data/results-benchmark/codex:ro
-      - ./results-benchmark/qwen:/data/results-benchmark/qwen:ro
+      - ./results/agy:/data/results/agy:ro
+      - ./results/claude:/data/results/claude:ro
+      - ./results/codex:/data/results/codex:ro
+      - ./results/qwen:/data/results/qwen:ro
       - ./results-cyber/agy:/data/results-cyber/agy
       - ./results-cyber/claude:/data/results-cyber/claude
       - ./results-cyber/codex:/data/results-cyber/codex
