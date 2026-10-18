@@ -4,3 +4,9 @@
 # Local Docker build artifacts / editor cruft
 *.log
 .DS_Store
+
+# Python
+__pycache__/
+
+# Quarto render output
+report/render/
