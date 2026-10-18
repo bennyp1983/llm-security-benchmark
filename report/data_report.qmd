@@ -1,0 +1,399 @@
+---
+title: "Security findings data report"
+format: gfm
+jupyter: python3
+fig-dpi: 170
+execute:
+  echo: false
+  warning: false
+  error: false
+---
+
+<!-- The report template. The cyber workflow renders it as-is (markdown, blank TEXT
+     placeholders) for the writer AI to read, then copies it to final_report.qmd with
+     html/docx output, the writer fills the placeholders in that copy, and the copy is rendered. -->
+
+```{python}
+#| label: initialise-report
+#| echo: false
+# Load findings.csv once; every table and figure below is computed from it
+import sys
+from pathlib import Path
+from IPython.display import display, Markdown
+
+sys.path.insert(0, str(Path("scripts")))
+from analysis import *
+
+df = load_findings(CSV_PATH)
+reviews = review_table(df)       # One row per review
+found = findings_only(df)        # One row per finding
+pairs = paired_table(reviews)    # The 48 matched Stage 1 pairs
+```
+
+## Executive summary {.unnumbered}
+
+{{TEXT:executive_summary}}
+
+## The eight Security-informed rules and the CWEs assigned to them
+
+```{python}
+#| label: tbl-rules
+#| tbl-cap: "The eight Security-informed rules and the CWEs assigned to them · All findings"
+display(Markdown(markdown_table(rule_table(found))))
+```
+
+{{TEXT:tbl-rules}}
+
+## Study design
+
+```{python}
+#| label: fig-design
+#| fig-cap: "Study design · Stage 1, the eight rules, Stage 2"
+plot_study_design(reviews)
+```
+
+{{TEXT:fig-design}}
+
+## Programs, reviews and findings
+
+```{python}
+#| label: tbl-accounting
+#| tbl-cap: "Programs, reviews and findings · All three conditions, all reviews"
+display(Markdown(markdown_table(stage_summary(df))))
+```
+
+{{TEXT:tbl-accounting}}
+
+## Completed reviews per task and generator
+
+```{python}
+#| label: fig-completeness
+#| fig-cap: "Completed reviews per task and generator · All three conditions, all reviews"
+plot_completeness(reviews)
+```
+
+{{TEXT:fig-completeness}}
+
+## Paired difference in findings per review, overall and by generator
+
+```{python}
+#| label: tbl-paired
+#| tbl-cap: "Paired difference in findings per review, overall and by generator · Basic and Security-aware, matched pairs, self-review"
+display(Markdown(markdown_table(paired_effect_table(pairs))))
+```
+
+{{TEXT:tbl-paired}}
+
+## Paired difference in findings per review by generator
+
+```{python}
+#| label: fig-paired
+#| fig-cap: "Paired difference in findings per review by generator · Basic and Security-aware, matched pairs, self-review"
+plot_paired_effect(pairs)
+```
+
+{{TEXT:fig-paired}}
+
+## Findings per review, median and High/Critical share
+
+```{python}
+#| label: tbl-conditions
+#| tbl-cap: "Findings per review, median and High/Critical share · All three conditions, self-review"
+display(Markdown(markdown_table(self_review_table(reviews))))
+```
+
+{{TEXT:tbl-conditions}}
+
+## Findings per review
+
+```{python}
+#| label: fig-distribution
+#| fig-cap: "Findings per review · All three conditions, self-review"
+plot_findings_distribution(reviews)
+```
+
+{{TEXT:fig-distribution}}
+
+## Findings per review by generator
+
+```{python}
+#| label: fig-generator
+#| fig-cap: "Findings per review by generator · All three conditions, self-review"
+plot_findings_by_generator(reviews)
+```
+
+{{TEXT:fig-generator}}
+
+## Findings per review by task
+
+```{python}
+#| label: fig-task
+#| fig-cap: "Findings per review by task · All three conditions, self-review"
+plot_findings_by_task(reviews)
+```
+
+{{TEXT:fig-task}}
+
+## Severity of findings
+
+```{python}
+#| label: fig-severity
+#| fig-cap: "Severity of findings · All three conditions, self-review"
+plot_severity_by_condition(found)
+```
+
+{{TEXT:fig-severity}}
+
+## Reviews naming the task's anchor CWE
+
+```{python}
+#| label: fig-anchor
+#| fig-cap: "Reviews naming the task's anchor CWE · All three conditions, self-review"
+plot_anchor_reporting(reviews)
+```
+
+{{TEXT:fig-anchor}}
+
+## The 14 most-reported CWEs
+
+```{python}
+#| label: tbl-top-cwes
+#| tbl-cap: "The 14 most-reported CWEs · All findings"
+display(Markdown(markdown_table(top_cwe_table(found))))
+```
+
+{{TEXT:tbl-top-cwes}}
+
+## Findings per review by CWE
+
+```{python}
+#| label: fig-cwe-rates
+#| fig-cap: "Findings per review by CWE · All three conditions, self-review"
+plot_category_rates(found, reviews, "cwe")
+```
+
+{{TEXT:fig-cwe-rates}}
+
+## Findings per review by CWE, with the change from the Stage 1 average
+
+```{python}
+#| label: tbl-cwe-rates
+#| tbl-cap: "Findings per review by CWE, with the change from the Stage 1 average · All three conditions, self-review"
+display(Markdown(markdown_table(category_rate_table(found, reviews, "cwe"))))
+```
+
+{{TEXT:tbl-cwe-rates}}
+
+## Findings per review by OWASP category
+
+```{python}
+#| label: fig-owasp-rates
+#| fig-cap: "Findings per review by OWASP category · All three conditions, self-review"
+plot_category_rates(found, reviews, "owasp")
+```
+
+{{TEXT:fig-owasp-rates}}
+
+## Findings per review by OWASP category, with the change from the Stage 1 average
+
+```{python}
+#| label: tbl-owasp-rates
+#| tbl-cap: "Findings per review by OWASP category, with the change from the Stage 1 average · All three conditions, self-review"
+display(Markdown(markdown_table(category_rate_table(found, reviews, "owasp"))))
+```
+
+{{TEXT:tbl-owasp-rates}}
+
+## CWE make-up of findings
+
+```{python}
+#| label: fig-cwe-mix
+#| fig-cap: "CWE make-up of findings · All three conditions, self-review"
+plot_category_mix(found, "cwe")
+```
+
+{{TEXT:fig-cwe-mix}}
+
+## OWASP category make-up of findings
+
+```{python}
+#| label: fig-owasp-mix
+#| fig-cap: "OWASP category make-up of findings · All three conditions, self-review"
+plot_category_mix(found, "owasp")
+```
+
+{{TEXT:fig-owasp-mix}}
+
+## CWE make-up of findings by generator
+
+```{python}
+#| label: fig-cwe-pies
+#| fig-cap: "CWE make-up of findings by generator · All three conditions, self-review"
+plot_category_pies(found, "cwe")
+```
+
+{{TEXT:fig-cwe-pies}}
+
+## OWASP category make-up of findings by generator
+
+```{python}
+#| label: fig-owasp-pies
+#| fig-cap: "OWASP category make-up of findings by generator · All three conditions, self-review"
+plot_category_pies(found, "owasp")
+```
+
+{{TEXT:fig-owasp-pies}}
+
+## Findings per review by Security-informed rule
+
+```{python}
+#| label: fig-rule-rates
+#| fig-cap: "Findings per review by Security-informed rule · All three conditions, self-review"
+plot_category_rates(found, reviews, "rule")
+```
+
+{{TEXT:fig-rule-rates}}
+
+## Findings per review by Security-informed rule, with the change from the Stage 1 average
+
+```{python}
+#| label: tbl-rule-rates
+#| tbl-cap: "Findings per review by Security-informed rule, with the change from the Stage 1 average · All three conditions, self-review"
+display(Markdown(markdown_table(category_rate_table(found, reviews, "rule"))))
+```
+
+{{TEXT:tbl-rule-rates}}
+
+## Rule make-up of findings
+
+```{python}
+#| label: fig-rule-mix
+#| fig-cap: "Rule make-up of findings · All three conditions, self-review"
+plot_category_mix(found, "rule")
+```
+
+{{TEXT:fig-rule-mix}}
+
+## Findings per review by reviewer and generator
+
+```{python}
+#| label: fig-matrix
+#| fig-cap: "Findings per review by reviewer and generator · Security-informed, all four reviewers"
+plot_reviewer_matrix(reviews)
+```
+
+{{TEXT:fig-matrix}}
+
+## Reviewer volume, severity and own-code contrast
+
+```{python}
+#| label: tbl-behaviour
+#| tbl-cap: "Reviewer volume, severity and own-code contrast · Security-informed, all four reviewers"
+display(Markdown(markdown_table(reviewer_behaviour_table(reviews, found))))
+```
+
+{{TEXT:tbl-behaviour}}
+
+## Reviewer volume against severity, and own code against other generators' code
+
+```{python}
+#| label: fig-behaviour
+#| fig-cap: "Reviewer volume against severity, and own code against other generators' code · Security-informed, all four reviewers"
+plot_reviewer_behaviour(reviews, found)
+```
+
+{{TEXT:fig-behaviour}}
+
+## Severity of findings by reviewer
+
+```{python}
+#| label: fig-severity-reviewer
+#| fig-cap: "Severity of findings by reviewer · Security-informed, all four reviewers"
+plot_severity_by_reviewer(found)
+```
+
+{{TEXT:fig-severity-reviewer}}
+
+## Reviewers naming the same CWE, and the same OWASP category, on a program
+
+```{python}
+#| label: fig-agreement
+#| fig-cap: "Reviewers naming the same CWE, and the same OWASP category, on a program · Security-informed, all four reviewers"
+plot_agreement(found)
+```
+
+{{TEXT:fig-agreement}}
+
+## Share of (program, category) pairs named by 1, 2, 3 or 4 reviewers
+
+```{python}
+#| label: tbl-agreement
+#| tbl-cap: "Share of (program, category) pairs named by 1, 2, 3 or 4 reviewers · Security-informed, all four reviewers"
+display(Markdown(markdown_table(support_share_table(found))))
+```
+
+{{TEXT:tbl-agreement}}
+
+## Mean Jaccard overlap of each reviewer pair's labels on the same program
+
+```{python}
+#| label: tbl-jaccard
+#| tbl-cap: "Mean Jaccard overlap of each reviewer pair's labels on the same program · Security-informed, all four reviewers"
+display(Markdown(markdown_table(jaccard_pair_table(reviews, found))))
+```
+
+{{TEXT:tbl-jaccard}}
+
+## CWE make-up of findings by generator
+
+```{python}
+#| label: fig-cwe-pies-2
+#| fig-cap: "CWE make-up of findings by generator · Security-informed, self-review and external review"
+plot_category_pies(found, "cwe", "stage 2")
+```
+
+{{TEXT:fig-cwe-pies-2}}
+
+## OWASP category make-up of findings by generator
+
+```{python}
+#| label: fig-owasp-pies-2
+#| fig-cap: "OWASP category make-up of findings by generator · Security-informed, self-review and external review"
+plot_category_pies(found, "owasp", "stage 2")
+```
+
+{{TEXT:fig-owasp-pies-2}}
+
+## Findings per review by CWE and task
+
+```{python}
+#| label: fig-cwe-task
+#| fig-cap: "Findings per review by CWE and task · All three conditions, self-review"
+plot_category_by_task(found, reviews, "cwe")
+```
+
+{{TEXT:fig-cwe-task}}
+
+## Findings per review by OWASP category and task
+
+```{python}
+#| label: fig-owasp-task
+#| fig-cap: "Findings per review by OWASP category and task · All three conditions, self-review"
+plot_category_by_task(found, reviews, "owasp")
+```
+
+{{TEXT:fig-owasp-task}}
+
+## Data checks
+
+```{python}
+#| label: tbl-checks
+#| tbl-cap: "Data checks · All reviews"
+display(Markdown(markdown_table(quality_checks(df))))
+```
+
+{{TEXT:tbl-checks}}
+
+## About this report {.unnumbered}
+
+Every table and figure is computed from `findings.csv` when the report is rendered. The text was written by an AI from the rendered tables and figures. All counts are reviewer-reported findings, not confirmed vulnerabilities.
