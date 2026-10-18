@@ -9,6 +9,3 @@
 __pycache__/
 .venv*/
 
-# Rendered report output: add back at final submission only
-report/docs/
-
