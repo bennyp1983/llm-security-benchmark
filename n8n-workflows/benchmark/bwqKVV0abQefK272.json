@@ -9,7 +9,7 @@
   "nodes": [
     {
       "id": "b17ab879-1aed-4354-a66c-0ee8ec8335f1",
-      "name": "When clicking ‘Execute workflow’",
+      "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
@@ -20,7 +20,7 @@
     },
     {
       "id": "47ae06f8-dd75-419a-9ec7-b7f2d3c4b0d4",
-      "name": "Extract Prompts JSON",
+      "name": "Parse benchmark.json",
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
@@ -35,7 +35,7 @@
     },
     {
       "id": "733c7f92-bff8-4203-b26b-d78fce135b07",
-      "name": "Hash Prompts",
+      "name": "Build Jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -49,7 +49,7 @@
     },
     {
       "id": "4d17dd30-6da5-499a-9f2c-09261177fc44",
-      "name": "Split Out Tasks",
+      "name": "Split Tasks",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
@@ -63,7 +63,7 @@
     },
     {
       "id": "6f0a61e5-27bb-4f7e-8bc1-402939b458c0",
-      "name": "Split Out Prompts",
+      "name": "Split Prompt Styles",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
@@ -77,7 +77,7 @@
     },
     {
       "id": "8a1b8ab9-b319-47a4-84c8-cb9ac02942ef",
-      "name": "If string not empty",
+      "name": "Skip Empty Prompts",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
@@ -125,7 +125,7 @@
     },
     {
       "id": "ed6af983-c3c0-439e-a676-c1fe3dfe5c4d",
-      "name": "Split models",
+      "name": "Split Jobs per CLI",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
@@ -140,7 +140,7 @@
     },
     {
       "id": "315effee-513b-4603-9f0a-c1a8e8f14098",
-      "name": "Loop Models",
+      "name": "Loop Jobs",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
@@ -153,7 +153,7 @@
     },
     {
       "id": "c5b8b68d-9b33-46ba-9199-1189422f74b5",
-      "name": "Read Prompt Hash",
+      "name": "Read prompt_hash.txt",
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "alwaysOutputData": false,
@@ -169,7 +169,7 @@
     },
     {
       "id": "61cb86f8-709d-4676-b96e-ea6a076e8421",
-      "name": "Extract Prompt Hash",
+      "name": "Parse prompt_hash.txt",
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
@@ -184,7 +184,7 @@
     },
     {
       "id": "0ccd1207-f83f-4bbc-b04d-5c13d2348920",
-      "name": "Generate Code",
+      "name": "Run CLI: Generate Code",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "onError": "continueRegularOutput",
@@ -193,12 +193,12 @@
         976
       ],
       "parameters": {
-        "command": "=rm -rf \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\nmkdir -p \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\ncat > \"{{ $('Loop Models').item.json.cli_settings.container_path }}prompt.txt\" <<'N8N_PROMPT_EOF' &&\n{{ $('Loop Models').item.json.prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $('Loop Models').item.json.cli_settings.container_path }}\" &&\n{{ $('Loop Models').item.json.cli_settings.headless_execute }} {{ $('Loop Models').item.json.cli_settings.prompt_prefix }} \"$(cat prompt.txt)\" {{ $('Loop Models').item.json.cli_settings.prompt_suffix }} < /dev/null > \"/tmp/cli-{{ $('Loop Models').item.json.hash }}-$$.out\"; rc=$?; mv -f \"/tmp/cli-{{ $('Loop Models').item.json.hash }}-$$.out\" return.txt; exit $rc"
+        "command": "=rm -rf \"{{ $('Loop Jobs').item.json.cli_settings.container_path }}\" &&\nmkdir -p \"{{ $('Loop Jobs').item.json.cli_settings.container_path }}\" &&\ncat > \"{{ $('Loop Jobs').item.json.cli_settings.container_path }}prompt.txt\" <<'N8N_PROMPT_EOF' &&\n{{ $('Loop Jobs').item.json.prompt }}\nN8N_PROMPT_EOF\ncd \"{{ $('Loop Jobs').item.json.cli_settings.container_path }}\" &&\n{{ $('Loop Jobs').item.json.cli_settings.headless_execute }} {{ $('Loop Jobs').item.json.cli_settings.prompt_prefix }} \"$(cat prompt.txt)\" {{ $('Loop Jobs').item.json.cli_settings.prompt_suffix }} < /dev/null > \"/tmp/cli-{{ $('Loop Jobs').item.json.hash }}-$$.out\"; rc=$?; mv -f \"/tmp/cli-{{ $('Loop Jobs').item.json.hash }}-$$.out\" return.txt; exit $rc"
       }
     },
     {
       "id": "b1c493ba-bd2f-42f5-b5ef-6e0ba2bd4bee",
-      "name": "If Prompt Hash Matches",
+      "name": "If Already Generated",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
@@ -216,7 +216,7 @@
           "conditions": [
             {
               "id": "90f5a605-7f01-4e40-acf0-54d17a66d8bf",
-              "leftValue": "={{ $('Loop Models').item.json.hash }}",
+              "leftValue": "={{ $('Loop Jobs').item.json.hash }}",
               "rightValue": "={{ $json.existing_hash }}",
               "operator": {
                 "type": "string",
@@ -231,7 +231,7 @@
     },
     {
       "id": "aeebb1be-515f-4d20-b727-b2e3c28b647d",
-      "name": "Parse CLI Output",
+      "name": "Build result.md",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -245,7 +245,7 @@
     },
     {
       "id": "b7e2cc7d-785a-49ff-bb7e-b91902ae4536",
-      "name": "Read CLI Return",
+      "name": "Read return.txt",
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "onError": "continueErrorOutput",
@@ -254,13 +254,13 @@
         976
       ],
       "parameters": {
-        "fileSelector": "={{ $('Loop Models').item.json.cli_settings.container_path }}return.txt",
+        "fileSelector": "={{ $('Loop Jobs').item.json.cli_settings.container_path }}return.txt",
         "options": {}
       }
     },
     {
       "id": "70e23c0d-686a-4d29-9362-b14aa9e1a056",
-      "name": "Extract CLI Return",
+      "name": "Parse return.txt",
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
@@ -275,7 +275,7 @@
     },
     {
       "id": "094e4e0f-b1f0-4603-b6b2-28ebe92aa7a7",
-      "name": "Write Result.md",
+      "name": "Write result.md",
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
@@ -284,14 +284,14 @@
       ],
       "parameters": {
         "operation": "write",
-        "fileName": "={{ $('Parse CLI Output').item.json.cli_settings.container_path }}result.md",
+        "fileName": "={{ $('Build result.md').item.json.cli_settings.container_path }}result.md",
         "dataPropertyName": "=result_md_data",
         "options": {}
       }
     },
     {
       "id": "becaffbb-077b-4b28-a9d1-504cd68a9c10",
-      "name": "Convert Result to File",
+      "name": "Convert result.md to File",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
@@ -327,7 +327,7 @@
           "conditions": [
             {
               "id": "64bb73e7-ac5d-45e6-a915-5ac5ec3c0cb2",
-              "leftValue": "={{ $('Parse CLI Output').item.json.parse_success === true && Number($('Parse CLI Output').item.json.output_tokens) > 0 }}",
+              "leftValue": "={{ $('Build result.md').item.json.parse_success === true && Number($('Build result.md').item.json.output_tokens) > 0 }}",
               "rightValue": "true",
               "operator": {
                 "type": "boolean",
@@ -343,7 +343,7 @@
     },
     {
       "id": "4e7f7e52-cfa8-481d-974d-91dc3f204ed5",
-      "name": "Write Prompt Hash",
+      "name": "Mark Done: Write prompt_hash.txt",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
@@ -351,13 +351,13 @@
         1024
       ],
       "parameters": {
-        "command": "=printf '%s' \"{{ $('Parse CLI Output').item.json.hash }}\" > \"{{ $('Parse CLI Output').item.json.cli_settings.container_path }}prompt_hash.txt\""
+        "command": "=printf '%s' \"{{ $('Build result.md').item.json.hash }}\" > \"{{ $('Build result.md').item.json.cli_settings.container_path }}prompt_hash.txt\""
       }
     },
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ Object.assign({}, $('Loop Models').item.json, { return_txt: $json.return_txt }) }}",
+        "jsonOutput": "={{ Object.assign({}, $('Loop Jobs').item.json, { return_txt: $json.return_txt }) }}",
         "options": {}
       },
       "id": "a41707cd-e738-4fc6-968b-c35d7958cf66",
@@ -371,7 +371,7 @@
     }
   ],
   "connections": {
-    "When clicking ‘Execute workflow’": {
+    "Start": {
       "main": [
         [
           {
@@ -382,55 +382,55 @@
         ]
       ]
     },
-    "Extract Prompts JSON": {
+    "Parse benchmark.json": {
       "main": [
         [
           {
-            "node": "Hash Prompts",
+            "node": "Build Jobs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Hash Prompts": {
+    "Build Jobs": {
       "main": [
         [
           {
-            "node": "Split Out Tasks",
+            "node": "Split Tasks",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Out Tasks": {
+    "Split Tasks": {
       "main": [
         [
           {
-            "node": "Split Out Prompts",
+            "node": "Split Prompt Styles",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Split Out Prompts": {
+    "Split Prompt Styles": {
       "main": [
         [
           {
-            "node": "If string not empty",
+            "node": "Skip Empty Prompts",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If string not empty": {
+    "Skip Empty Prompts": {
       "main": [
         [
           {
-            "node": "Split models",
+            "node": "Split Jobs per CLI",
             "type": "main",
             "index": 0
           }
@@ -438,106 +438,106 @@
         []
       ]
     },
-    "Split models": {
+    "Split Jobs per CLI": {
       "main": [
         [
           {
-            "node": "Loop Models",
+            "node": "Loop Jobs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Loop Models": {
+    "Loop Jobs": {
       "main": [
         [],
         [
           {
-            "node": "Read Prompt Hash",
+            "node": "Read prompt_hash.txt",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read Prompt Hash": {
+    "Read prompt_hash.txt": {
       "main": [
         [
           {
-            "node": "Extract Prompt Hash",
+            "node": "Parse prompt_hash.txt",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Generate Code",
+            "node": "Run CLI: Generate Code",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extract Prompt Hash": {
+    "Parse prompt_hash.txt": {
       "main": [
         [
           {
-            "node": "If Prompt Hash Matches",
+            "node": "If Already Generated",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If Prompt Hash Matches": {
+    "If Already Generated": {
       "main": [
         [
           {
-            "node": "Loop Models",
+            "node": "Loop Jobs",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Generate Code",
+            "node": "Run CLI: Generate Code",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Generate Code": {
+    "Run CLI: Generate Code": {
       "main": [
         [
           {
-            "node": "Read CLI Return",
+            "node": "Read return.txt",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read CLI Return": {
+    "Read return.txt": {
       "main": [
         [
           {
-            "node": "Extract CLI Return",
+            "node": "Parse return.txt",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Loop Models",
+            "node": "Loop Jobs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extract CLI Return": {
+    "Parse return.txt": {
       "main": [
         [
           {
@@ -548,18 +548,18 @@
         ]
       ]
     },
-    "Parse CLI Output": {
+    "Build result.md": {
       "main": [
         [
           {
-            "node": "Convert Result to File",
+            "node": "Convert result.md to File",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Write Result.md": {
+    "Write result.md": {
       "main": [
         [
           {
@@ -570,11 +570,11 @@
         ]
       ]
     },
-    "Convert Result to File": {
+    "Convert result.md to File": {
       "main": [
         [
           {
-            "node": "Write Result.md",
+            "node": "Write result.md",
             "type": "main",
             "index": 0
           }
@@ -585,25 +585,25 @@
       "main": [
         [
           {
-            "node": "Write Prompt Hash",
+            "node": "Mark Done: Write prompt_hash.txt",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Loop Models",
+            "node": "Loop Jobs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Write Prompt Hash": {
+    "Mark Done: Write prompt_hash.txt": {
       "main": [
         [
           {
-            "node": "Loop Models",
+            "node": "Loop Jobs",
             "type": "main",
             "index": 0
           }
@@ -614,7 +614,7 @@
       "main": [
         [
           {
-            "node": "Parse CLI Output",
+            "node": "Build result.md",
             "type": "main",
             "index": 0
           }
@@ -625,7 +625,7 @@
       "main": [
         [
           {
-            "node": "Extract Prompts JSON",
+            "node": "Parse benchmark.json",
             "type": "main",
             "index": 0
           }
