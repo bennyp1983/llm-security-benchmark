@@ -38,7 +38,7 @@ Regenerate by fetching a recent successful execution:
    everything after it reads via `$('Parse Cyber CLI Output')` refs + the binary.
 6. **Legacy merge conflict:** both Extract nodes wrote `destinationKey: prompts_json`
    and Merge combineAll deep-unioned two `cli_settings` lists **by list index**
-   (order-dependent coupling between prompts_cyber.json and prompts_2.json). Fixed in
+   (order-dependent coupling between cyber.json and benchmark.json (then prompts_cyber.json / prompts_2.json)). Fixed in
    the all-vs-all redesign by distinct keys `main_json` / `cyber_json` + explicit
    join-by-name in Hash Prompts.
 
@@ -47,9 +47,9 @@ Regenerate by fetching a recent successful execution:
 | # | Node | Reads (expr → upstream) | Output contract | Counts (#52) |
 |---|------|-------------------------|-----------------|--------------|
 | 1 | manualTrigger | — | `{}` | 1 |
-| 2 | Read prompts.json1 → `/data/prompts/prompts_cyber.json` | literal | file meta json + `binary.data` | 1 |
+| 2 | Read cyber.json → `/data/config/cyber.json` | literal | file meta json + `binary.data` | 1 |
 | 3 | Extract Cyber Prompts JSON | binary | `{prompts_json}` (cyber cfg) — **binary consumed** | 1 |
-| 4 | Read prompts.json → `/data/prompts/prompts_2.json` | literal | file meta + `binary.data` | 1 |
+| 4 | Read benchmark.json → `/data/config/benchmark.json` | literal | file meta + `binary.data` | 1 |
 | 5 | Extract Prompts JSON | binary | `{prompts_json}` (main cfg) | 1 |
 | 6 | Attach Cyber Prompts (merge combineAll) | — | 1 item, union of both `prompts_json` (see note 6) | 1 |
 | 7 | Hash Prompts (python) | `_items[0].json.prompts_json` | 5 items `{name, task[]}` (nested) | 5 |
@@ -88,15 +88,25 @@ redefines `container_path` = TARGET's code path and `cyber_container_path` =
 `<reviewer parent>/<target_id>/…` — same key names ⇒ the 19 downstream references
 (#13, #15–#18, #20–#25 expressions above) need zero edits.
 
-## Run knobs ? run_config in prompts/prompts_cyber.json (v1174, 2026-10-05)
+## Run knobs ? run_config in config/cyber.json (v1174, 2026-10-05)
 
 | Key | Selects | Tokens |
 |---|---|---|
 | `reviewers` | which models RUN the review | empty or `["all"]` = all; ids: agy/claude/codex/qwen |
-| `target_folders` | which student folder is read (pilot/post_research/ruth) | empty or `["all"]` = all |
+| `target_prompt_sets` | which prompt set is read (ben/pilot/post_research/ruth/sallie) | empty or `["all"]` = all |
 | `target_prompt_tasks_num` | task numbers within folder | empty or `["all"]` = all; int or string |
 | `target_prompt_style` | prompt style | empty or `["all"]` = all |
 | `target_models` | WHOSE code gets reviewed | empty or `["all"]` = all; **`self` = the reviewer's own code** (per-job, mixable with ids) |
 
 Diagonal-only run (each model reviews only its own code): `reviewers:["all"], target_models:["self"]`.
 Grid = reviewers x folders x tasks x styles x models; hash markers still decide actual work.
+
+## Report nodes (added 2026-10-18)
+
+`Loop Models` out0 (done) → **Build Findings** → **Render Report**, both Execute Command with
+`executeOnce: true` (out0 emits every processed item; without it the report would build once per item).
+
+| Node | Command | Notes |
+|---|---|---|
+| Build Findings | `cd /data/report && python3 scripts/build_findings.py` | stdlib-only; a non-zero exit stops the chain, so render never reads a stale CSV |
+| Render Report | `cd /data/report && quarto render report.qmd` | Quarto + Python deps baked into the n8n-cyber image (`QUARTO_PYTHON=/opt/report-venv/bin/python`) |

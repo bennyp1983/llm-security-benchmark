@@ -4,7 +4,7 @@ sudo docker compose exec n8n bash
 
 
 ## Codex ---------
-cd /data/results/codex
+cd /data/results-benchmark/codex
 codex login --device-auth
 ### Test No thinking
 codex exec --skip-git-repo-check "Respond back if you are working, with the model and thinking effort you are using."
@@ -13,21 +13,21 @@ codex exec --skip-git-repo-check \ -c 'model_reasoning_effort="medium"' \ "Respo
 
 
 ## Claude Code ---------
-cd /data/results/claude
+cd /data/results-benchmark/claude
 Claude 
 ### Test
 claude -p "Respond back if you are working, with the model and thinking effort you are using."
 
 
 ## Antigravity ---------
-cd /data/results/agy
+cd /data/results-benchmark/agy
 agy
 ### Test
 agy -p "Respond back if you are working, with the model and thinking effort you are using"
 
 
 ## Qwen ---------
-cd /data/results/qwen
+cd /data/results-benchmark/qwen
 Qwen
 ### Test
 qwen --prompt "Respond back if you are working, with the model and thinking effort you are using"

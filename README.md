@@ -2,6 +2,35 @@
 
 > Placeholder. A full README will be written once the benchmark is complete.
 
+## Layout and naming
+
+The project has two stages, each with its own n8n container, Dockerfile, workflow and results tree:
+
+| | benchmark (code generation) | cyber (security review) |
+|---|---|---|
+| Container | `n8n-benchmark` (:5678) | `n8n-cyber` (:5688) |
+| Dockerfile | `Dockerfile.benchmark` | `Dockerfile.cyber` (builds `FROM n8n-benchmark`) |
+| Workflow | `n8n-workflows/benchmark/` | `n8n-workflows/cyber/` |
+| Config | `config/benchmark.json` | `config/cyber.json` |
+| Results | `results-benchmark/<cli>/set_a/<prompt_set>/<task>/<style>/` | `results-cyber/<reviewer>/<target>/set_a/<prompt_set>/<task>/<style>/` |
+
+`config/` is mounted read-only into both containers. The cyber container reads `results-benchmark/` read-only and writes `results-cyber/`. Reviewer skills are installed only in the cyber image, so the generators never see them.
+
+Prompt styles on disk are `basic` and `security`. In the report, `security` is labelled **security_aware** for the pilot, ruth, sallie and ben prompt sets, and **security_informed** for post_research (the post-research security prompt); see `ARM_RELABEL` in `report/scripts/build_findings.py`. The folders keep the name `security` because `findings.csv` locations embed it.
+
+### Renamed on 2026-10-18
+
+| Before | After |
+|---|---|
+| `results/` (container `/data/results/`) | `results-benchmark/` (container `/data/results-benchmark/`) |
+| `prompts/prompts_2.json` | `config/benchmark.json` |
+| `prompts/prompts_cyber.json` | `config/cyber.json` |
+| `Dockerfile` | `Dockerfile.benchmark` |
+| JSON key `student` | `prompt_sets` |
+| `run_config.target_folders` | `run_config.target_prompt_sets` |
+
+Files written before the rename (`prompt.txt`, `return.txt`, `result.md`, `cyber_prompt.txt`, some `security_review.md` scope lines) still show `/data/results/...`, because they record what was actually run; read it as `results-benchmark/`. Review findings cite files relative to each reviewed folder, so they are unaffected. Hash files are unaffected too: hashes cover the prompt text only.
+
 ## Notes
 
 ### File permissions in committed results
@@ -10,37 +39,37 @@ Git does not preserve POSIX file permissions (only the executable bit), so every
 
 The n8n container runs as root, so generated files are root-owned. Any file created without read access for other users is unreadable to the user committing it. In the instances below, read permission was added solely so the files could be committed; file contents are unchanged.
 
-**Known instance:** `results/agy/set_a/sallie/5/basic` and `results/agy/set_a/sallie/5/security`
+**Known instance:** `results-benchmark/agy/set_a/sallie/5/basic` and `results-benchmark/agy/set_a/sallie/5/security`
 
 - After generation, `employee_records.txt` was found with `rw-------` / `600` permissions. The generated `EmployeePortalAuth.java` contains code to set these permissions, and each folder's README describes this behaviour ("File Permission Hardening" in basic, "File System Hardening" in security).
 - Read permission was added (`644`).
 
-**Known instance:** `results/qwen/set_a/sallie/1/basic/build/tomcat`
+**Known instance:** `results-benchmark/qwen/set_a/sallie/1/basic/build/tomcat`
 
 - qwen started a local Tomcat 10.1 server to test its generated code, and the server's runtime files were left in the result folder.
 - After generation, the logs, `tomcat.pid`, the unpacked web application (`webapps/app`) and the work directories were found as `640` files and `750` directories. This matches Tomcat's default `UMASK` of `0027` set in `catalina.sh`.
 - `conf/web.xml` and `conf/logging.properties` were found as `600`. Both are byte-identical to the Tomcat distribution's own copies, which ship as `600`.
 - Read permission was added (`a+rX`).
 
-**Known instance:** `results/agy/set_a/post_research/4/security`
+**Known instance:** `results-benchmark/agy/set_a/post_research/4/security`
 
 - After generation, `data/`, `data/secure_store/`, `target/test-data-config/` and `target/test-data-service/` (including their per-run UUID subdirectories) were found as `700` directories, and `data/secure_store/user_auth_db.mv.db` as a `600` file.
 - An empty `data;INJECTION/` directory (`700`) was also left behind. Git does not track empty directories, so it is not in the repository.
 - Read permission was added (`a+rX`).
 
-**Known instance:** `results/codex/set_a/post_research/5/security`
+**Known instance:** `results-benchmark/codex/set_a/post_research/5/security`
 
 - After generation, `build.sh` was found as `700`, the `build/` directory tree as `700` directories, and the compiled `.class` files under `build/classes` and `build/test-classes` as `600`.
 - Read permission was added (`a+rX`).
 
-**Known instance:** `results/qwen/set_a/post_research/1/security/build`
+**Known instance:** `results-benchmark/qwen/set_a/post_research/1/security/build`
 
 - qwen downloaded Apache Tomcat 10.1.60 and started local Tomcat servers (`catalina-default`, `catalina-limited`, `catalina-noverifier`) to test its generated code. The distribution, the three server base directories and their logs were left in the result folder.
 - After generation, the Tomcat files were found as `640` files and `750` directories, matching Tomcat's default `UMASK` of `0027`. The `bin` scripts were `750`, and the `conf` directory of the distribution was `700`.
 - The `conf/*` files in each server directory (`catalina.policy`, `server.xml`, `web.xml` and others) were found as `600`; those in the distribution are copies of Tomcat's own `600` files.
 - Read permission was added (`a+rX`).
 
-**Known instance:** `results/qwen/set_a/post_research/4/security/identity.properties.example` (`600`) and `results/qwen/set_a/post_research/5/security/portal.sh`, `tools/gen-cert.sh` (`700`)
+**Known instance:** `results-benchmark/qwen/set_a/post_research/4/security/identity.properties.example` (`600`) and `results-benchmark/qwen/set_a/post_research/5/security/portal.sh`, `tools/gen-cert.sh` (`700`)
 
 - These were generated by qwen with owner-only permissions. Read permission was added (`a+rX`).
 
@@ -54,7 +83,7 @@ When evaluating security controls, use the source code and README rather than th
 
 ### Security review report template
 
-The n8n-cyber review prompt in `prompts/prompts_cyber.json` was updated to require a fixed structure for `security_review.md`.
+The n8n-cyber review prompt in `config/cyber.json` was updated to require a fixed structure for `security_review.md`.
 
 - The 48 pilot reviews (`results-cyber/*/set_a/pilot`) were completed with the earlier prompt, which had no report template, and were not re-run.
 - Their `benchmark_cyber_hash.txt` files were updated to the new prompt's hash so the workflow skips them. These hashes therefore do not match the prompt those reviews were run with.
