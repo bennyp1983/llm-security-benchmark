@@ -23,6 +23,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 from pathlib import Path
+from IPython.display import display, Markdown
 
 
 #-------------------------------------#    Define constants    #-------------------------------------#
@@ -74,6 +75,8 @@ RULE_CWES = {
 }
 NO_RULE = "No rule"
 
+NOT_AVAILABLE_NOTE = "*Not available with this data: it needs more report groups, coding assistants or reviewers than this run has.*"
+
 TOP_CWES = 14                                                        # CWEs that get their own bar, row or slice
 LABEL_MIN_SHARE = 5                                                  # Thinner segments and slices go unlabelled
 TITLE_MAX_LENGTH = 45                                                # Longer CWE titles are cut at a word
@@ -89,6 +92,17 @@ plt.rcParams.update({"figure.dpi": 150, "font.size": 9,
 
 
 #-------------------------------------#    Define table functions    #-------------------------------------#
+
+
+# Trims the report groups and coding assistants to those this run's data has, keeping their
+# order. Trimmed in place, so every function and the run-cost report reading these lists
+# draws only what exists - one group or one assistant still makes a report
+def keep_present_groups_and_coders(table):
+    groups_in_data = set(table["report_group"])
+    REPORT_ORDER[:] = [group for group in REPORT_ORDER if group in groups_in_data]
+
+    coders_in_data = set(table["dev_llm"].dropna()) | set(table["sec_review"].dropna())
+    CODERS[:] = [coder for coder in CODERS if coder in coders_in_data]
 
 
 # Returns findings.csv as one table, with the columns every later step groups on
@@ -116,6 +130,7 @@ def load_findings(path=CSV_PATH):
         programs.append(f"{dev}/{folder}/{task}/{group}")
     df["program"] = programs
 
+    keep_present_groups_and_coders(df)
     return df
 
 
@@ -265,6 +280,10 @@ def paired_table(reviews):
                 break
         if pair is not None:
             break
+
+    # No two conditions ran on the same programs, so there is nothing to pair
+    if pair is None:
+        return None
 
     first, second = pair
     both = reviews[reviews["report_group"].isin([first, second])]
@@ -605,6 +624,27 @@ def jaccard_pair_table(reviews, found):
 #-------------------------------------#    Define figure functions    #-------------------------------------#
 
 # Titles live in the report's figure captions, so the plots carry panel titles only
+
+
+# Shows a table, or a short note when this run's data can't make it (e.g. one group, no cross-review)
+def show_table_if_possible(make_table, *arguments, decimals=2):
+    try:
+        table = make_table(*arguments)
+    except Exception:
+        display(Markdown(NOT_AVAILABLE_NOTE))
+        return
+
+    display(Markdown(markdown_table(table, decimals)))
+
+
+# Draws a figure, or a short note when this run's data can't make it (e.g. one group, no cross-review)
+def show_figure_if_possible(plot, *arguments, **options):
+    try:
+        plot(*arguments, **options)
+    except Exception:
+        # A half-drawn figure is dropped, not shown
+        plt.close("all")
+        display(Markdown(NOT_AVAILABLE_NOTE))
 
 
 # Lays out the current figure and shows it in the report

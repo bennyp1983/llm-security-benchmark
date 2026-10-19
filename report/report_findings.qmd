@@ -39,7 +39,7 @@ pairs = paired_table(reviews)    # Matched pairs of the first two report conditi
 ```{python}
 #| label: tbl-rules
 #| tbl-cap: "The eight Security-informed rules and the CWEs assigned to them · All findings"
-display(Markdown(markdown_table(rule_table(found))))
+show_table_if_possible(rule_table, found)
 ```
 
 {{TEXT:tbl-rules}}
@@ -49,7 +49,7 @@ display(Markdown(markdown_table(rule_table(found))))
 ```{python}
 #| label: tbl-accounting
 #| tbl-cap: "Programs, reviews and findings · All conditions, all reviews"
-display(Markdown(markdown_table(condition_summary(df))))
+show_table_if_possible(condition_summary, df)
 ```
 
 {{TEXT:tbl-accounting}}
@@ -59,7 +59,7 @@ display(Markdown(markdown_table(condition_summary(df))))
 ```{python}
 #| label: fig-completeness
 #| fig-cap: "Completed reviews per task and generator · All conditions, all reviews"
-plot_completeness(reviews)
+show_figure_if_possible(plot_completeness, reviews)
 ```
 
 {{TEXT:fig-completeness}}
@@ -69,7 +69,7 @@ plot_completeness(reviews)
 ```{python}
 #| label: tbl-paired
 #| tbl-cap: "Paired difference in findings per review, overall and by generator · Basic and Security-aware, matched pairs, self-review"
-display(Markdown(markdown_table(paired_effect_table(pairs))))
+show_table_if_possible(paired_effect_table, pairs)
 ```
 
 {{TEXT:tbl-paired}}
@@ -79,7 +79,7 @@ display(Markdown(markdown_table(paired_effect_table(pairs))))
 ```{python}
 #| label: fig-paired
 #| fig-cap: "Paired difference in findings per review by generator · Basic and Security-aware, matched pairs, self-review"
-plot_paired_effect(pairs)
+show_figure_if_possible(plot_paired_effect, pairs)
 ```
 
 {{TEXT:fig-paired}}
@@ -89,7 +89,7 @@ plot_paired_effect(pairs)
 ```{python}
 #| label: tbl-conditions
 #| tbl-cap: "Findings per review, median and High/Critical share · All conditions, self-review"
-display(Markdown(markdown_table(self_review_table(reviews))))
+show_table_if_possible(self_review_table, reviews)
 ```
 
 {{TEXT:tbl-conditions}}
@@ -99,7 +99,7 @@ display(Markdown(markdown_table(self_review_table(reviews))))
 ```{python}
 #| label: fig-distribution
 #| fig-cap: "Findings per review · All conditions, self-review"
-plot_findings_distribution(reviews)
+show_figure_if_possible(plot_findings_distribution, reviews)
 ```
 
 {{TEXT:fig-distribution}}
@@ -109,7 +109,7 @@ plot_findings_distribution(reviews)
 ```{python}
 #| label: fig-generator
 #| fig-cap: "Findings per review by generator · All conditions, self-review"
-plot_findings_by_generator(reviews)
+show_figure_if_possible(plot_findings_by_generator, reviews)
 ```
 
 {{TEXT:fig-generator}}
@@ -119,7 +119,7 @@ plot_findings_by_generator(reviews)
 ```{python}
 #| label: fig-task
 #| fig-cap: "Findings per review by task · All conditions, self-review"
-plot_findings_by_task(reviews)
+show_figure_if_possible(plot_findings_by_task, reviews)
 ```
 
 {{TEXT:fig-task}}
@@ -129,7 +129,7 @@ plot_findings_by_task(reviews)
 ```{python}
 #| label: fig-severity
 #| fig-cap: "Severity of findings · All conditions, self-review"
-plot_severity_by_condition(found)
+show_figure_if_possible(plot_severity_by_condition, found)
 ```
 
 {{TEXT:fig-severity}}
@@ -139,7 +139,7 @@ plot_severity_by_condition(found)
 ```{python}
 #| label: fig-anchor
 #| fig-cap: "Reviews naming the task's anchor CWE · All conditions, self-review"
-plot_anchor_reporting(reviews)
+show_figure_if_possible(plot_anchor_reporting, reviews)
 ```
 
 {{TEXT:fig-anchor}}
@@ -149,7 +149,7 @@ plot_anchor_reporting(reviews)
 ```{python}
 #| label: tbl-top-cwes
 #| tbl-cap: "The 14 most-reported CWEs · All findings"
-display(Markdown(markdown_table(top_cwe_table(found))))
+show_table_if_possible(top_cwe_table, found)
 ```
 
 {{TEXT:tbl-top-cwes}}
@@ -159,7 +159,7 @@ display(Markdown(markdown_table(top_cwe_table(found))))
 ```{python}
 #| label: fig-cwe-rates
 #| fig-cap: "Findings per review by CWE · All conditions, self-review"
-plot_category_rates(found, reviews, "cwe")
+show_figure_if_possible(plot_category_rates, found, reviews, "cwe")
 ```
 
 {{TEXT:fig-cwe-rates}}
@@ -169,7 +169,7 @@ plot_category_rates(found, reviews, "cwe")
 ```{python}
 #| label: tbl-cwe-rates
 #| tbl-cap: "Findings per review by CWE, per condition · All conditions, self-review"
-display(Markdown(markdown_table(category_rate_table(found, reviews, "cwe"))))
+show_table_if_possible(category_rate_table, found, reviews, "cwe")
 ```
 
 {{TEXT:tbl-cwe-rates}}
@@ -179,7 +179,7 @@ display(Markdown(markdown_table(category_rate_table(found, reviews, "cwe"))))
 ```{python}
 #| label: fig-owasp-rates
 #| fig-cap: "Findings per review by OWASP category · All conditions, self-review"
-plot_category_rates(found, reviews, "owasp")
+show_figure_if_possible(plot_category_rates, found, reviews, "owasp")
 ```
 
 {{TEXT:fig-owasp-rates}}
@@ -189,7 +189,7 @@ plot_category_rates(found, reviews, "owasp")
 ```{python}
 #| label: tbl-owasp-rates
 #| tbl-cap: "Findings per review by OWASP category, per condition · All conditions, self-review"
-display(Markdown(markdown_table(category_rate_table(found, reviews, "owasp"))))
+show_table_if_possible(category_rate_table, found, reviews, "owasp")
 ```
 
 {{TEXT:tbl-owasp-rates}}
@@ -199,7 +199,7 @@ display(Markdown(markdown_table(category_rate_table(found, reviews, "owasp"))))
 ```{python}
 #| label: fig-cwe-mix
 #| fig-cap: "CWE make-up of findings · All conditions, self-review"
-plot_category_mix(found, "cwe")
+show_figure_if_possible(plot_category_mix, found, "cwe")
 ```
 
 {{TEXT:fig-cwe-mix}}
@@ -209,7 +209,7 @@ plot_category_mix(found, "cwe")
 ```{python}
 #| label: fig-owasp-mix
 #| fig-cap: "OWASP category make-up of findings · All conditions, self-review"
-plot_category_mix(found, "owasp")
+show_figure_if_possible(plot_category_mix, found, "owasp")
 ```
 
 {{TEXT:fig-owasp-mix}}
@@ -219,7 +219,7 @@ plot_category_mix(found, "owasp")
 ```{python}
 #| label: fig-cwe-pies
 #| fig-cap: "CWE make-up of findings by generator · All conditions, self-review"
-plot_category_pies(found, "cwe")
+show_figure_if_possible(plot_category_pies, found, "cwe")
 ```
 
 {{TEXT:fig-cwe-pies}}
@@ -229,7 +229,7 @@ plot_category_pies(found, "cwe")
 ```{python}
 #| label: fig-owasp-pies
 #| fig-cap: "OWASP category make-up of findings by generator · All conditions, self-review"
-plot_category_pies(found, "owasp")
+show_figure_if_possible(plot_category_pies, found, "owasp")
 ```
 
 {{TEXT:fig-owasp-pies}}
@@ -239,7 +239,7 @@ plot_category_pies(found, "owasp")
 ```{python}
 #| label: fig-rule-rates
 #| fig-cap: "Findings per review by Security-informed rule · All conditions, self-review"
-plot_category_rates(found, reviews, "rule")
+show_figure_if_possible(plot_category_rates, found, reviews, "rule")
 ```
 
 {{TEXT:fig-rule-rates}}
@@ -249,7 +249,7 @@ plot_category_rates(found, reviews, "rule")
 ```{python}
 #| label: tbl-rule-rates
 #| tbl-cap: "Findings per review by Security-informed rule, per condition · All conditions, self-review"
-display(Markdown(markdown_table(category_rate_table(found, reviews, "rule"))))
+show_table_if_possible(category_rate_table, found, reviews, "rule")
 ```
 
 {{TEXT:tbl-rule-rates}}
@@ -259,7 +259,7 @@ display(Markdown(markdown_table(category_rate_table(found, reviews, "rule"))))
 ```{python}
 #| label: fig-rule-mix
 #| fig-cap: "Rule make-up of findings · All conditions, self-review"
-plot_category_mix(found, "rule")
+show_figure_if_possible(plot_category_mix, found, "rule")
 ```
 
 {{TEXT:fig-rule-mix}}
@@ -269,7 +269,7 @@ plot_category_mix(found, "rule")
 ```{python}
 #| label: fig-matrix
 #| fig-cap: "Findings per review by reviewer and generator · Security-informed, all four reviewers"
-plot_reviewer_matrix(reviews)
+show_figure_if_possible(plot_reviewer_matrix, reviews)
 ```
 
 {{TEXT:fig-matrix}}
@@ -279,7 +279,7 @@ plot_reviewer_matrix(reviews)
 ```{python}
 #| label: tbl-behaviour
 #| tbl-cap: "Reviewer volume, severity and own-code contrast · Security-informed, all four reviewers"
-display(Markdown(markdown_table(reviewer_behaviour_table(reviews, found))))
+show_table_if_possible(reviewer_behaviour_table, reviews, found)
 ```
 
 {{TEXT:tbl-behaviour}}
@@ -289,7 +289,7 @@ display(Markdown(markdown_table(reviewer_behaviour_table(reviews, found))))
 ```{python}
 #| label: fig-behaviour
 #| fig-cap: "Reviewer volume against severity, and own code against other generators' code · Security-informed, all four reviewers"
-plot_reviewer_behaviour(reviews, found)
+show_figure_if_possible(plot_reviewer_behaviour, reviews, found)
 ```
 
 {{TEXT:fig-behaviour}}
@@ -299,7 +299,7 @@ plot_reviewer_behaviour(reviews, found)
 ```{python}
 #| label: fig-severity-reviewer
 #| fig-cap: "Severity of findings by reviewer · Security-informed, all four reviewers"
-plot_severity_by_reviewer(found)
+show_figure_if_possible(plot_severity_by_reviewer, found)
 ```
 
 {{TEXT:fig-severity-reviewer}}
@@ -309,7 +309,7 @@ plot_severity_by_reviewer(found)
 ```{python}
 #| label: fig-agreement
 #| fig-cap: "Reviewers naming the same CWE, and the same OWASP category, on a program · Security-informed, all four reviewers"
-plot_agreement(found)
+show_figure_if_possible(plot_agreement, found)
 ```
 
 {{TEXT:fig-agreement}}
@@ -319,7 +319,7 @@ plot_agreement(found)
 ```{python}
 #| label: tbl-agreement
 #| tbl-cap: "Share of (program, category) pairs named by 1, 2, 3 or 4 reviewers · Security-informed, all four reviewers"
-display(Markdown(markdown_table(support_share_table(found))))
+show_table_if_possible(support_share_table, found)
 ```
 
 {{TEXT:tbl-agreement}}
@@ -329,7 +329,7 @@ display(Markdown(markdown_table(support_share_table(found))))
 ```{python}
 #| label: tbl-jaccard
 #| tbl-cap: "Mean Jaccard overlap of each reviewer pair's labels on the same program · Security-informed, all four reviewers"
-display(Markdown(markdown_table(jaccard_pair_table(reviews, found))))
+show_table_if_possible(jaccard_pair_table, reviews, found)
 ```
 
 {{TEXT:tbl-jaccard}}
@@ -339,7 +339,7 @@ display(Markdown(markdown_table(jaccard_pair_table(reviews, found))))
 ```{python}
 #| label: fig-cwe-pies-2
 #| fig-cap: "CWE make-up of findings by generator · Security-informed, self-review and external review"
-plot_category_pies(found, "cwe", "panel")
+show_figure_if_possible(plot_category_pies, found, "cwe", "panel")
 ```
 
 {{TEXT:fig-cwe-pies-2}}
@@ -349,7 +349,7 @@ plot_category_pies(found, "cwe", "panel")
 ```{python}
 #| label: fig-owasp-pies-2
 #| fig-cap: "OWASP category make-up of findings by generator · Security-informed, self-review and external review"
-plot_category_pies(found, "owasp", "panel")
+show_figure_if_possible(plot_category_pies, found, "owasp", "panel")
 ```
 
 {{TEXT:fig-owasp-pies-2}}
@@ -359,7 +359,7 @@ plot_category_pies(found, "owasp", "panel")
 ```{python}
 #| label: fig-cwe-task
 #| fig-cap: "Findings per review by CWE and task · All conditions, self-review"
-plot_category_by_task(found, reviews, "cwe")
+show_figure_if_possible(plot_category_by_task, found, reviews, "cwe")
 ```
 
 {{TEXT:fig-cwe-task}}
@@ -369,7 +369,7 @@ plot_category_by_task(found, reviews, "cwe")
 ```{python}
 #| label: fig-owasp-task
 #| fig-cap: "Findings per review by OWASP category and task · All conditions, self-review"
-plot_category_by_task(found, reviews, "owasp")
+show_figure_if_possible(plot_category_by_task, found, reviews, "owasp")
 ```
 
 {{TEXT:fig-owasp-task}}
@@ -379,7 +379,7 @@ plot_category_by_task(found, reviews, "owasp")
 ```{python}
 #| label: tbl-checks
 #| tbl-cap: "Data checks · All reviews"
-display(Markdown(markdown_table(quality_checks(df))))
+show_table_if_possible(quality_checks, df)
 ```
 
 {{TEXT:tbl-checks}}

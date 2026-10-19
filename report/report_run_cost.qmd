@@ -64,7 +64,7 @@ runs = load_runs(RUNS_PATH)
 ```{python}
 #| label: tbl-run-completion
 #| tbl-cap: "Run status and empty replies by assistant · All generation and review runs"
-display(Markdown(markdown_table(completion_table(runs))))
+show_table_if_possible(completion_table, runs)
 ```
 
 {{TEXT:tbl-run-completion}}
@@ -72,7 +72,7 @@ display(Markdown(markdown_table(completion_table(runs))))
 ```{python}
 #| label: tbl-run-problems
 #| tbl-cap: "Runs that ended in ERROR or returned no reply · All generation and review runs"
-display(Markdown(markdown_table(problem_runs_table(runs), decimals=1)))
+show_table_if_possible(problem_runs_table, runs, decimals=1)
 ```
 
 {{TEXT:tbl-run-problems}}
@@ -82,7 +82,7 @@ display(Markdown(markdown_table(problem_runs_table(runs), decimals=1)))
 ```{python}
 #| label: tbl-run-headline
 #| tbl-cap: "Time and tokens per assistant · All generation runs (by generator) and all review runs (by reviewer); Codex records no time"
-display(Markdown(markdown_table(headline_table(runs))))
+show_table_if_possible(headline_table, runs)
 ```
 
 {{TEXT:tbl-run-headline}}
@@ -92,7 +92,7 @@ display(Markdown(markdown_table(headline_table(runs))))
 ```{python}
 #| label: fig-run-gen-time
 #| fig-cap: "Mean minutes per program by generator and condition · All generation runs; Codex records no time"
-plot_condition_bars(generation(runs), "minutes", "Minutes per program", coders=TIMED_CODERS)
+show_figure_if_possible(plot_condition_bars, generation(runs), "minutes", "Minutes per program", coders=TIMED_CODERS)
 ```
 
 {{TEXT:fig-run-gen-time}}
@@ -100,8 +100,8 @@ plot_condition_bars(generation(runs), "minutes", "Minutes per program", coders=T
 ```{python}
 #| label: fig-run-gen-tokens
 #| fig-cap: "Mean tokens processed per program by generator and condition · All generation runs"
-plot_condition_bars(generation(runs), "tokens_processed", "Tokens processed per program (millions)",
-                    divide_by=1e6, value_format="{:.2f}")
+show_figure_if_possible(plot_condition_bars, generation(runs), "tokens_processed", "Tokens processed per program (millions)",
+                                             divide_by=1e6, value_format="{:.2f}")
 ```
 
 {{TEXT:fig-run-gen-tokens}}
@@ -109,7 +109,7 @@ plot_condition_bars(generation(runs), "tokens_processed", "Tokens processed per 
 ```{python}
 #| label: fig-run-gen-task-time
 #| fig-cap: "Mean minutes per program by task and generator · All generation runs; Codex records no time"
-plot_task_grid(generation(runs), "minutes", "Minutes per program", coders=TIMED_CODERS, value_format="{:.0f}")
+show_figure_if_possible(plot_task_grid, generation(runs), "minutes", "Minutes per program", coders=TIMED_CODERS, value_format="{:.0f}")
 ```
 
 {{TEXT:fig-run-gen-task-time}}
@@ -117,8 +117,8 @@ plot_task_grid(generation(runs), "minutes", "Minutes per program", coders=TIMED_
 ```{python}
 #| label: fig-run-gen-task-tokens
 #| fig-cap: "Mean tokens processed per program by task and generator · All generation runs"
-plot_task_grid(generation(runs), "tokens_processed", "Tokens processed per program (millions)",
-               divide_by=1e6, value_format="{:.1f}")
+show_figure_if_possible(plot_task_grid, generation(runs), "tokens_processed", "Tokens processed per program (millions)",
+                                        divide_by=1e6, value_format="{:.1f}")
 ```
 
 {{TEXT:fig-run-gen-task-tokens}}
@@ -128,7 +128,7 @@ plot_task_grid(generation(runs), "tokens_processed", "Tokens processed per progr
 ```{python}
 #| label: fig-run-review-time
 #| fig-cap: "Mean minutes per self-review by reviewer and condition · All conditions, self-review; Codex records no time"
-plot_condition_bars(self_reviews(runs), "minutes", "Minutes per self-review", coders=TIMED_CODERS)
+show_figure_if_possible(plot_condition_bars, self_reviews(runs), "minutes", "Minutes per self-review", coders=TIMED_CODERS)
 ```
 
 {{TEXT:fig-run-review-time}}
@@ -136,8 +136,8 @@ plot_condition_bars(self_reviews(runs), "minutes", "Minutes per self-review", co
 ```{python}
 #| label: fig-run-review-tokens
 #| fig-cap: "Mean tokens processed per self-review by reviewer and condition · All conditions, self-review"
-plot_condition_bars(self_reviews(runs), "tokens_processed", "Tokens processed per self-review (millions)",
-                    divide_by=1e6, value_format="{:.2f}")
+show_figure_if_possible(plot_condition_bars, self_reviews(runs), "tokens_processed", "Tokens processed per self-review (millions)",
+                                             divide_by=1e6, value_format="{:.2f}")
 ```
 
 {{TEXT:fig-run-review-tokens}}
@@ -145,7 +145,7 @@ plot_condition_bars(self_reviews(runs), "tokens_processed", "Tokens processed pe
 ```{python}
 #| label: fig-run-review-matrix
 #| fig-cap: "Mean tokens per review, reviewer × generator · Security-informed, all four reviewers"
-plot_review_matrix(runs)
+show_figure_if_possible(plot_review_matrix, runs)
 ```
 
 {{TEXT:fig-run-review-matrix}}
@@ -157,7 +157,7 @@ plot_review_matrix(runs)
 ```{python}
 #| label: tbl-run-sonnet
 #| tbl-cap: "Claude Sonnet 5 at max effort (recovered pilot run) against Claude Opus 5 at medium · Task 1 Basic, generation; Opus mean over its 12 Basic runs"
-display(Markdown(markdown_table(sonnet_pilot_table(runs))))
+show_table_if_possible(sonnet_pilot_table, runs)
 ```
 
 {{TEXT:tbl-run-sonnet}}
@@ -169,7 +169,7 @@ display(Markdown(markdown_table(sonnet_pilot_table(runs))))
 ```{python}
 #| label: fig-run-qwen-effort
 #| fig-cap: "Qwen mean minutes to generate a program and to self-review it, with effort settings · All conditions, Qwen generation and self-review"
-plot_qwen_effort(runs)
+show_figure_if_possible(plot_qwen_effort, runs)
 ```
 
 {{TEXT:fig-run-qwen-effort}}
@@ -177,7 +177,7 @@ plot_qwen_effort(runs)
 ```{python}
 #| label: tbl-run-qwen-effort
 #| tbl-cap: "Qwen generation and self-review time per program, with effort settings · All conditions, Qwen generation and self-review"
-display(Markdown(markdown_table(qwen_effort_table(runs))))
+show_table_if_possible(qwen_effort_table, runs)
 ```
 
 {{TEXT:tbl-run-qwen-effort}}
@@ -185,7 +185,7 @@ display(Markdown(markdown_table(qwen_effort_table(runs))))
 ```{python}
 #| label: tbl-run-qwen-estimate
 #| tbl-cap: "Qwen panel review hours at medium, and estimated at xhigh · Security-informed, Qwen as reviewer"
-display(Markdown(markdown_table(qwen_projection_table(runs), decimals=1)))
+show_table_if_possible(qwen_projection_table, runs, decimals=1)
 ```
 
 {{TEXT:tbl-run-qwen-estimate}}
@@ -193,7 +193,7 @@ display(Markdown(markdown_table(qwen_projection_table(runs), decimals=1)))
 ```{python}
 #| label: fig-run-qwen
 #| fig-cap: "Qwen panel review hours: actual at medium and estimated at xhigh · Security-informed, Qwen as reviewer"
-plot_qwen_projection(runs)
+show_figure_if_possible(plot_qwen_projection, runs)
 ```
 
 {{TEXT:fig-run-qwen}}

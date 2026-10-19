@@ -70,23 +70,23 @@
 
 ## Executive summary
 
-- The report contains 1217 reviewer-reported findings from 192 reviews
-  of 120 generated programs; 7 reviews had no findings.
-- Basic self-reviews reported 300 findings, Security-aware self-reviews
-  315, and the Security-informed condition 602 across self-reviews and
-  external reviews.
-- Across 48 matched Basic and Security-aware self-review pairs, the mean
-  delta was 0.31 findings per review, with a CI from -0.29 to 0.94; 23
-  pairs had more findings under Security-aware, 18 had fewer, and 7 were
-  ties.
+- The report contains 1,217 reviewer-reported findings across 192
+  reviews of 120 generated programs; these are findings reported by LLM
+  reviewers, not confirmed vulnerabilities.
+- Self-reviews produced 300 findings for Basic, 315 for Security-aware,
+  and 139 for Security-informed, with 6.25, 6.56, and 5.79 findings per
+  review, respectively.
+- In the 48 matched Basic and Security-aware self-review pairs,
+  Security-aware had a mean delta of 0.31 findings, with 23 pairs
+  reporting more, 18 fewer, and 7 tied.
 - Sensitive data was the largest Security-informed rule grouping, with
   339 findings and 27.9% of all findings; Authentication and access
   followed with 207 and 17.0%.
-- CWE-307 was the most-reported CWE, with 90 findings and 7.4% of all
-  findings; the 14 most-reported CWEs together accounted for 51.9%.
-- Reviewer agreement was broader at the OWASP-category level than at the
-  CWE-label level: 64.3% of CWE pairs were named by only 1 reviewer,
-  compared with 32.1% of OWASP-category pairs.
+- CWE-307 was the most-reported CWE with 90 findings, while the 14
+  leading CWEs together accounted for 51.9% of all findings.
+- Reviewer agreement was greater at the OWASP-category level than at the
+  CWE-label level: 10.9% of OWASP pairs, versus 1.3% of CWE pairs, were
+  named by all 4 reviewers.
 
 ## The eight Security-informed rules and the CWEs assigned to them
 
@@ -113,12 +113,11 @@ Table 1: The eight Security-informed rules and the CWEs assigned to them
 
 </div>
 
-Sensitive data was the largest rule grouping in
-<a href="#tbl-rules" class="quarto-xref">Table 1</a>, with 339
-reviewer-reported findings (27.9%), followed by Authentication and
-access with 207 (17.0%). Findings assigned no rule totaled 159 (13.1%),
-while Identifiers and tokens was the smallest listed grouping at 60
-(4.9%).
+Among the eight rule groupings in
+<a href="#tbl-rules" class="quarto-xref">Table 1</a>, Sensitive data is
+largest with 339 reviewer-reported findings (27.9%), followed by
+Authentication and access with 207 (17.0%). A further 159 findings
+(13.1%) are assigned to no rule.
 
 ## Programs, reviews and findings
 
@@ -138,12 +137,11 @@ Table 2: Programs, reviews and findings · All conditions, all reviews
 
 </div>
 
-<a href="#tbl-accounting" class="quarto-xref">Table 2</a> records 48
-programs and 48 self-reviews in each of the Basic and Security-aware
-conditions, compared with 24 programs, 24 self-reviews, and 72 external
-reviews in Security-informed. The conditions produced 300, 315, and 602
-reviewer-reported findings respectively, with 0, 1, and 6 reviews
-reporting no findings.
+<a href="#tbl-accounting" class="quarto-xref">Table 2</a> covers 120
+programs and 192 reviews: 48 Basic self-reviews, 48 Security-aware
+self-reviews, and 24 Security-informed self-reviews plus 72 external
+reviews. These reviews yielded 300, 315, and 602 reviewer-reported
+findings, respectively, while 7 reviews had no findings.
 
 ## Completed reviews per task and generator
 
@@ -156,11 +154,10 @@ reviews
 
 </div>
 
-<a href="#fig-completeness" class="quarto-xref">Figure 1</a> shows a
-uniform review count across every task–generator combination within each
-condition. Security-informed contains more completed reviews per
-combination because it includes the external reviews as well as
-self-review.
+<a href="#fig-completeness" class="quarto-xref">Figure 1</a> shows
+uniform completed-review coverage across every task and generator within
+each condition. Security-informed has more completed reviews in each
+cell because it includes both self-review and external review.
 
 ## Paired difference in findings per review, overall and by generator
 
@@ -183,12 +180,12 @@ generator · Basic and Security-aware, matched pairs, self-review
 
 </div>
 
-Across all 48 matched pairs in
+Across 48 matched pairs in
 <a href="#tbl-paired" class="quarto-xref">Table 3</a>, Security-aware
-averaged 6.56 findings against 6.25 for Basic, a mean delta of 0.31 with
-a CI from -0.29 to 0.94; 23 pairs had more findings, 18 fewer, and 7
-tied. The generator-level mean deltas were 1.08 for agy, 0.25 for
-claude, -0.75 for codex, and 0.67 for qwen.
+averaged 6.56 findings against 6.25 for Basic, a mean delta of 0.31; 23
+pairs had more findings, 18 fewer, and 7 tied. The generator-level mean
+delta was positive for agy (1.08), claude (0.25), and qwen (0.67), but
+negative for codex (-0.75).
 
 ## Paired difference in findings per review by generator
 
@@ -201,11 +198,10 @@ and Security-aware, matched pairs, self-review
 
 </div>
 
-<a href="#fig-paired" class="quarto-xref">Figure 2</a> shows mixed
-pair-level changes for every generator rather than a uniform
-Security-aware shift. The mean marker is to the right of no change for
-agy, claude, and qwen, and to the left for codex, with observations on
-both sides for each generator.
+<a href="#fig-paired" class="quarto-xref">Figure 2</a> shows mostly
+positive paired differences for agy, mostly negative differences for
+codex, and more mixed results for claude and qwen. The individual pairs
+vary substantially within every generator.
 
 ## Findings per review, median and High/Critical share
 
@@ -227,10 +223,10 @@ conditions, self-review
 </div>
 
 In <a href="#tbl-conditions" class="quarto-xref">Table 4</a>,
-Security-aware had the highest findings per self-review at 6.56,
-followed by Basic at 6.25 and Security-informed at 5.79. Their medians
-were 7.0, 6.0, and 7.0 respectively, while the High/Critical shares were
-17.78%, 16.67%, and 14.39%.
+Security-aware has the highest findings per review at 6.56, compared
+with 6.25 for Basic and 5.79 for Security-informed. The median is 6.0
+for Basic and 7.0 for both security conditions, while the High/Critical
+share is 16.67%, 17.78%, and 14.39%, respectively.
 
 ## Findings per review
 
@@ -243,9 +239,9 @@ Figure 3: Findings per review · All conditions, self-review
 </div>
 
 <a href="#fig-distribution" class="quarto-xref">Figure 3</a> shows
-substantial overlap in findings per self-review across the three
-conditions. Security-aware has the broadest upper range, while the
-Security-informed distribution extends down to reviews with no findings.
+broad, overlapping distributions of findings per self-review across all
+three conditions. Security-aware extends across the widest range, while
+Security-informed has fewer observations and a similarly broad spread.
 
 ## Findings per review by generator
 
@@ -258,10 +254,9 @@ Figure 4: Findings per review by generator · All conditions, self-review
 </div>
 
 <a href="#fig-generator" class="quarto-xref">Figure 4</a> shows that the
-condition pattern differs by generator: Security-aware is highest for
-agy and qwen, Security-informed is highest for claude, and Basic is
-highest for codex. Codex is lowest under Security-informed, whereas
-claude is highest in that condition.
+condition pattern differs by generator: qwen is highest under Basic and
+Security-aware, whereas claude is highest under Security-informed. Codex
+is lowest in every condition and declines across the three conditions.
 
 ## Findings per review by task
 
@@ -273,12 +268,11 @@ Figure 5: Findings per review by task · All conditions, self-review
 
 </div>
 
-<a href="#fig-task" class="quarto-xref">Figure 5</a> shows different
-condition patterns across tasks: Security-informed is highest for the
-tasks anchored to CWE-321 and CWE-89, while Basic or Security-aware is
-higher for the other tasks. The tasks anchored to CWE-307 and CWE-778
-have the highest rates under Basic and Security-aware, but both fall
-under Security-informed.
+<a href="#fig-task" class="quarto-xref">Figure 5</a> shows marked task
+differences: Tasks 5 and 6 are highest under Basic and Security-aware,
+while Security-informed is highest for Task 3. Security-informed is
+lower than both other conditions on Tasks 1, 5, and 6, but higher on
+Tasks 2 and 3.
 
 ## Severity of findings
 
@@ -292,9 +286,9 @@ Figure 6: Severity of findings · All conditions, self-review
 
 Low and Medium findings make up most reviewer-reported findings in every
 condition in <a href="#fig-severity" class="quarto-xref">Figure 6</a>.
-Security-aware has the largest High share, while Security-informed has
-the largest Low share and is the only condition with a visible Other
-segment.
+Security-informed has the largest Low share and the smallest
+High/Critical share, while Critical and Other findings occupy only small
+portions of the bars.
 
 ## Reviews naming the task’s anchor CWE
 
@@ -307,10 +301,11 @@ self-review
 
 </div>
 
-<a href="#fig-anchor" class="quarto-xref">Figure 7</a> shows no
-self-reviews naming the anchor CWE for the tasks anchored to CWE-1004,
-CWE-321, CWE-89, or CWE-256. Anchor naming appears only for the CWE-307
-and CWE-778 tasks, and is most prominent for CWE-307 under Basic.
+In <a href="#fig-anchor" class="quarto-xref">Figure 7</a>, reviewers
+name the task’s anchor CWE only for Tasks 5 and 6; none of the
+self-reviews name the anchor for Tasks 1 through 4. Task 5 is named most
+often under Basic, while Task 6 is named less often and varies less
+across conditions.
 
 ## The 14 most-reported CWEs
 
@@ -341,10 +336,10 @@ Table 5: The 14 most-reported CWEs · All findings
 
 </div>
 
-CWE-307 led <a href="#tbl-top-cwes" class="quarto-xref">Table 5</a> with
-90 reviewer-reported findings (7.4%), followed by CWE-400 with 82;
-CWE-916 was third with 58. The 14 listed CWEs accounted cumulatively for
-51.9% of all findings.
+<a href="#tbl-top-cwes" class="quarto-xref">Table 5</a> ranks CWE-307
+first with 90 reviewer-reported findings, followed by CWE-400 with 82
+and CWE-916 with 58. The 14 listed CWEs account cumulatively for 51.9%
+of all findings.
 
 ## Findings per review by CWE
 
@@ -357,10 +352,10 @@ Figure 8: Findings per review by CWE · All conditions, self-review
 </div>
 
 <a href="#fig-cwe-rates" class="quarto-xref">Figure 8</a> shows CWE-307
-and CWE-400 among the highest-rate labels across conditions.
-Security-informed is relatively higher for CWE-400, CWE-770, and
-CWE-367, but lower for CWE-521, CWE-362, CWE-532, CWE-798, CWE-204, and
-CWE-209.
+and CWE-400 among the highest rates across conditions, with
+Security-informed especially prominent for CWE-400 and CWE-367.
+Security-informed is comparatively low for CWE-521, CWE-362, CWE-532,
+and CWE-209, and has no bars for CWE-798 or CWE-204.
 
 ## Findings per review by CWE, per condition
 
@@ -393,11 +388,11 @@ self-review
 
 </div>
 
-In <a href="#tbl-cwe-rates" class="quarto-xref">Table 6</a>, CWE-307
-rates are similar across conditions at 0.48, 0.48, and 0.5, while
-CWE-400 rises to 0.5 in Security-informed from 0.35 in Basic and 0.31 in
-Security-aware. Security-informed reports 0.0 for CWE-798 and CWE-204,
-and its Other rate of 3.12 is the table’s largest Other value.
+In <a href="#tbl-cwe-rates" class="quarto-xref">Table 6</a>, CWE-307 is
+reported at 0.48, 0.48, and 0.5 findings per review for Basic,
+Security-aware, and Security-informed, while CWE-400 is reported at
+0.35, 0.31, and 0.5. The Other group is the largest row in every
+condition at 2.77, 3.06, and 3.12.
 
 ## Findings per review by OWASP category
 
@@ -410,11 +405,10 @@ self-review
 
 </div>
 
-<a href="#fig-owasp-rates" class="quarto-xref">Figure 9</a> shows A07 as
-the highest mapped OWASP-category rate in all three conditions, while
-the unmapped group is higher still for Security-aware and
-Security-informed. A04 and A05 rise from Basic to Security-informed,
-whereas A01, A02, A06, A07, and A08 decline.
+<a href="#fig-owasp-rates" class="quarto-xref">Figure 9</a> shows that
+unmapped CWEs and A07 have the highest findings-per-review rates in all
+three conditions. A07 declines from Basic through Security-informed,
+while A04 rises and the remaining mapped categories are much smaller.
 
 ## Findings per review by OWASP category, per condition
 
@@ -443,11 +437,10 @@ conditions, self-review
 
 </div>
 
-In <a href="#tbl-owasp-rates" class="quarto-xref">Table 7</a>, A07 is
-the highest mapped category in every condition, at 1.75 for Basic, 1.38
-for Security-aware, and 1.04 for Security-informed. The unmapped rate is
-1.48, 1.92, and 1.92 respectively; A04 rises from 0.52 to 0.69 to 0.79,
-while A03 is 0.02, 0.0, and 0.0.
+In <a href="#tbl-owasp-rates" class="quarto-xref">Table 7</a>, the
+unmapped group is largest at 1.48 findings per review for Basic and 1.92
+for both Security-aware and Security-informed. A07 declines from 1.75 to
+1.38 to 1.04, whereas A04 rises from 0.52 to 0.69 to 0.79.
 
 ## CWE make-up of findings
 
@@ -459,11 +452,11 @@ Figure 10: CWE make-up of findings · All conditions, self-review
 
 </div>
 
-<a href="#fig-cwe-mix" class="quarto-xref">Figure 10</a> shows that
-Other CWEs form the largest share in every condition and are most
-prominent in Security-informed. Among the named labels,
-Security-informed has visibly larger shares for CWE-400 and CWE-367 and
-a smaller share for CWE-521 than the other conditions.
+<a href="#fig-cwe-mix" class="quarto-xref">Figure 10</a> shows that the
+Other CWE group takes the largest share in every condition and is most
+prominent for Security-informed. Among the named CWEs, the mix shifts
+toward CWE-307, CWE-400, and CWE-367 in Security-informed, while several
+categories visible in Basic and Security-aware are absent or smaller.
 
 ## OWASP category make-up of findings
 
@@ -476,11 +469,11 @@ self-review
 
 </div>
 
-The unmapped group is the largest segment under Security-aware and
+The unmapped group is the largest share for Security-aware and
 Security-informed in
 <a href="#fig-owasp-mix" class="quarto-xref">Figure 11</a>, while A07 is
-the largest mapped segment in every condition. Security-informed shows a
-larger A04 share and smaller A01, A06, and A07 shares than Basic.
+the largest mapped category in every condition. Security-informed has a
+larger A04 share and smaller A07 and A01 shares than Basic.
 
 ## CWE make-up of findings by generator
 
@@ -494,10 +487,10 @@ self-review
 </div>
 
 <a href="#fig-cwe-pies" class="quarto-xref">Figure 12</a> shows
-substantial variation in CWE composition by generator and condition.
-Other CWEs dominate most panels, while codex’s Security-informed panel
-is concentrated in CWE-307 and agy’s corresponding panel gives greater
-prominence to CWE-400.
+substantial variation in CWE composition by generator and condition. The
+Other group dominates most panels, while codex’s Security-informed
+findings are concentrated in fewer named CWEs and qwen retains a broad,
+Other-heavy mix.
 
 ## OWASP category make-up of findings by generator
 
@@ -511,10 +504,10 @@ conditions, self-review
 </div>
 
 <a href="#fig-owasp-pies" class="quarto-xref">Figure 13</a> shows that
-A07 or the unmapped group is the largest segment in most
-generator–condition panels. A07 is especially prominent for codex under
-Security-informed, while the unmapped share is largest for agy and qwen
-in that condition.
+the OWASP-category mix varies across both generators and conditions. A07
+is especially prominent in several Basic panels, while the unmapped
+group is the largest slice in many Security-aware and Security-informed
+panels.
 
 ## Findings per review by Security-informed rule
 
@@ -528,10 +521,10 @@ conditions, self-review
 </div>
 
 <a href="#fig-rule-rates" class="quarto-xref">Figure 14</a> shows
-Sensitive data as the highest-rate rule group under all conditions.
-Security-informed is lower for Secrets, Authentication and access, and
-Failure behaviour, but higher for Trust boundaries, Concurrency, and No
-rule.
+Sensitive data as the highest-rate rule group under all three
+conditions. Security-informed is lower for Secrets, Authentication and
+access, Failure behaviour, and Prefer the platform, but higher for Trust
+boundaries, Concurrency, and No rule.
 
 ## Findings per review by Security-informed rule, per condition
 
@@ -558,11 +551,11 @@ All conditions, self-review
 
 </div>
 
-Sensitive data has the highest rate in every condition in
-<a href="#tbl-rule-rates" class="quarto-xref">Table 8</a>: 1.58 for
+Sensitive data has the highest rate in
+<a href="#tbl-rule-rates" class="quarto-xref">Table 8</a> at 1.58 for
 Basic, 1.77 for Security-aware, and 1.75 for Security-informed.
 Security-informed is lowest for Secrets at 0.17 and highest for No rule
-at 0.92; Authentication and access declines from 1.25 to 1.1 to 0.88.
+at 0.92, compared with 0.54 for Basic and 0.73 for Security-aware.
 
 ## Rule make-up of findings
 
@@ -574,11 +567,11 @@ Figure 15: Rule make-up of findings · All conditions, self-review
 
 </div>
 
-Sensitive data is the largest rule share in every condition in
-<a href="#fig-rule-mix" class="quarto-xref">Figure 15</a>.
-Security-informed assigns visibly smaller shares to Secrets and Failure
-behaviour and larger shares to Trust boundaries, Concurrency, and No
-rule than the other conditions.
+<a href="#fig-rule-mix" class="quarto-xref">Figure 15</a> shows
+Sensitive data as the largest share in every condition.
+Security-informed assigns larger shares to Trust boundaries, Identifiers
+and tokens, Concurrency, and No rule, while Secrets and Failure
+behaviour occupy smaller shares.
 
 ## Findings per review by reviewer and generator
 
@@ -591,11 +584,11 @@ Security-informed, all four reviewers
 
 </div>
 
-<a href="#fig-matrix" class="quarto-xref">Figure 16</a> shows that all
-reviewers report more findings on agy-generated programs than on
-codex-generated programs. Relative to each reviewer’s own mean, agy is
-above average for every reviewer, while codex is below average for every
-reviewer and especially low in codex and qwen reviews.
+<a href="#fig-matrix" class="quarto-xref">Figure 16</a> shows strong
+reviewer and generator effects: every reviewer reports more findings on
+agy-generated code than on codex-generated code. Claude and qwen are the
+higher-volume reviewers overall, and codex’s self-review cell is notably
+low relative to its reviews of other generators.
 
 ## Reviewer volume, severity and own-code contrast
 
@@ -617,12 +610,11 @@ Security-informed, all four reviewers
 
 </div>
 
-Claude reported the most findings per review in
-<a href="#tbl-behaviour" class="quarto-xref">Table 9</a> at 7.83, while
-agy reported the highest High/Critical share at 29.31% and qwen the most
-distinct CWEs at 68. Codex showed the largest own-code contrast: 2.0
-findings per review on own code versus 6.39 on other code, an
-other-minus-own difference of 4.39.
+In <a href="#tbl-behaviour" class="quarto-xref">Table 9</a>, claude
+reports the most findings per review at 7.83 and agy the fewest at 4.83;
+agy has the highest High/Critical share at 29.31%. Codex shows the
+largest own-code contrast, with 2.0 findings per review on its own code
+versus 6.39 on other code, an other-minus-own difference of 4.39.
 
 ## Reviewer volume against severity, and own code against other generators’ code
 
@@ -636,10 +628,10 @@ generators’ code · Security-informed, all four reviewers
 </div>
 
 <a href="#fig-behaviour" class="quarto-xref">Figure 17</a> separates
-reviewer volume from severity: claude has the highest finding volume but
-the lowest High/Critical share, while agy shows the reverse pattern. Agy
-and claude report fewer findings on other generators’ code than on their
-own, whereas codex and qwen report more.
+reviewer volume from severity: agy has the highest High/Critical share
+despite the lowest finding volume, while claude has the highest volume
+and lowest High/Critical share. Codex reports far more findings on other
+generators’ code than on its own, whereas agy shows the reverse pattern.
 
 ## Severity of findings by reviewer
 
@@ -653,9 +645,10 @@ four reviewers
 </div>
 
 <a href="#fig-severity-reviewer" class="quarto-xref">Figure 18</a> shows
-distinct severity mixes by reviewer. Agy has the largest High share,
-codex is dominated by Medium findings, claude has the largest Low share,
-and qwen alone has a clearly visible Other segment.
+distinct severity profiles: agy has the largest High share, claude is
+dominated by Low findings, and codex is dominated by Medium findings.
+Qwen has a more even split among Low, Medium, and High, plus a small
+Other segment.
 
 ## Reviewers naming the same CWE, and the same OWASP category, on a program
 
@@ -669,10 +662,10 @@ on a program · Security-informed, all four reviewers
 </div>
 
 <a href="#fig-agreement" class="quarto-xref">Figure 19</a> shows that
-CWE labels are most often named by only one reviewer on a program, with
-progressively fewer pairs shared by additional reviewers. OWASP-category
-agreement is broader: naming by two reviewers is most common, and three-
-and four-reviewer agreement is more visible than for CWE labels.
+most CWE labels are named by only one reviewer on a program, with
+progressively fewer shared by additional reviewers. OWASP categories
+show broader agreement, with pairs named by two reviewers slightly more
+common than those named by one.
 
 ## Share of (program, category) pairs named by 1, 2, 3 or 4 reviewers
 
@@ -694,9 +687,9 @@ reviewers · Security-informed, all four reviewers
 
 At the CWE-label level in
 <a href="#tbl-agreement" class="quarto-xref">Table 10</a>, 64.3% of 387
-pairs were named by 1 reviewer, 27.1% by 2, 7.2% by 3, and 1.3% by all
-4. For the 137 OWASP-category pairs, the corresponding shares were
-32.1%, 35.8%, 21.2%, and 10.9%.
+pairs are named by 1 reviewer and 1.3% by all 4. At the OWASP-category
+level, the corresponding shares among 137 pairs are 32.1% and 10.9%,
+with 35.8% named by 2 reviewers.
 
 ## Mean Jaccard overlap of each reviewer pair’s labels on the same program
 
@@ -720,10 +713,10 @@ same program · Security-informed, all four reviewers
 
 </div>
 
-<a href="#tbl-jaccard" class="quarto-xref">Table 11</a> reports low mean
-pairwise overlap at the CWE level, ranging from 0.1 for agy / qwen to
-0.22 for claude / codex. OWASP overlap is higher for every pair, led by
-claude / qwen at 0.54 and lowest for agy / codex at 0.26.
+Mean CWE Jaccard overlap in
+<a href="#tbl-jaccard" class="quarto-xref">Table 11</a> ranges from 0.1
+for agy / qwen to 0.22 for claude / codex. OWASP overlap is higher for
+every pair, ranging from 0.26 for agy / codex to 0.54 for claude / qwen.
 
 ## CWE make-up of findings by generator
 
@@ -737,10 +730,11 @@ self-review and external review
 </div>
 
 <a href="#fig-cwe-pies-2" class="quarto-xref">Figure 20</a> shows that
-external-review CWE mixes are generally more dispersed than self-review
-mixes. The largest named external-review label differs by generator:
-CWE-770 for agy, CWE-367 for claude, CWE-307 for codex, and CWE-400 for
-qwen.
+Security-informed self-review and external review produce different CWE
+mixes for each generator. External reviews generally spread findings
+across more named CWEs; codex external reviews are much more Other-heavy
+than its concentrated self-review, while qwen retains CWE-400 as a
+prominent named category.
 
 ## OWASP category make-up of findings by generator
 
@@ -753,11 +747,11 @@ Security-informed, self-review and external review
 
 </div>
 
-In <a href="#fig-owasp-pies-2" class="quarto-xref">Figure 21</a>, the
-unmapped group is the largest segment for every generator’s external
-reviews. Compared with self-review, external reviews are less
-concentrated in A07 for codex and show a larger A06 share for agy and
-qwen.
+<a href="#fig-owasp-pies-2" class="quarto-xref">Figure 21</a> shows the
+unmapped group as the largest category for most self-review and
+external-review panels. External review broadens the mix for codex and
+shifts qwen toward A06, while agy and claude retain sizable A01, A07,
+and unmapped portions.
 
 ## Findings per review by CWE and task
 
@@ -770,11 +764,11 @@ self-review
 
 </div>
 
-<a href="#fig-cwe-task" class="quarto-xref">Figure 22</a> shows that the
-Other group is the largest rate for every task. Among named CWEs,
-CWE-307 is strongest on the tasks anchored to CWE-1004, CWE-256,
-CWE-307, and CWE-778, while CWE-732 reaches its highest rates on the
-tasks anchored to CWE-321 and CWE-778.
+<a href="#fig-cwe-task" class="quarto-xref">Figure 22</a> shows that CWE
+reporting varies substantially by task rather than following a single
+common profile. CWE-307 is concentrated in Tasks 4 through 6, while
+CWE-732, CWE-798, and CWE-204 are most prominent in the later tasks and
+the Other group is largest for Task 1.
 
 ## Findings per review by OWASP category and task
 
@@ -788,10 +782,9 @@ conditions, self-review
 </div>
 
 <a href="#fig-owasp-task" class="quarto-xref">Figure 23</a> shows the
-unmapped group as the highest rate for every task except the task
-anchored to CWE-1004, where A07 is highest. A07 is also the leading
-mapped category for most tasks, while A01 leads among mapped categories
-for the task anchored to CWE-321.
+unmapped group as the highest findings-per-review category for Tasks 2
+through 6, while A07 is also prominent across most tasks. A01 is highest
+for Task 2, and A06 is comparatively prominent for Tasks 4 and 6.
 
 ## Data checks
 
@@ -819,12 +812,12 @@ Table 12: Data checks · All reviews
 
 </div>
 
-<a href="#tbl-checks" class="quarto-xref">Table 12</a> records 1224 CSV
-rows, 1217 reviewer-reported findings, 192 reviews, and 120 generated
-programs, with 7 reviews reporting no findings. It also shows 0 rows
-missing reviewer or generator, 0 duplicate rows, 0 findings with no CWE,
-8 findings with non-standard severity, and 0 repeated sec_id values
-within a review.
+<a href="#tbl-checks" class="quarto-xref">Table 12</a> records 1,224 CSV
+rows containing 1,217 findings across 192 reviews and 120 generated
+programs, including 7 reviews with no findings. It reports 0 missing
+reviewer or generator values, 0 duplicate rows, 0 findings without a
+CWE, and 0 repeated sec_id values within a review; 8 findings have
+non-standard severity.
 
 ## About this report
 

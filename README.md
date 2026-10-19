@@ -1,105 +1,164 @@
 # llm-security-benchmark
 
-> Placeholder. A full README will be written once the benchmark is complete.
+A reproducible benchmark for the security of code written by AI coding assistants. It asks four coding CLIs to write Java for six security-sensitive tasks under different prompting styles, has every program reviewed for vulnerabilities by LLM security reviewers, and turns the reviews into a findings report and a run-cost report.
 
-## Layout and naming
+Everything runs in two [n8n](https://n8n.io/) workflows, each in its own Docker container:
 
-The project has two stages, each with its own n8n container, Dockerfile, workflow and results tree:
-
-| | benchmark (code generation) | cyber (security review) |
+| | benchmark (code generation) | cyber (security review and reports) |
 |---|---|---|
-| Container | `n8n-benchmark` (:5678) | `n8n-cyber` (:5688) |
-| Dockerfile | `Dockerfile.benchmark` | `Dockerfile.cyber` (builds `FROM n8n-benchmark`) |
-| Workflow | `n8n-workflows/benchmark/` | `n8n-workflows/cyber/` |
-| Config | `config/benchmark.json` | `config/cyber.json` |
-| Results | `results/<cli>/set_a/<prompt_set>/<task>/<style>/` | `results-cyber/<reviewer>/<target>/set_a/<prompt_set>/<task>/<style>/` |
+| What it does | sends each prompt to each coding CLI and saves the program it writes | has each reviewer CLI review the generated code, then builds both reports |
+| Container | `n8n-benchmark` at http://localhost:5678 | `n8n-cyber` at http://localhost:5688 |
+| Writes | `results/` | `results-cyber/` and `report/` |
 
-Each results folder is mounted at the same path inside its container (`results/` at `/data/results/`, `results-cyber/` at `/data/results-cyber/`), so the absolute paths recorded in generated files and logs are valid in-container. `config/` is mounted read-only into both containers. The cyber container reads `results/` read-only and writes `results-cyber/`. Reviewer skills are installed only in the cyber image, so the generators never see them.
+The two are kept apart on purpose. The security-review skills are installed only in the cyber container, so the generators never see them, and the reviewers get the generated code read-only, so a review can never change what it is reviewing.
 
-### Prompt styles
+The coding assistants are Google Antigravity (`agy`), Claude Code (`claude`), ChatGPT Codex (`codex`) and Qwen Code (`qwen`). The same four act as the security reviewers.
 
-The `style` of each prompt in `config/benchmark.json` is also its folder name. The existing prompts use `basic` and `security`:
 
-| Prompt sets | Style folder | Reported as |
-|---|---|---|
-| pilot, ruth, sallie, ben | `basic` | Basic |
-| pilot, ruth, sallie, ben | `security` | Security-aware |
-| post_research | `security` | Security-informed |
+## Results
 
-The report maps post_research's `security` folders to `security_informed` (`ARM_RELABEL` in `report/scripts/build_findings.py`). New prompts can use `"style": "security_informed"` directly; those folders are reported as Security-informed without any mapping.
+- **[Security findings report](report/docs/final_report_findings.md)** ([docx](report/docs/final_report_findings.docx)): what the reviewers found, by prompting style, coding assistant, task, CWE and OWASP category, and how far the reviewers agree.
+- **[Run cost report](report/docs/final_report_run_cost.md)** ([docx](report/docs/final_report_run_cost.docx)): how the runs finished, and the time, tokens and turns each assistant used.
 
-### Renamed on 2026-10-18
+Every table and figure in the reports is computed from the data. The text is written by an AI from the rendered tables and figures, and checked to contain no unfilled placeholders.
 
-| Before | After |
+The raw data:
+
+| What | Where |
 |---|---|
-| `prompts/prompts_2.json` | `config/benchmark.json` |
-| `prompts/prompts_cyber.json` | `config/cyber.json` |
-| `Dockerfile` | `Dockerfile.benchmark` |
-| JSON key `student` | `prompt_sets` |
-| `run_config.target_folders` | `run_config.target_prompt_sets` |
+| Every generated program, with the prompt, the CLI's output and a summary | `results/<cli>/set_a/<prompt_set>/<task>/<style>/` |
+| Every security review (`security_review.md`) of every program | `results-cyber/<reviewer>/<target>/set_a/<prompt_set>/<task>/<style>/` |
+| One row per finding (CWE, OWASP category, severity) | [`report/data/findings.csv`](report/data/findings.csv) |
+| One row per run (time, tokens, turns) | [`report/data/run_cost.csv`](report/data/run_cost.csv) |
+| Every review in one file, in `findings.csv` order, for checking by hand | [`report/data/all_security_review.md`](report/data/all_security_review.md) |
 
-Result folders and their contents were not renamed or changed. Hash files are unaffected: hashes cover the prompt text only.
+### The tasks and prompts
 
-## Notes
+Six Java tasks, each built around one security weakness:
 
-### File permissions in committed results
+| Task | Scenario | Anchor weakness |
+|---|---|---|
+| 1 | Session cookie after authentication (Jakarta Servlet) | CWE-1004 |
+| 2 | Symmetric encryption and decryption of sensitive data | CWE-321 |
+| 3 | User account lookup through JDBC | CWE-89 |
+| 4 | User registration and credential storage | CWE-256 |
+| 5 | Login attempts and credential verification | CWE-307 |
+| 6 | Authentication with activity logging | CWE-778 |
 
-Git does not preserve POSIX file permissions (only the executable bit), so every file in this repository is stored as `644` regardless of how it was created. File modes in this repository therefore do not reflect the permissions a tool or generated program applied at generation time.
+The prompts live in [`config/benchmark.json`](config/benchmark.json), grouped into prompt sets. Each prompt has a `style`, which is also its results folder name, and a `report_group`, which decides how the reports label it. `report_order` sets the order the groups appear in the reports; `ignore` keeps a run on disk but out of the reports.
 
-The n8n container runs as root, so generated files are root-owned. Any file created without read access for other users is unreadable to the user committing it. In the instances below, read permission was added solely so the files could be committed; file contents are unchanged.
+| Prompt set | Style (folder) | `report_group` |
+|---|---|---|
+| ruth, sallie | `basic` | Basic |
+| ruth, sallie | `security` | Security-aware (the same task with a short security hint) |
+| post_research | `security` | Security-informed (eight security rules written from what the first prompts revealed) |
+| pilot, ben | `basic`, `security` | ignore (early trial and demo runs) |
+| every set | `multi-turn` | ignore (empty prompts, never run) |
 
-**Known instance:** `results/agy/set_a/sallie/5/basic` and `results/agy/set_a/sallie/5/security`
+The reports read `report_group` from the config, never the folder names, so a new prompt set only needs the right `report_group` to appear in the reports.
 
-- After generation, `employee_records.txt` was found with `rw-------` / `600` permissions. The generated `EmployeePortalAuth.java` contains code to set these permissions, and each folder's README describes this behaviour ("File Permission Hardening" in basic, "File System Hardening" in security).
-- Read permission was added (`644`).
 
-**Known instance:** `results/qwen/set_a/sallie/1/basic/build/tomcat`
+## Run it yourself
 
-- qwen started a local Tomcat 10.1 server to test its generated code, and the server's runtime files were left in the result folder.
-- After generation, the logs, `tomcat.pid`, the unpacked web application (`webapps/app`) and the work directories were found as `640` files and `750` directories. This matches Tomcat's default `UMASK` of `0027` set in `catalina.sh`.
-- `conf/web.xml` and `conf/logging.properties` were found as `600`. Both are byte-identical to the Tomcat distribution's own copies, which ship as `600`.
-- Read permission was added (`a+rX`).
+### What you need
 
-**Known instance:** `results/agy/set_a/post_research/4/security`
+- Linux, macOS, or Windows with WSL2.
+- [Docker Engine with the Compose plugin](https://docs.docker.com/engine/install/), plus `bash` and `curl`.
+- About 25 GB of free disk for the two images.
+- Access to the coding CLIs you want to use: a subscription or account for each. Qwen is configured for an OpenAI-compatible server (this study used a self-hosted one). If you have no access to a CLI, remove it (see [Configuration](#configuration)).
 
-- After generation, `data/`, `data/secure_store/`, `target/test-data-config/` and `target/test-data-service/` (including their per-run UUID subdirectories) were found as `700` directories, and `data/secure_store/user_auth_db.mv.db` as a `600` file.
-- An empty `data;INJECTION/` directory (`700`) was also left behind. Git does not track empty directories, so it is not in the repository.
-- Read permission was added (`a+rX`).
+### Set up
 
-**Known instance:** `results/codex/set_a/post_research/5/security`
+```bash
+git clone https://github.com/bennyp1983/llm-security-benchmark.git
+cd llm-security-benchmark
+./setup.sh
+```
 
-- After generation, `build.sh` was found as `700`, the `build/` directory tree as `700` directories, and the compiled `.class` files under `build/classes` and `build/test-classes` as `600`.
-- Read permission was added (`a+rX`).
+`./setup.sh` shows a menu. Choose **[i]nstall** first. It:
 
-**Known instance:** `results/qwen/set_a/post_research/1/security/build`
+1. creates the folders Docker mounts, owned by you;
+2. builds both images and starts both n8n instances;
+3. imports the benchmark and cyber workflows into their n8n;
+4. asks once for an email and password, and creates your account on both n8n instances.
 
-- qwen downloaded Apache Tomcat 10.1.60 and started local Tomcat servers (`catalina-default`, `catalina-limited`, `catalina-noverifier`) to test its generated code. The distribution, the three server base directories and their logs were left in the result folder.
-- After generation, the Tomcat files were found as `640` files and `750` directories, matching Tomcat's default `UMASK` of `0027`. The `bin` scripts were `750`, and the `conf` directory of the distribution was `700`.
-- The `conf/*` files in each server directory (`catalina.policy`, `server.xml`, `web.xml` and others) were found as `600`; those in the distribution are copies of Tomcat's own `600` files.
-- Read permission was added (`a+rX`).
+Then choose **[l]ogin**. Every container keeps its own CLI logins, so it signs each CLI in on both containers, one after the other. Follow each CLI's own sign-in steps, and exit the CLI when it says you are signed in.
 
-**Known instance:** `results/qwen/set_a/post_research/4/security/identity.properties.example` (`600`) and `results/qwen/set_a/post_research/5/security/portal.sh`, `tools/gen-cert.sh` (`700`)
+If your user is not in the `docker` group, run it as `sudo ./setup.sh`. You can also skip the menu with `./setup.sh install`, `./setup.sh login` or `./setup.sh reset`.
 
-- These were generated by qwen with owner-only permissions. Read permission was added (`a+rX`).
+### Run the benchmark
 
-### Files excluded by .gitignore
+1. Open http://localhost:5678, open the **benchmark** workflow and click **Execute workflow**. Each CLI writes a program for every prompt into `results/`.
+2. Open http://localhost:5688, open the **cyber** workflow and click **Execute workflow**. Every program is reviewed into `results-cyber/`, then both reports are rebuilt into `report/docs/`.
 
-Some generated files match ignore rules (`*.log` in the repository `.gitignore`, and `.gitignore` files written by the tools themselves, such as `/target/` for codex post_research tasks 3 and 4 and `out/` for qwen post_research task 5). They are part of the generated output, so they were added with `git add -f`.
+Both workflows skip any program or review that already exists for the same prompt, so a clone of this repository only runs what is new. Re-running costs nothing for work that is already done.
 
-The same applies in `results-cyber/`: `target/` for codex post_research tasks 3 and 4, `build/*.log` (and `build/logs/`) for qwen post_research task 1, `out/` for qwen post_research task 5, and `build-logs/` for qwen post_research task 6. These were likewise added with `git add -f`.
+### Configuration
 
-When evaluating security controls, use the source code and README rather than the file modes in this repository.
+Choosing what runs is done in the two config files, not in `setup.sh`. Edit them, then run the workflows again.
 
-### Security review report template
+**[`config/benchmark.json`](config/benchmark.json)**
+- `cli_settings`: one entry per coding CLI. Its command, **model and thinking effort** are in `input.set` (the workflows use set `a`), `login` is what `./setup.sh` login runs, and `json_output` says where its output keeps the reply and token counts.
+- **Fewer CLIs:** delete the entries for CLIs you have no access to. Generation, reviews, logins and reports all follow this list, so with Codex alone you need one account and two logins. A CLI that is listed but not signed in fails within seconds; the run carries on and retries it next time.
+- `prompt_sets`: the prompts. To add your own, add a prompt set:
+  ```json
+  {
+      "name": "my_prompts",
+      "task": [
+          {
+              "task_number": 1,
+              "prompts": [
+                  { "report_group": "Basic", "style": "basic", "prompt": "Develop Java code that ..." }
+              ]
+          }
+      ]
+  }
+  ```
+  Only the new prompts run; everything already in `results/` is kept and skipped.
+- `report_order` and `report_group`: the reports compare **groups**, not prompt sets.
+  ```json
+  "report_order": ["Basic", "Security-aware", "Security-informed"]
+  ```
+  `report_order` lists the groups every report table and figure is calculated for, in the order they appear. Each prompt's `report_group` decides which group its results count towards, and it must match one of these names exactly, or be `ignore` to keep the results out of the reports. All prompts with the same `report_group` are pooled together, whatever prompt set they belong to: a new prompt set with `"report_group": "Basic"` adds to the Basic group alongside ruth and sallie. For a new kind of prompt, add its group name to `report_order` and use that name as the prompts' `report_group`. A `report_group` that isn't in `report_order` (and isn't `ignore`) stops the report build with an error, so a typo can't silently drop results.
+- **Changing a model:** a run is skipped when its prompt text is unchanged, whatever the model. A new model therefore does not redo finished work, and its new results would sit beside the old model's. To compare models, copy the prompt set under a new name after changing the model, so each model's results get their own folders.
 
-The n8n-cyber review prompt in `config/cyber.json` was updated to require a fixed structure for `security_review.md`.
+**[`config/cyber.json`](config/cyber.json)**
+- `run_config`: which reviews run. It picks the reviewers, prompt sets, tasks and styles, and whose code each reviewer reads: `"self"` means each reviewer reviews only its own code, `"all"` means every reviewer reviews every assistant's code. Leave a CLI out here and it does no reviews.
+- `report_writer`: the AI that writes the report text, and its two prompts. It has its **own full command** (now Codex), separate from `cli_settings` on purpose, so the report can be written with a different model or a higher thinking level than the generation runs use. To change it, write the command in two parts: everything before the prompt in `command_before_prompt`, everything after it in `command_after_prompt`. A CLI's `headless_execute`, `prompt_prefix` and `prompt_suffix` in `cli_settings` are a good starting point.
 
-- The 48 pilot reviews (`results-cyber/*/set_a/pilot`) were completed with the earlier prompt, which had no report template, and were not re-run.
-- Their `benchmark_cyber_hash.txt` files were updated to the new prompt's hash so the workflow skips them. These hashes therefore do not match the prompt those reviews were run with.
-- Reviews for ruth and sallie use the updated prompt, so their report structure differs from the pilot reviews.
+To undo config changes, `git checkout config/`.
 
-### Cyber review status — post_research
+### Start from nothing
 
-- claude and codex: all six tasks (`1`–`6`) complete, `benchmark_cyber_hash.txt` present for each.
-- agy: tasks `2`–`6` complete. Task `1` failed with a 293s API timeout (see `cyber_return.txt`); no `benchmark_cyber_hash.txt` was written, so the result is committed as a recorded failure, not a completed review.
-- qwen: no task completed. The vLLM backend was taken offline while these reviews were running; all six attempts failed with a 45s request timeout (0 tokens processed, error recorded in `cyber_result.md`), and no `benchmark_cyber_hash.txt` was written for any task.
+To keep the setup but delete every generated program and review, choose **[r]eset** in `./setup.sh` (you type `reset` to confirm). The results folders stay in place, and the next benchmark and cyber runs fill them again. A fresh clone brings the original results back.
+
+
+## Repository layout
+
+| Path | What it is |
+|---|---|
+| `setup.sh` | install, CLI logins, reset |
+| `docker-compose.yml` | the two n8n instances and their task runners |
+| `Dockerfile.benchmark`, `Dockerfile.cyber` | the images; cyber builds on top of benchmark and adds the review skills, Quarto and the report's Python packages |
+| `config/` | the prompts and CLI settings (`benchmark.json`), and the review and report-writer settings (`cyber.json`) |
+| `n8n-workflows/` | exports of the benchmark and cyber workflows |
+| `custom-skills/` | the security-review skill given to the reviewers |
+| `results/`, `results-cyber/` | generated programs, and their reviews |
+| `report/` | report templates (`report_findings.qmd`, `report_run_cost.qmd`), the scripts that build their data, the data, and the final reports in `report/docs/` |
+
+Each results folder is mounted at the same path inside its container (`results/` at `/data/results/`, `results-cyber/` at `/data/results-cyber/`), so absolute paths recorded in generated files and logs are valid inside the containers.
+
+
+## Notes on the committed results
+
+### File permissions
+
+Git does not keep POSIX file permissions (only the executable bit), so every file here is stored as `644` however it was created. The containers run as root, so generated files are root-owned, and some tools wrote owner-only files. Where that stopped a file from being committed, read permission was added; the contents are unchanged. When judging security controls, use the source code and README of each program, not the file modes in this repository. The individual cases are listed in [README_old.md](README_old.md#file-permissions-in-committed-results).
+
+### Files a tool asked to ignore
+
+Some generated files match ignore rules, either this repository's `*.log` or `.gitignore` files the tools wrote themselves (e.g. `target/`, `out/`, `build-logs/`). They are part of the generated output, so they were committed anyway (`git add -f`).
+
+### Pilot reviews
+
+The 48 pilot reviews were made with an earlier review prompt that had no fixed report structure, and were not re-run. Their hash files were updated to the current prompt's hash so the workflow skips them, so those hashes do not match the prompt the reviews were made with. The pilot is excluded from the reports (`report_group: ignore`).

@@ -126,48 +126,82 @@ def make_row(stage, generator, reviewer, folder, task, style_on_disk, path):
 
 #---------------------------------------#    Walk both trees    #---------------------------------------#
 
-# Returns one row per generation run: results/<generator>/set_a/<folder>/<task>/<style>/result.md
+# Returns one row per generation run: results/<generator>/set_a/<folder>/<task>/<style>/result.md,
+# plus the folders of runs that stopped before writing one
 def generation_rows():
     rows = []
+    unfinished = []
     for generator in sorted(p.name for p in GENERATIONS_DIR.iterdir()):
-        for folder in sorted(p.name for p in (GENERATIONS_DIR / generator / "set_a").iterdir()):
+        set_path = GENERATIONS_DIR / generator / "set_a"
+
+        # A CLI that has generated nothing yet has only an empty folder
+        if not set_path.is_dir():
+            continue
+
+        for folder in sorted(p.name for p in set_path.iterdir()):
             if folder in SKIP_FOLDERS:
                 continue
-            folder_path = GENERATIONS_DIR / generator / "set_a" / folder
+            folder_path = set_path / folder
             for task in sorted(p.name for p in folder_path.iterdir()):
                 for style in sorted(p.name for p in (folder_path / task).iterdir()):
                     path = folder_path / task / style / "result.md"
+
+                    # A run stopped before it finished leaves no result file, so it has nothing to count
+                    if not path.exists():
+                        unfinished.append(path.parent)
+                        continue
+
                     rows.append(make_row("generation", generator, None, folder, task, style, path))
-    return rows
+    return rows, unfinished
 
 
-# Returns one row per review run: results-cyber/<reviewer>/<generator>/set_a/<folder>/<task>/<style>/cyber_result.md
+# Returns one row per review run: results-cyber/<reviewer>/<generator>/set_a/<folder>/<task>/<style>/cyber_result.md,
+# plus the folders of runs that stopped before writing one
 def review_rows():
     rows = []
+    unfinished = []
     for reviewer in sorted(p.name for p in REVIEWS_DIR.iterdir()):
         for generator in sorted(p.name for p in (REVIEWS_DIR / reviewer).iterdir()):
-            for folder in sorted(p.name for p in (REVIEWS_DIR / reviewer / generator / "set_a").iterdir()):
+            set_path = REVIEWS_DIR / reviewer / generator / "set_a"
+
+            # A reviewer that has reviewed nothing of this generator yet has no runs here
+            if not set_path.is_dir():
+                continue
+
+            for folder in sorted(p.name for p in set_path.iterdir()):
                 if folder in SKIP_FOLDERS:
                     continue
-                folder_path = REVIEWS_DIR / reviewer / generator / "set_a" / folder
+                folder_path = set_path / folder
                 for task in sorted(p.name for p in folder_path.iterdir()):
                     for style in sorted(p.name for p in (folder_path / task).iterdir()):
                         path = folder_path / task / style / "cyber_result.md"
+
+                        # A run stopped before it finished leaves no result file, so it has nothing to count
+                        if not path.exists():
+                            unfinished.append(path.parent)
+                            continue
+
                         rows.append(make_row("review", generator, reviewer, folder, task, style, path))
-    return rows
+    return rows, unfinished
 
 
 #----------------------------------------#    main    #----------------------------------------#
 
 def main():
     # One row per run: the study as built by n8n, report_group saying what each row means to a report
-    runs = pd.DataFrame(generation_rows() + review_rows())
+    generations, unfinished_generations = generation_rows()
+    reviews, unfinished_reviews = review_rows()
+    runs = pd.DataFrame(generations + reviews)
     runs.to_csv(OUT_FILE, index=False, encoding="utf-8-sig")
 
     print(f"Wrote {len(runs)} rows to {OUT_FILE}")
     print(runs.groupby(["stage", "report_group"]).size())
     print("Status values:", runs["status"].value_counts().to_dict())
     print("Empty replies:", int(runs["body_empty"].sum()))
+
+    # Stopped runs are left out, not guessed at; the workflow re-runs them next time
+    for folder in unfinished_generations + unfinished_reviews:
+        print("Skipped unfinished run (no result file):", folder.relative_to(REPO).as_posix())
 
 
 if __name__ == "__main__":

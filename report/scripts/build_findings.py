@@ -47,6 +47,9 @@ UNMAPPED = "Unmapped"                                                # A cited C
 SEVERITY_WORDS = ("Critical", "High", "Medium", "Low")               # Only when the review writes no Severity label
 EDGE_PUNCT = " /:;-\u2014.*"                                         # What a cut CWE label leaves on the line
 
+# Define messages
+NO_REVIEWS_MESSAGE = "No security reviews in results-cyber yet: run the benchmark workflow, then the cyber workflow."
+
 # The columns of findings.csv, in order
 COLUMNS = [
     "location", "sec_review", "dev_llm", "folder", "task", "report_group",
@@ -322,6 +325,10 @@ def main():
 
     # Every review in the corpus, in the order the CSV is written
     review_paths = review_files()
+
+    # Nothing to report yet: stop with the next step, before an empty CSV replaces the last one
+    if len(review_paths) == 0:
+        raise SystemExit(NO_REVIEWS_MESSAGE)
 
     rows = []
     blank_reviews = []

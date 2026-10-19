@@ -15,6 +15,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from analysis_findings import (CODERS, REPORT_ORDER, markdown_table, panel, external_groups,
+                      show_table_if_possible, show_figure_if_possible, keep_present_groups_and_coders,
                       grouped_bars, matrix_heatmap, show_figure, legend_above)
 
 
@@ -71,6 +72,10 @@ def load_runs(path=RUNS_PATH):
     # The assistant that did the work: the generator for generation, the reviewer for review
     runs["assistant"] = runs["sec_review"].fillna(runs["dev_llm"])
     runs["self_review"] = (runs["stage"] == "review") & (runs["sec_review"] == runs["dev_llm"])
+
+    # Draw only the groups and assistants this run's data has
+    keep_present_groups_and_coders(runs)
+    TIMED_CODERS[:] = [coder for coder in TIMED_CODERS if coder in CODERS]
     return runs
 
 

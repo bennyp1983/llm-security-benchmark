@@ -30,7 +30,7 @@ generation,agy/sallie/5/basic/,agy,,sallie,5,Basic,Google Antigravity,SUCCESS,Fa
 generation,agy/sallie/5/security/,agy,,sallie,5,Security-aware,Google Antigravity,SUCCESS,False,228.995,230514.0,40635.0,6583.0,2096451.0,,271149.0,1.0
 generation,agy/sallie/6/basic/,agy,,sallie,6,Basic,Google Antigravity,SUCCESS,False,149.959,155687.0,31990.0,7167.0,842618.0,,187677.0,1.0
 generation,agy/sallie/6/security/,agy,,sallie,6,Security-aware,Google Antigravity,SUCCESS,False,289.91700000000003,294732.0,62265.0,11672.0,1948018.0,,356997.0,1.0
-generation,claude/ben/1/basic/,claude,,ben,1,ignore,Claude Code,success,False,0.242,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+generation,claude/ben/1/basic/,claude,,ben,1,ignore,Claude Code,success,False,0.268,0.0,0.0,0.0,0.0,0.0,0.0,1.0
 generation,claude/post_research/1/security/,claude,,post_research,1,Security-informed,Claude Code,success,False,700.29,50.0,56921.0,10195.0,1102432.0,76382.0,56971.0,25.0
 generation,claude/post_research/2/security/,claude,,post_research,2,Security-informed,Claude Code,success,False,796.291,50.0,67824.0,9755.0,1211631.0,83910.0,67874.0,25.0
 generation,claude/post_research/3/security/,claude,,post_research,3,Security-informed,Claude Code,success,False,796.449,54.0,55492.0,12917.0,1252976.0,77233.0,55546.0,27.0
