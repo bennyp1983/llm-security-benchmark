@@ -18,7 +18,9 @@ report/build/
 report/final_report_*.qmd
 report/**/*_files/
 report/docs/*
-!report/docs/final_report_findings.html
+!report/docs/final_report_findings.md
+!report/docs/final_report_findings_files/
 !report/docs/final_report_findings.docx
-!report/docs/final_report_run_cost.html
+!report/docs/final_report_run_cost.md
+!report/docs/final_report_run_cost_files/
 !report/docs/final_report_run_cost.docx
