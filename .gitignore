@@ -12,6 +12,7 @@ __pycache__/
 
 # Report: Quarto's cache, and everything the cyber workflow generates except the final report
 report/.quarto/
+report/.gitignore
 report/**/*.quarto_ipynb
 report/build/
 report/final_report_*.qmd
