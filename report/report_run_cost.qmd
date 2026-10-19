@@ -1,0 +1,203 @@
+---
+title: "Run cost data report"
+format: gfm
+jupyter: python3
+fig-dpi: 170
+execute:
+  echo: false
+  warning: false
+  error: false
+---
+
+<!-- The report template. The cyber workflow renders it as-is (markdown, blank TEXT
+     placeholders) for the writer AI to read, then copies it to final_report_run_cost.qmd with
+     html/docx output, the writer fills the placeholders in that copy, and the copy is rendered. -->
+
+```{python}
+#| label: initialise-run-report
+#| echo: false
+# Load run_cost.csv once; every table and figure below is computed from it
+import sys
+from pathlib import Path
+from IPython.display import display, Markdown
+
+sys.path.insert(0, str(Path("scripts")))
+from analysis_run_cost import *
+
+runs = load_runs(RUNS_PATH)
+```
+
+## Summary {.unnumbered}
+
+{{TEXT:executive_summary}}
+
+> **Reader's rule:** time and tokens describe the coding assistant as configured (model, effort setting, scaffolding and hardware), not the model alone. Codex records no run time, so it is absent from every time figure.
+
+## What was measured
+
+### Source of the numbers
+
+{{TEXT:sec-run-source}}
+
+- A **generation run** is one assistant writing one program. Its cost belongs to the generator.
+- A **review run** is one reviewer reading one program. Its cost belongs to the reviewer.
+
+### Two token measures, one rule for every assistant
+
+{{TEXT:sec-run-measures}}
+
+| Assistant | What "input" counts | Cached tokens | Tool's own total | Tokens processed, as used here |
+|:------------|:------------|:------------|:------------|:------------|
+| Antigravity | input not read from cache | reported separately | input + output | input + cached read + output |
+| Claude Code | input not read from or written to cache | reported separately, plus cache creation | input + output | input + cache creation + cached read + output |
+| Codex | all input, cached included | already inside input | input + output | input + output |
+| Qwen Code | the whole prompt, re-sent on every request | not reported | input + output | input + output |
+
+: How each assistant reports tokens, and the measure this report derives from them
+
+### Gaps in the data
+
+{{TEXT:sec-run-gaps}}
+
+## How the runs finished {#sec-run-completion}
+
+```{python}
+#| label: tbl-run-completion
+#| tbl-cap: "Run status and empty replies by assistant · All generation and review runs"
+display(Markdown(markdown_table(completion_table(runs))))
+```
+
+{{TEXT:tbl-run-completion}}
+
+```{python}
+#| label: tbl-run-problems
+#| tbl-cap: "Runs that ended in ERROR or returned no reply · All generation and review runs"
+display(Markdown(markdown_table(problem_runs_table(runs), decimals=1)))
+```
+
+{{TEXT:tbl-run-problems}}
+
+## Overall cost per assistant {#sec-run-overall}
+
+```{python}
+#| label: tbl-run-headline
+#| tbl-cap: "Time and tokens per assistant · All generation runs (by generator) and all review runs (by reviewer); Codex records no time"
+display(Markdown(markdown_table(headline_table(runs))))
+```
+
+{{TEXT:tbl-run-headline}}
+
+## Generation {#sec-run-generation}
+
+```{python}
+#| label: fig-run-gen-time
+#| fig-cap: "Mean minutes per program by generator and condition · All generation runs; Codex records no time"
+plot_condition_bars(generation(runs), "minutes", "Minutes per program", coders=TIMED_CODERS)
+```
+
+{{TEXT:fig-run-gen-time}}
+
+```{python}
+#| label: fig-run-gen-tokens
+#| fig-cap: "Mean tokens processed per program by generator and condition · All generation runs"
+plot_condition_bars(generation(runs), "tokens_processed", "Tokens processed per program (millions)",
+                    divide_by=1e6, value_format="{:.2f}")
+```
+
+{{TEXT:fig-run-gen-tokens}}
+
+```{python}
+#| label: fig-run-gen-task-time
+#| fig-cap: "Mean minutes per program by task and generator · All generation runs; Codex records no time"
+plot_task_grid(generation(runs), "minutes", "Minutes per program", coders=TIMED_CODERS, value_format="{:.0f}")
+```
+
+{{TEXT:fig-run-gen-task-time}}
+
+```{python}
+#| label: fig-run-gen-task-tokens
+#| fig-cap: "Mean tokens processed per program by task and generator · All generation runs"
+plot_task_grid(generation(runs), "tokens_processed", "Tokens processed per program (millions)",
+               divide_by=1e6, value_format="{:.1f}")
+```
+
+{{TEXT:fig-run-gen-task-tokens}}
+
+## Review {#sec-run-review}
+
+```{python}
+#| label: fig-run-review-time
+#| fig-cap: "Mean minutes per self-review by reviewer and condition · All conditions, self-review; Codex records no time"
+plot_condition_bars(self_reviews(runs), "minutes", "Minutes per self-review", coders=TIMED_CODERS)
+```
+
+{{TEXT:fig-run-review-time}}
+
+```{python}
+#| label: fig-run-review-tokens
+#| fig-cap: "Mean tokens processed per self-review by reviewer and condition · All conditions, self-review"
+plot_condition_bars(self_reviews(runs), "tokens_processed", "Tokens processed per self-review (millions)",
+                    divide_by=1e6, value_format="{:.2f}")
+```
+
+{{TEXT:fig-run-review-tokens}}
+
+```{python}
+#| label: fig-run-review-matrix
+#| fig-cap: "Mean tokens per review, reviewer × generator · Security-informed, all four reviewers"
+plot_review_matrix(runs)
+```
+
+{{TEXT:fig-run-review-matrix}}
+
+## Claude at maximum effort in the pilot {#sec-run-sonnet}
+
+{{TEXT:sec-run-sonnet}}
+
+```{python}
+#| label: tbl-run-sonnet
+#| tbl-cap: "Claude Sonnet 5 at max effort (recovered pilot run) against Claude Opus 5 at medium · Task 1 Basic, generation; Opus mean over its 12 Basic runs"
+display(Markdown(markdown_table(sonnet_pilot_table(runs))))
+```
+
+{{TEXT:tbl-run-sonnet}}
+
+## Qwen review effort {#sec-run-qwen}
+
+{{TEXT:sec-run-qwen}}
+
+```{python}
+#| label: fig-run-qwen-effort
+#| fig-cap: "Qwen mean minutes to generate a program and to self-review it, with effort settings · All conditions, Qwen generation and self-review"
+plot_qwen_effort(runs)
+```
+
+{{TEXT:fig-run-qwen-effort}}
+
+```{python}
+#| label: tbl-run-qwen-effort
+#| tbl-cap: "Qwen generation and self-review time per program, with effort settings · All conditions, Qwen generation and self-review"
+display(Markdown(markdown_table(qwen_effort_table(runs))))
+```
+
+{{TEXT:tbl-run-qwen-effort}}
+
+```{python}
+#| label: tbl-run-qwen-estimate
+#| tbl-cap: "Qwen panel review hours at medium, and estimated at xhigh · Security-informed, Qwen as reviewer"
+display(Markdown(markdown_table(qwen_projection_table(runs), decimals=1)))
+```
+
+{{TEXT:tbl-run-qwen-estimate}}
+
+```{python}
+#| label: fig-run-qwen
+#| fig-cap: "Qwen panel review hours: actual at medium and estimated at xhigh · Security-informed, Qwen as reviewer"
+plot_qwen_projection(runs)
+```
+
+{{TEXT:fig-run-qwen}}
+
+## Reading these numbers {#sec-run-reading}
+
+{{TEXT:sec-run-reading}}

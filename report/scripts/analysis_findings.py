@@ -1,22 +1,23 @@
 # Tables and figures for the generated report
 #
-# Imported by report/data_report.qmd, never run on its own.
+# Imported by report/report_findings.qmd, never run on its own.
 #
 # Every table and figure is computed from data/findings.csv, which
 # scripts/build_findings.py builds from the security reviews: one row per finding,
 # plus one empty row per review that found nothing.
 #
-# Scope: only the folders listed in STAGE_OF_FOLDER are part of the study, so demo
-# folders (ben) are dropped when the CSV loads.
+# Scope: config/benchmark.json decides what prints. report_group on every CSV row is the
+# condition it prints under; rows grouped "ignore" are dropped when the CSV loads.
 #
 # Two selections of reviews are used, and every caption says which:
-#   self-review  - each generator reviewing its own code, the only reviews all three
-#                  conditions share
-#   Stage 2      - every Security-informed review, self and external (the four-reviewer panel)
+#   self-review  - each generator reviewing its own code
+#   panel        - every review of the conditions that contain external reviews, self and
+#                  external alike (the reviewer comparison set)
 
 
 #-----------------------------------------#    imports    #-----------------------------------------#
 
+import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -29,17 +30,20 @@ from pathlib import Path
 # Define the data file
 REPO = Path(__file__).resolve().parents[2]                           # Repo root, so the CSV is found from any folder
 CSV_PATH = REPO / "report" / "data" / "findings.csv"
+CONFIG_PATH = REPO / "config" / "benchmark.json"
 
 # Define the study shape
 CODERS = ["agy", "claude", "codex", "qwen"]                          # The four coding assistants, also the reviewers
 CODER_COLOURS = {"agy": "#4C72B0", "claude": "#DD8452", "codex": "#55A868", "qwen": "#C44E52"}
-STAGE_OF_FOLDER = {"ruth": "Stage 1", "sallie": "Stage 1", "post_research": "Stage 2"}
 ANCHORS = {1: "CWE-1004", 2: "CWE-321", 3: "CWE-89", 4: "CWE-256", 5: "CWE-307", 6: "CWE-778"}
 
-# Define the prompt conditions, in the order they were run
-STYLES = ["basic", "security", "security_informed"]
-STYLE_NAMES = {"basic": "Basic", "security": "Security-aware", "security_informed": "Security-informed"}
-STYLE_COLOURS = {"basic": "#6482AD", "security": "#C48C54", "security_informed": "#408C87"}
+# Define the report conditions: config/benchmark.json holds the names, in print order.
+# Colours cycle a palette, so any number of conditions draws
+REPORT_ORDER = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))["report_order"]
+CONDITION_PALETTE = ["#6482AD", "#C48C54", "#408C87", "#8172B2", "#A5694F", "#5F9EA0"]
+GROUP_COLOURS = {}
+for position, group in enumerate(REPORT_ORDER):
+    GROUP_COLOURS[group] = CONDITION_PALETTE[position % len(CONDITION_PALETTE)]
 
 # Define severity and OWASP categories
 SEVERITIES = ["Critical", "High", "Medium", "Low", "Other"]          # Other is anything outside the four words
@@ -91,9 +95,8 @@ plt.rcParams.update({"figure.dpi": 150, "font.size": 9,
 def load_findings(path=CSV_PATH):
     df = pd.read_csv(path, encoding="utf-8-sig")
 
-    # Demo runs are not part of the study, only ruth, sallie and post_research folders
-    df = df[df["folder"].isin(STAGE_OF_FOLDER)].copy()
-    df["stage"] = df["folder"].map(STAGE_OF_FOLDER)
+    # report_group "ignore" is the config's mark for runs no report covers
+    df = df[df["report_group"] != "ignore"].copy()
 
     # A clean review has no sec_id, so only rows with one are findings
     df["has_finding"] = df["sec_id"].notna()
@@ -107,10 +110,10 @@ def load_findings(path=CSV_PATH):
             rule_of[f"CWE-{cwe}"] = rule
     df["rule"] = df["cwe"].map(rule_of).fillna(NO_RULE)
 
-    # One generated program = generator + folder + task + prompt; a review adds the reviewer
+    # One generated program = generator + folder + task + condition; a review adds the reviewer
     programs = []
-    for dev, folder, task, style in zip(df["dev_llm"], df["folder"], df["task"], df["prompt_style"]):
-        programs.append(f"{dev}/{folder}/{task}/{style}")
+    for dev, folder, task, group in zip(df["dev_llm"], df["folder"], df["task"], df["report_group"]):
+        programs.append(f"{dev}/{folder}/{task}/{group}")
     df["program"] = programs
 
     return df
@@ -124,7 +127,7 @@ def findings_only(df):
 
 # Returns one row per review: findings, High/Critical count, and whether the task's anchor CWE was named
 def review_table(df):
-    review_keys = ["location", "program", "stage", "sec_review", "dev_llm", "folder", "task", "prompt_style"]
+    review_keys = ["location", "program", "sec_review", "dev_llm", "folder", "task", "report_group"]
 
     df = df.copy()
     df["anchor_hit"] = df["cwe"] == df["task"].map(ANCHORS)
@@ -143,10 +146,22 @@ def self_review(table):
     return own
 
 
-# Returns only the Stage 2 rows (all four reviewers of the Security-informed code)
-def stage_2(table):
-    panel = table[table["stage"] == "Stage 2"]
-    return panel
+# Returns the conditions that contain external reviews (a reviewer reading another
+# generator's code). The reviewer-panel figures draw exactly these, so which conditions
+# they are follows what n8n ran, not a hard-coded folder or name
+def external_groups(table):
+    external = table["sec_review"] != table["dev_llm"]
+
+    groups = []
+    for group in REPORT_ORDER:
+        if external[table["report_group"] == group].any():
+            groups.append(group)
+    return groups
+
+
+# Returns every row of the panel conditions: the whole reviewer comparison set, self and external
+def panel(table):
+    return table[table["report_group"].isin(external_groups(table))]
 
 
 # Returns a table as Markdown text, so Quarto numbers it and Word gets a real table
@@ -185,10 +200,11 @@ def quality_checks(df):
     reviews = review_table(df)
     found = findings_only(df)
 
-    reviewers_per_program = stage_2(reviews).groupby("program")["sec_review"].nunique()
+    reviewers_per_program = panel(reviews).groupby("program")["sec_review"].nunique()
     clean_reviews = reviews["findings"] == 0
     missing_names = df[["sec_review", "dev_llm"]].isna().any(axis=1)
-    full_panels = reviewers_per_program == 4
+    panel_reviewers = panel(reviews)["sec_review"].nunique()
+    full_panels = reviewers_per_program == panel_reviewers
     other_severity = found["severity_group"] == "Other"
     repeated_ids = found.duplicated(["location", "sec_id"])
 
@@ -199,7 +215,7 @@ def quality_checks(df):
         "Reviews with no findings": int(clean_reviews.sum()),
         "Generated programs": reviews["program"].nunique(),
         "Rows missing reviewer or generator": int(missing_names.sum()),
-        "Stage 2 programs with all 4 reviewers": int(full_panels.sum()),
+        f"Programs read by all {panel_reviewers} reviewers": int(full_panels.sum()),
         "Duplicate CSV rows": int(df.duplicated().sum()),
         "Findings with no CWE": int(found["cwe"].isna().sum()),
         "Findings with non-standard severity": int(other_severity.sum()),
@@ -211,18 +227,17 @@ def quality_checks(df):
 
 
 # Returns one row per condition: programs, reviews (self and external), clean reviews and findings
-def stage_summary(df):
+def condition_summary(df):
     reviews = review_table(df)
 
     summary = []
-    for style in STYLES:
-        subset = reviews[reviews["prompt_style"] == style]
+    for group in REPORT_ORDER:
+        subset = reviews[reviews["report_group"] == group]
         own_reviews = self_review(subset)
         clean_reviews = subset["findings"] == 0
 
         summary.append({
-            "condition": STYLE_NAMES[style],
-            "stage": subset["stage"].iloc[0],
+            "condition": group,
             "programs": subset["program"].nunique(),
             "self-reviews": len(own_reviews),
             "external reviews": len(subset) - len(own_reviews),
@@ -234,14 +249,31 @@ def stage_summary(df):
     return table
 
 
-# Returns the 48 Stage 1 pairs: same author folder, task and generator, Basic vs Security-aware
+# Returns the paired comparison: the first two conditions in print order whose programs
+# overlap, matched on author set, task and generator. The pair names ride in pairs.attrs,
+# so the table and the figure label themselves from the data rather than from names in code
 def paired_table(reviews):
-    stage_1 = reviews[reviews["stage"] == "Stage 1"]
-    pairs = stage_1.pivot_table(index=["folder", "task", "dev_llm"], columns="prompt_style", values="findings")
+    keys = ["folder", "task", "dev_llm"]
+    pair = None
+
+    for first_position, first in enumerate(REPORT_ORDER):
+        for second in REPORT_ORDER[first_position + 1:]:
+            first_keys = set(map(tuple, reviews[reviews["report_group"] == first][keys].to_numpy()))
+            second_keys = set(map(tuple, reviews[reviews["report_group"] == second][keys].to_numpy()))
+            if len(first_keys & second_keys) > 0:
+                pair = (first, second)
+                break
+        if pair is not None:
+            break
+
+    first, second = pair
+    both = reviews[reviews["report_group"].isin([first, second])]
+    pairs = both.pivot_table(index=keys, columns="report_group", values="findings")
     pairs = pairs.reset_index()
 
-    # Positive = more findings under Security-aware
-    pairs["delta"] = pairs["security"] - pairs["basic"]
+    # Positive = more findings under the second condition
+    pairs["delta"] = pairs[second] - pairs[first]
+    pairs.attrs["pair"] = (first, second)
     return pairs
 
 
@@ -249,6 +281,7 @@ def paired_table(reviews):
 # One seeded generator is shared across the rows, so the intervals repeat exactly
 def paired_effect_table(pairs, draws=10000, seed=6224):
     rng = np.random.default_rng(seed)
+    first, second = pairs.attrs["pair"]
 
     groups = [("all", pairs)]
     for coder in CODERS:
@@ -266,8 +299,8 @@ def paired_effect_table(pairs, draws=10000, seed=6224):
         summary.append({
             "scope": scope,
             "pairs": len(deltas),
-            "basic mean": group["basic"].mean(),
-            "aware mean": group["security"].mean(),
+            f"{first} mean": group[first].mean(),
+            f"{second} mean": group[second].mean(),
             "mean delta": deltas.mean(),
             "median delta": np.median(deltas),
             "fewer": int((deltas < 0).sum()),
@@ -286,13 +319,13 @@ def self_review_table(reviews):
     own_reviews = self_review(reviews)
 
     summary = []
-    for style in STYLES:
-        subset = own_reviews[own_reviews["prompt_style"] == style]
+    for group in REPORT_ORDER:
+        subset = own_reviews[own_reviews["report_group"] == group]
         findings = subset["findings"].sum()
         high_plus = subset["high_plus"].sum()
 
         summary.append({
-            "condition": STYLE_NAMES[style],
+            "condition": group,
             "self-reviews": len(subset),
             "findings": int(findings),
             "findings per review": subset["findings"].mean(),
@@ -406,27 +439,23 @@ def category_labels(found, kind, categories):
 # Returns findings per self-review for every category of a kind, one column per condition
 def category_rates(found, reviews, kind):
     own_findings = self_review(found)
-    reviews_per_style = self_review(reviews).groupby("prompt_style").size()
+    reviews_per_group = self_review(reviews).groupby("report_group").size()
 
     categories = category_of(own_findings, kind, top_cwes(found))
-    counts = pd.crosstab(categories, own_findings["prompt_style"])
-    counts = counts.reindex(index=category_order(found, kind), columns=STYLES, fill_value=0)
+    counts = pd.crosstab(categories, own_findings["report_group"])
+    counts = counts.reindex(index=category_order(found, kind), columns=REPORT_ORDER, fill_value=0)
 
-    rates = counts / reviews_per_style[STYLES]
+    rates = counts / reviews_per_group[REPORT_ORDER]
     return rates
 
 
-# Returns category_rates as a display table, with the change from the Stage 1 average
+# Returns category_rates as a display table, one column per condition in print order
 def category_rate_table(found, reviews, kind):
     rates = category_rates(found, reviews, kind)
 
     table = pd.DataFrame({"category": category_labels(found, kind, rates.index)})
-    for style in STYLES:
-        table[STYLE_NAMES[style]] = rates[style].to_numpy()
-
-    stage_1_average = (rates["basic"] + rates["security"]) / 2
-    change = 100 * (rates["security_informed"] / stage_1_average - 1)
-    table["change vs Stage 1 average %"] = change.round(0).to_numpy()
+    for group in REPORT_ORDER:
+        table[group] = rates[group].to_numpy()
     return table
 
 
@@ -451,9 +480,9 @@ def rule_table(found):
     return table
 
 
-# Returns the Stage 2 findings of one review context: "self-review", "external review" or the whole panel
+# Returns the panel findings of one review context: "self-review", "external review" or the whole panel
 def context_findings(found, context):
-    subset = stage_2(found)
+    subset = panel(found)
     is_own = subset["sec_review"] == subset["dev_llm"]
 
     if context == "self-review":
@@ -463,18 +492,18 @@ def context_findings(found, context):
     return subset
 
 
-# Returns mean findings per review: one row per reviewer, one column per generator (Stage 2)
+# Returns mean findings per review: one row per reviewer, one column per generator (the panel)
 def reviewer_matrix(reviews):
-    panel_reviews = stage_2(reviews)
+    panel_reviews = panel(reviews)
     matrix = panel_reviews.pivot_table(index="sec_review", columns="dev_llm", values="findings", aggfunc="mean")
     matrix = matrix.reindex(index=CODERS, columns=CODERS)
     return matrix
 
 
-# Returns one row per Stage 2 reviewer: volume, High/Critical share, own-code vs other-code means
+# Returns one row per panel reviewer: volume, High/Critical share, own-code vs other-code means
 def reviewer_behaviour_table(reviews, found):
-    panel_reviews = stage_2(reviews)
-    panel_found = stage_2(found)
+    panel_reviews = panel(reviews)
+    panel_found = panel(found)
 
     summary = []
     for reviewer in CODERS:
@@ -498,10 +527,10 @@ def reviewer_behaviour_table(reviews, found):
     return table
 
 
-# Returns, for each Stage 2 program and category, how many of the four reviewers named it.
+# Returns, for each panel program and category, how many reviewers named it.
 # For OWASP, Unmapped is left out: two different off-list CWEs are not an agreement
 def support_table(found, kind="cwe"):
-    subset = stage_2(found)
+    subset = panel(found)
     if kind == "owasp":
         subset = subset[subset["owasp"] != "Unmapped"]
 
@@ -527,15 +556,15 @@ def support_share_table(found):
     return table
 
 
-# Returns the Jaccard overlap of CWE (or OWASP) sets for every reviewer pair on every Stage 2 program.
+# Returns the Jaccard overlap of CWE (or OWASP) sets for every reviewer pair on every panel program.
 # When both reviewers named nothing the overlap is undefined (NaN), not 1
 def reviewer_pair_jaccard(reviews, found, kind="cwe"):
-    subset = stage_2(found)
+    subset = panel(found)
     if kind == "owasp":
         subset = subset[subset["owasp"] != "Unmapped"]
 
     rows = []
-    for program in stage_2(reviews)["program"].unique():
+    for program in panel(reviews)["program"].unique():
         named = {}
         for reviewer in CODERS:
             picked = subset[(subset["program"] == program) & (subset["sec_review"] == reviewer)]
@@ -611,74 +640,31 @@ def task_labels(tasks, label_format="Task {task}"):
     return labels
 
 
-# Draws the study design: the two stages, and the reading of Stage 1 that produced the rules
-def plot_study_design(reviews):
-    stage_1 = reviews[reviews["stage"] == "Stage 1"]
-    stage_2_reviews = stage_2(reviews)
-    stage_2_self = self_review(stage_2_reviews)
-
-    stage_1_steps = ["Stage 1",
-                     f"{stage_1['folder'].nunique()} prompt authors × {stage_1['task'].nunique()} tasks",
-                     "Basic and Security-aware prompts",
-                     f"{stage_1['dev_llm'].nunique()} coding assistants: {stage_1['program'].nunique()} programs",
-                     f"Each program self-reviewed: {len(stage_1)} reviews"]
-    stage_2_steps = ["Stage 2",
-                     f"{stage_2_reviews['task'].nunique()} tasks",
-                     f"Security-informed prompt ({len(RULES)} rules)",
-                     f"{stage_2_reviews['dev_llm'].nunique()} coding assistants: "
-                     f"{stage_2_reviews['program'].nunique()} programs",
-                     f"Each program read by all {stage_2_reviews['sec_review'].nunique()} reviewers:\n"
-                     f"{len(stage_2_reviews)} reviews ({len(stage_2_self)} self, "
-                     f"{len(stage_2_reviews) - len(stage_2_self)} external)"]
-    middle_text = f"Stage 1 reviews read\nby the team\n\nfindings distilled into\n{len(RULES)} security rules"
-
-    box = {"boxstyle": "round,pad=.5", "facecolor": "#EAF0F4", "edgecolor": "#9BAFBD"}
-    middle_box = {"boxstyle": "round,pad=.5", "facecolor": "#FFF4E0", "edgecolor": "#C48C54"}
-    arrow = {"arrowstyle": "->", "color": "#4D6979"}
-
-    plt.figure(figsize=(11.5, 4))
-    plt.axis("off")
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
-
-    for x, steps in [(0.17, stage_1_steps), (0.83, stage_2_steps)]:
-        for position, step in enumerate(steps):
-            y = 0.92 - position * 0.2
-            if position == 0:
-                weight = "bold"
-            else:
-                weight = "normal"
-            plt.text(x, y, step, ha="center", va="center", fontsize=9.5, fontweight=weight, bbox=box)
-
-    plt.text(0.5, 0.5, middle_text, ha="center", va="center", fontsize=9.5, bbox=middle_box)
-    plt.annotate("", xy=(0.4, 0.5), xytext=(0.33, 0.5), arrowprops=arrow.copy())
-    plt.annotate("", xy=(0.67, 0.5), xytext=(0.6, 0.5), arrowprops=arrow.copy())
-    show_figure()
-
-
 # Draws completed reviews per task × generator cell, one panel per condition (0 would mark a missing review)
 def plot_completeness(reviews):
     plt.figure(figsize=(11, 3.6))
 
-    for slot, style in enumerate(STYLES, 1):
-        subset = reviews[reviews["prompt_style"] == style]
+    for slot, group in enumerate(REPORT_ORDER, 1):
+        subset = reviews[reviews["report_group"] == group]
         grid = subset.pivot_table(index="task", columns="dev_llm", values="location", aggfunc="count", fill_value=0)
         grid = grid.reindex(columns=CODERS, fill_value=0)
 
-        plt.subplot(1, 3, slot)
+        plt.subplot(1, len(REPORT_ORDER), slot)
         plt.imshow(grid.to_numpy(), cmap="Blues", vmin=0, vmax=4)
         for row in range(grid.shape[0]):
             for column in range(grid.shape[1]):
                 plt.text(column, row, str(grid.iat[row, column]), ha="center", va="center", color="white")
         plt.xticks(range(len(CODERS)), CODERS)
         plt.yticks(range(len(grid.index)), task_labels(grid.index))
-        plt.title(STYLE_NAMES[style])
+        plt.title(group)
 
     show_figure()
 
 
-# Draws the Stage 1 paired differences: one dot per pair, the generator's mean as a diamond
+# Draws the paired differences: one dot per pair, the generator's mean as a diamond
 def plot_paired_effect(pairs):
+    first, second = pairs.attrs["pair"]
+
     plt.figure(figsize=(8, 4.2))
 
     for row, coder in enumerate(CODERS):
@@ -694,7 +680,7 @@ def plot_paired_effect(pairs):
     plt.axvline(0, color="#515151", ls="--", lw=1)
     plt.yticks(range(len(CODERS)), CODERS)
     plt.gca().invert_yaxis()
-    plt.xlabel("Security-aware minus Basic findings, per matched pair")
+    plt.xlabel(f"{second} minus {first} findings, per matched pair")
     show_figure()
 
 
@@ -704,18 +690,18 @@ def plot_findings_distribution(reviews):
 
     groups = []
     labels = []
-    for style in STYLES:
-        values = own_reviews[own_reviews["prompt_style"] == style]["findings"]
+    for group in REPORT_ORDER:
+        values = own_reviews[own_reviews["report_group"] == group]["findings"]
         groups.append(values)
-        labels.append(f"{STYLE_NAMES[style]}\n(n={len(values)})")
+        labels.append(f"{group}\n(n={len(values)})")
 
     plt.figure(figsize=(7.5, 4))
     plt.boxplot(groups, tick_labels=labels, showmeans=True)
 
-    for position, (style, values) in enumerate(zip(STYLES, groups), 1):
+    for position, (group, values) in enumerate(zip(REPORT_ORDER, groups), 1):
         # Spreads the dots across the box so they do not overlap
         spread = position + np.linspace(-0.13, 0.13, len(values))
-        plt.scatter(spread, values, alpha=0.5, s=16, color=STYLE_COLOURS[style])
+        plt.scatter(spread, values, alpha=0.5, s=16, color=GROUP_COLOURS[group])
 
     plt.ylabel("Findings per self-review")
     show_figure()
@@ -724,24 +710,24 @@ def plot_findings_distribution(reviews):
 # Draws grouped vertical bars: one group per row of the table, one bar per condition, values on top
 def grouped_bars(table, ylabel, value_format="{:.1f}"):
     centres = np.arange(len(table))
-    width = 0.26
+    width = 0.78 / len(REPORT_ORDER)
 
-    for offset, style in enumerate(STYLES):
-        positions = centres + (offset - 1) * width
-        plt.bar(positions, table[style], width, label=STYLE_NAMES[style], color=STYLE_COLOURS[style])
-        for position, value in zip(positions, table[style]):
+    for offset, group in enumerate(REPORT_ORDER):
+        positions = centres + (offset - (len(REPORT_ORDER) - 1) / 2) * width
+        plt.bar(positions, table[group], width, label=group, color=GROUP_COLOURS[group])
+        for position, value in zip(positions, table[group]):
             plt.text(position, value, value_format.format(value), ha="center", va="bottom", fontsize=7.5)
 
     plt.xticks(centres, table.index)
     plt.ylabel(ylabel)
-    plt.ylim(0, table[STYLES].to_numpy().max() * 1.15)
+    plt.ylim(0, table[REPORT_ORDER].to_numpy().max() * 1.15)
     legend_above()
 
 
 # Draws mean findings per self-review for each generator and condition
 def plot_findings_by_generator(reviews):
     own_reviews = self_review(reviews)
-    means = own_reviews.pivot_table(index="dev_llm", columns="prompt_style", values="findings")
+    means = own_reviews.pivot_table(index="dev_llm", columns="report_group", values="findings")
     means = means.reindex(CODERS)
 
     plt.figure(figsize=(8, 4))
@@ -752,17 +738,13 @@ def plot_findings_by_generator(reviews):
 # Draws mean findings per self-review for each task (rows) and condition (columns)
 def plot_findings_by_task(reviews):
     own_reviews = self_review(reviews)
-    grid = own_reviews.pivot_table(index="task", columns="prompt_style", values="findings")
-    grid = grid.reindex(columns=STYLES)
-
-    style_names = []
-    for style in STYLES:
-        style_names.append(STYLE_NAMES[style])
+    grid = own_reviews.pivot_table(index="task", columns="report_group", values="findings")
+    grid = grid.reindex(columns=REPORT_ORDER)
 
     plt.figure(figsize=(7.5, 4.2))
     plt.imshow(grid.to_numpy(), cmap="YlGnBu", aspect="auto")
     label_cells(grid, "{:.2f}")
-    plt.xticks(range(len(STYLES)), style_names)
+    plt.xticks(range(len(REPORT_ORDER)), REPORT_ORDER)
     plt.yticks(range(len(grid.index)), task_labels(grid.index, "Task {task} ({anchor})"))
     plt.colorbar(label="Findings per self-review")
     show_figure()
@@ -771,7 +753,7 @@ def plot_findings_by_task(reviews):
 # Draws the share of self-reviews that named the task's own anchor CWE, every bar labelled including 0%
 def plot_anchor_reporting(reviews):
     own_reviews = self_review(reviews)
-    rates = own_reviews.pivot_table(index="task", columns="prompt_style", values="anchor_reported") * 100
+    rates = own_reviews.pivot_table(index="task", columns="report_group", values="anchor_reported") * 100
     rates.index = task_labels(rates.index, "Task {task}\n{anchor}")
 
     plt.figure(figsize=(9, 4))
@@ -804,26 +786,26 @@ def stacked_shares(shares, colours, labels, row_labels, xlabel):
 
 
 # Returns one bar label per condition: its name and how many findings the bar covers
-def condition_labels(findings_per_style):
+def condition_labels(findings_per_group):
     labels = []
-    for style in STYLES:
-        labels.append(f"{STYLE_NAMES[style]}\n{findings_per_style[style]} findings")
+    for group in REPORT_ORDER:
+        labels.append(f"{group}\n{findings_per_group[group]} findings")
     return labels
 
 
 # Draws the severity mix of each condition's self-review findings
 def plot_severity_by_condition(found):
     own_findings = self_review(found)
-    shares = pd.crosstab(own_findings["prompt_style"], own_findings["severity_group"], normalize="index") * 100
-    shares = shares.reindex(index=STYLES, columns=SEVERITIES, fill_value=0)
-    findings_per_style = own_findings["prompt_style"].value_counts()
+    shares = pd.crosstab(own_findings["report_group"], own_findings["severity_group"], normalize="index") * 100
+    shares = shares.reindex(index=REPORT_ORDER, columns=SEVERITIES, fill_value=0)
+    findings_per_group = own_findings["report_group"].value_counts()
 
     severity_labels = {}
     for severity in SEVERITIES:
         severity_labels[severity] = severity
 
     plt.figure(figsize=(9, 3.2))
-    stacked_shares(shares, SEVERITY_COLOURS, severity_labels, condition_labels(findings_per_style),
+    stacked_shares(shares, SEVERITY_COLOURS, severity_labels, condition_labels(findings_per_group),
                    "Share of the condition's findings (%)")
     legend_above(columns=5)
     show_figure()
@@ -837,12 +819,12 @@ def plot_category_rates(found, reviews, kind):
         rates = rates.drop(index="Other")
 
     rows = np.arange(len(rates))
-    height = 0.26
+    height = 0.78 / len(REPORT_ORDER)
 
     plt.figure(figsize=(9, 0.42 * len(rates) + 1.4))
-    for offset, style in enumerate(STYLES):
-        plt.barh(rows + (offset - 1) * height, rates[style], height, label=STYLE_NAMES[style],
-                 color=STYLE_COLOURS[style])
+    for offset, group in enumerate(REPORT_ORDER):
+        plt.barh(rows + (offset - (len(REPORT_ORDER) - 1) / 2) * height, rates[group], height, label=group,
+                 color=GROUP_COLOURS[group])
     plt.yticks(rows, category_labels(found, kind, rates.index))
     plt.gca().invert_yaxis()
     plt.xlabel("Findings per self-review")
@@ -856,16 +838,16 @@ def plot_category_mix(found, kind):
     categories = category_of(own_findings, kind, top_cwes(found))
     order = category_order(found, kind)
 
-    shares = pd.crosstab(own_findings["prompt_style"], categories, normalize="index") * 100
-    shares = shares.reindex(index=STYLES, columns=order, fill_value=0)
-    findings_per_style = own_findings["prompt_style"].value_counts()
+    shares = pd.crosstab(own_findings["report_group"], categories, normalize="index") * 100
+    shares = shares.reindex(index=REPORT_ORDER, columns=order, fill_value=0)
+    findings_per_group = own_findings["report_group"].value_counts()
 
     labels = {}
     for category in order:
         labels[category] = category_label(found, kind, category)
 
     plt.figure(figsize=(11, 3.6))
-    stacked_shares(shares, category_colours(found, kind), labels, condition_labels(findings_per_style),
+    stacked_shares(shares, category_colours(found, kind), labels, condition_labels(findings_per_group),
                    "Share of the condition's findings (%)")
     legend_right()
     show_figure()
@@ -892,19 +874,20 @@ def plot_category_by_task(found, reviews, kind):
     show_figure()
 
 
-# Returns the pie panels: one per condition (self-review), or Stage 2 self-review against external review.
-# Each panel is its column heading and the findings it covers
+# Returns the pie panels: one per condition (self-review), or panel self-review against external
+# review. Each panel is its column heading and the findings it covers
 def pie_panels(found, panel_set):
     panels = []
 
     if panel_set == "conditions":
         own_findings = self_review(found)
-        for style in STYLES:
-            heading = f"{STYLE_NAMES[style]}\nself-review"
-            panels.append((heading, own_findings[own_findings["prompt_style"] == style]))
+        for group in REPORT_ORDER:
+            heading = f"{group}\nself-review"
+            panels.append((heading, own_findings[own_findings["report_group"] == group]))
     else:
-        panels.append(("Security-informed\nself-review", context_findings(found, "self-review")))
-        panels.append(("Security-informed\nexternal review", context_findings(found, "external review")))
+        panel_group = external_groups(found)[0]
+        panels.append((f"{panel_group}\nself-review", context_findings(found, "self-review")))
+        panels.append((f"{panel_group}\nexternal review", context_findings(found, "external review")))
 
     return panels
 
@@ -986,7 +969,7 @@ def matrix_heatmap(matrix, cmap, title):
     plt.colorbar(shrink=0.75)
 
 
-# Draws Stage 2 reviewer × generator: raw findings per review, and each row divided by its own mean
+# Draws the panel reviewer × generator: raw findings per review, and each row divided by its own mean
 def plot_reviewer_matrix(reviews):
     matrix = reviewer_matrix(reviews)
 
@@ -1001,7 +984,7 @@ def plot_reviewer_matrix(reviews):
     show_figure()
 
 
-# Draws Stage 2 reviewers: volume against High/Critical share, and own-code against other-code means
+# Draws panel reviewers: volume against High/Critical share, and own-code against other-code means
 def plot_reviewer_behaviour(reviews, found):
     behaviour = reviewer_behaviour_table(reviews, found)
 
@@ -1042,9 +1025,9 @@ def plot_reviewer_behaviour(reviews, found):
     show_figure()
 
 
-# Draws the severity mix of each reviewer's Stage 2 findings
+# Draws the severity mix of each panel reviewer's findings
 def plot_severity_by_reviewer(found):
-    panel_found = stage_2(found)
+    panel_found = panel(found)
     shares = pd.crosstab(panel_found["sec_review"], panel_found["severity_group"], normalize="index") * 100
     shares = shares.reindex(index=CODERS, columns=SEVERITIES, fill_value=0)
     counts = panel_found["sec_review"].value_counts()

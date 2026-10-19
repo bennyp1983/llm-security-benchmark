@@ -10,6 +10,7 @@
 #-----------------------------------------#    imports    #-----------------------------------------#
 
 import csv
+import json
 import re
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]                           # Repo root, the folder holding results-cyber
 REVIEWS_DIR = REPO / "results-cyber"
 DATA_DIR = REPO / "report" / "data"
+CONFIG_FILE = REPO / "config" / "benchmark.json"
 OUT_FILE = DATA_DIR / "findings.csv"
 MITRE_FILE = DATA_DIR / "mitre_cwe.csv"                              # Official CWE names, the fallback for a nameless finding
 OWASP_FILE = DATA_DIR / "owasp2025_cwe_map.csv"                      # Which OWASP Top 10 2025 category each CWE sits in
@@ -27,7 +29,7 @@ OWASP_FILE = DATA_DIR / "owasp2025_cwe_map.csv"                      # Which OWA
 # Define review path constants
 # Path shape: results-cyber/<reviewer>/<dev_llm>/set_a/<folder>/<task>/<prompt_arm>/security_review.md
 REVIEW_GLOB = "*/*/*/*/*/*/security_review.md"
-SKIP_FOLDERS = ("pilot")                                            # Pilot predates the proper review prompt
+SKIP_FOLDERS = ("pilot",)                                           # Pilot predates the proper review prompt, its format is unparseable here
 
 # Define review reading patterns
 FINDING_HEAD_RE = re.compile(                                        # Group 1 is the finding id, group 2 its title
@@ -44,16 +46,46 @@ CWE_MARK = "CWE-"                                                    # A blank r
 UNMAPPED = "Unmapped"                                                # A cited CWE OWASP does not map
 SEVERITY_WORDS = ("Critical", "High", "Medium", "Low")               # Only when the review writes no Severity label
 EDGE_PUNCT = " /:;-\u2014.*"                                         # What a cut CWE label leaves on the line
-ARM_RELABEL = {("post_research", "security"): "security_informed"}   # Template A ran under .../security/ on disk
 
 # The columns of findings.csv, in order
 COLUMNS = [
-    "location", "sec_review", "dev_llm", "folder", "task", "prompt_style",
+    "location", "sec_review", "dev_llm", "folder", "task", "report_group",
     "sec_id", "sec_title", "cwe", "cwe_title", "owasp", "owasp_title", "severity"
 ]
 
 
 #-------------------------------------#    Define functions    #-------------------------------------#
+
+
+# Returns the config lookup {(set, task, style): report_group} and the report's print order
+def load_report_groups():
+    config = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+
+    groups = {}
+    for prompt_set in config["prompt_sets"]:
+        for task_entry in prompt_set["task"]:
+            for prompt in task_entry["prompts"]:
+                key = (prompt_set["name"], int(task_entry["task_number"]), prompt["style"])
+                groups[key] = prompt["report_group"]
+    return groups, config["report_order"]
+
+
+GROUPS, REPORT_ORDER = load_report_groups()
+IGNORE = "ignore"                                                   # The reserved report_group meaning "not part of any report"
+
+
+# Returns "ignore" or one of report_order's display names, for a disk run's set, task and style.
+# Stops the build, naming the prompt, when config says nothing about the run or the group
+# is outside report_order - a made-up column value is worse than no build
+def report_group_for(set_name, task, style):
+    key = (set_name, int(task), style)
+    if key not in GROUPS:
+        raise SystemExit(f"config/benchmark.json has no prompt for set {key[0]} task {key[1]} style {key[2]}")
+
+    group = GROUPS[key]
+    if group != IGNORE and group not in REPORT_ORDER:
+        raise SystemExit(f"report_group '{group}' for set {key[0]} task {key[1]} style {key[2]} is neither 'ignore' nor in report_order")
+    return group
 
 
 # Returns the review's text, unreadable bytes replaced rather than raising
@@ -83,7 +115,7 @@ def review_key_columns(path):
     relative_path = path.relative_to(REVIEWS_DIR)
     reviewer, dev_llm, set_name, folder, task, prompt_arm, file_name = relative_path.parts
 
-    prompt_style = ARM_RELABEL.get((folder, prompt_arm), prompt_arm)
+    report_group = report_group_for(folder, task, prompt_arm)
 
     location_parts = [reviewer, dev_llm, folder, task, prompt_arm]
     location = "/".join(location_parts)
@@ -94,7 +126,7 @@ def review_key_columns(path):
                    "dev_llm": dev_llm,
                    "folder": folder,
                    "task": task,
-                   "prompt_style": prompt_style}
+                   "report_group": report_group}
     return key_columns
 
 
