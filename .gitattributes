@@ -1,3 +1,5 @@
+# Keep line endings consistent between Windows and Linux: text is stored as LF,
+# and these types are always checked out as LF so files never differ by line ending
 * text=auto
 
 *.csv text eol=lf

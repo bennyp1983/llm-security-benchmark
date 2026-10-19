@@ -1,20 +1,20 @@
-# Real secrets -- never committed. Copy .env.example to .env and fill it in.
+# Secrets: a local .env file is never committed
 .env
 
-# Local Docker build artifacts / editor cruft
+# Log files and macOS Finder files. Logs that are part of a generated result are
+# force-added on purpose (see the README notes)
 *.log
 .DS_Store
 
-# Python
+# Python caches and virtual environments
 __pycache__/
 .venv*/
 
-
-# Report: Quarto's cache, and everything the cyber workflow generates except the final report
+# Report: Quarto's cache and working files, and everything the cyber workflow
+# generates except the final reports (markdown with its figures, and docx)
 report/.quarto/
 report/.gitignore
 report/**/*.quarto_ipynb
-report/build/
 report/final_report_*.qmd
 report/**/*_files/
 report/docs/*
