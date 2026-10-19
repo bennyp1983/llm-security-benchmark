@@ -1,5 +1,20 @@
 # llm-security-benchmark
 
+## Executive summary
+
+> **TODO (Ben):** a few lines on what this study found, for someone landing on the repository.
+
+
+## Reports
+
+- **[Security findings report](report/docs/final_report_findings.md)**: what the reviewers found, by prompting style, task, CWE and OWASP category, and how the LLMs compare, as code generators and as security reviewers.
+- **[Run cost report](report/docs/final_report_run_cost.md)**: how the runs finished, and the time, tokens and turns each assistant used.
+
+Every table and figure in the reports is computed from the data. The text is written by an AI from the rendered tables and figures, and checked to contain no unfilled placeholders.
+
+
+## About this project
+
 A reproducible benchmark for the security of code written by AI coding assistants. It asks four coding CLIs to write Java for six security-sensitive tasks under different prompting styles, has every program reviewed for vulnerabilities by LLM security reviewers, and turns the reviews into a findings report and a run-cost report.
 
 Everything runs in two [n8n](https://n8n.io/) workflows, each in its own Docker container:
@@ -15,14 +30,9 @@ The two are kept apart on purpose. The security-review skills are installed only
 The coding assistants are Google Antigravity (`agy`), Claude Code (`claude`), ChatGPT Codex (`codex`) and Qwen Code (`qwen`). The same four act as the security reviewers.
 
 
-## Results
+## The data
 
-- **[Security findings report](report/docs/final_report_findings.md)** ([docx](report/docs/final_report_findings.docx)): what the reviewers found, by prompting style, coding assistant, task, CWE and OWASP category, and how far the reviewers agree.
-- **[Run cost report](report/docs/final_report_run_cost.md)** ([docx](report/docs/final_report_run_cost.docx)): how the runs finished, and the time, tokens and turns each assistant used.
-
-Every table and figure in the reports is computed from the data. The text is written by an AI from the rendered tables and figures, and checked to contain no unfilled placeholders.
-
-The raw data:
+Everything the reports are built from is in the repository:
 
 | What | Where |
 |---|---|
