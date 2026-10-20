@@ -6,9 +6,10 @@ The tables and combined reviews that feed the security report in `report/`.
 `report/scripts/build_findings.py` from the reviews in results-cyber. Regenerate,
 never hand-edit.
 
-**all_security_review.md** — every review in results-cyber in one file, built by
-`report/scripts/build_review_bundle.py`, numbered in findings.csv order. For
-reading beside findings.csv to check the extraction by hand.
+**all_security_review_<reviewer>.md** (agy, claude, codex, qwen) — every review in
+results-cyber, one file per reviewer, built by `report/scripts/build_review_bundle.py`. Reviews are numbered
+from 1 in each file, in findings.csv order, for reading beside findings.csv to check the
+extraction by hand. Reviews grouped "ignore" are left out, as in the reports.
 
 **mitre_cwe.csv** — downloaded from https://cwe.mitre.org/data/csv/1000.csv.zip
 (MITRE CWE view 1000 "Research Concepts", fetched 2026-10-18, CWE v4.20),

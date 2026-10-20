@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Name: Ben Pivetta
-#
 # Set up the LLM security benchmark: build and start both n8n containers, import the two
 # workflows, create the n8n accounts, log the coding CLIs in, or reset the results.
 #

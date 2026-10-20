@@ -648,26 +648,6 @@
   "triggerCount": 0,
   "sourceWorkflowId": null,
   "tags": [],
-  "shared": [
-    {
-      "role": "workflow:owner",
-      "workflowId": "bwqKVV0abQefK272",
-      "projectId": "PXj54iQwOwC1z3UL",
-      "project": {
-        "id": "PXj54iQwOwC1z3UL",
-        "name": "Ben Pivetta <bennyberetta@gmail.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "customTelemetryTags": [],
-        "creatorId": "4ffd8e06-13a1-486c-8554-91fcca4ba28f",
-        "createdAt": "2026-08-22T11:08:13.117Z",
-        "updatedAt": "2026-08-22T11:27:35.865Z"
-      },
-      "createdAt": "2026-08-23T22:40:51.651Z",
-      "updatedAt": "2026-08-23T22:40:51.651Z"
-    }
-  ],
   "versionMetadata": {
     "name": null,
     "description": null

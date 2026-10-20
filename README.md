@@ -40,7 +40,7 @@ Everything the reports are built from is in the repository:
 | Every security review (`security_review.md`) of every program | `results-cyber/<reviewer>/<target>/set_a/<prompt_set>/<task>/<style>/` |
 | One row per finding (CWE, OWASP category, severity) | [`report/data/findings.csv`](report/data/findings.csv) |
 | One row per run (time, tokens, turns) | [`report/data/run_cost.csv`](report/data/run_cost.csv) |
-| Every review in one file, in `findings.csv` order, for checking by hand | [`report/data/all_security_review.md`](report/data/all_security_review.md) |
+| Every review, one file per reviewer, in `findings.csv` order for checking by hand | [agy](report/data/all_security_review_agy.md), [claude](report/data/all_security_review_claude.md), [codex](report/data/all_security_review_codex.md), [qwen](report/data/all_security_review_qwen.md) |
 
 ### The tasks and prompts
 

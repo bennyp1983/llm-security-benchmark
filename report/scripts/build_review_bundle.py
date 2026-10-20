@@ -1,12 +1,13 @@
-# Name: Ben Pivetta
-#
-# Write data/all_security_review.md, every review in one file
+# Write data/all_security_review_<reviewer>.md, every review in one file per reviewer
 #
 # Run:  python report/scripts/build_review_bundle.py
 #
 # The extraction needs checking by hand against the reviews it read, so they are
-# combined here in build order with each review's path and heading count. People
-# read it beside findings.csv; no script uses it.
+# combined here in build order, each under its path. There is one file per reviewer
+# that has reviews, so each stays small enough to open, and a reviewer with none is
+# simply left out. Reviews are numbered from 1 in each file, in build order, the same
+# order as findings.csv. Reviews grouped "ignore" are left out, as the reports leave them out.
+# People read these beside findings.csv; no script uses them.
 
 
 #-----------------------------------------#    imports    #-----------------------------------------#
@@ -15,56 +16,55 @@ import sys
 import datetime
 from pathlib import Path
 
-# Reused from the build, so the bundle can never cover another set than the CSV did
+# Reused from the build, so the bundles can never cover another set than the CSV did
 sys.path.insert(0, str(Path(__file__).parent))
-from build_findings import REVIEWS_DIR, FINDING_HEAD_RE, review_files, read_text
+from build_findings import REVIEWS_DIR, IGNORE, review_files, review_key_columns, read_text
 
 
 #-------------------------------------#    Define constants    #-------------------------------------#
 
 DATA_DIR = REVIEWS_DIR.parent / "report" / "data"
-OUT_FILE = DATA_DIR / "all_security_review.md"
+OUT_PREFIX = "all_security_review_"                                  # Followed by the reviewer, e.g. _codex.md
 DIVIDER = "\n\n---\n\n"
 
 
 #-------------------------------------#    Define functions    #-------------------------------------#
 
 
-# Returns how many finding headings the build would have seen in this review
-def count_headings(text):
-    lines = text.split("\n")
-
-    count = 0
-    for line in lines:
-        match = FINDING_HEAD_RE.match(line)
-
-        if match:
-            count = count + 1
-
-    return count
+# Returns the bundle file for a reviewer, e.g. "codex" -> all_security_review_codex.md
+def bundle_path(reviewer):
+    file_name = OUT_PREFIX + reviewer + ".md"
+    return DATA_DIR / file_name
 
 
-# Returns the title block that opens the bundle, with today's date and the review count
-def header(review_count):
+# Deletes the bundles of an earlier build, so a reviewer that is gone leaves no old file behind
+def remove_old_bundles():
+    old_files = DATA_DIR.glob(OUT_PREFIX + "*.md")
+
+    for old_file in old_files:
+        old_file.unlink()
+
+
+# Returns the title block that opens a bundle, with its reviewer, today's date and the review count
+def header(reviewer, review_count):
     today = datetime.date.today()
-    return f"# All Security Reviews\n\n{review_count} reviews combined {today}. Read-only.\n"
+    return f"# All Security Reviews by {reviewer}\n\n{review_count} reviews combined {today}. Read-only.\n"
 
 
-# Returns one review's section: its path, what the build saw, the review itself
-def section(review_number, review_path, text, heading_count):
+# Returns one review's section: its number and path as a heading, then the review itself
+def section(review_number, review_path, text):
     relative_path = review_path.relative_to(REVIEWS_DIR)
     source = relative_path.as_posix()
     body = text.strip()
 
-    title = f"# [{review_number}] results-cyber/{source}"
-    count_line = f"(finding headings: {heading_count})"
-    block = DIVIDER + title + "\n" + count_line + "\n\n" + body + "\n"
+    title = f"### {review_number}) results-cyber/{source}"
+    block = DIVIDER + title + "\n\n" + body + "\n"
     return block
 
 
-# Writes the opening line and every review section
-def write_bundle(opening, sections):
-    with open(OUT_FILE, "w", encoding="utf-8") as fh:
+# Writes one bundle: the opening line and every review section of its group
+def write_bundle(out_file, opening, sections):
+    with open(out_file, "w", encoding="utf-8") as fh:
         fh.write(opening)
 
         for block in sections:
@@ -77,23 +77,36 @@ def main():
 
     # The same list the CSV was built from, so the two can never cover different reviews
     review_paths = review_files()
-    review_count = len(review_paths)
-    opening = header(review_count)
 
-    sections = []
+    # Only reviewers found on disk get a list, so a missing reviewer can never break the build
+    sections_by_reviewer = {}
 
-    # Numbered in build order, so a review named in findings.csv is one step to find
-    for review_number, review_path in enumerate(review_paths, start=1):
+    # Kept in build order, the same order as findings.csv
+    for review_path in review_paths:
+        key_columns = review_key_columns(review_path)
+
+        # Runs the config marks "ignore" are left out, as the reports leave them out
+        if key_columns["report_group"] == IGNORE:
+            continue
+
+        reviewer = key_columns["sec_review"]
+        if reviewer not in sections_by_reviewer:
+            sections_by_reviewer[reviewer] = []
+
+        # Numbered from 1 within each reviewer's file
+        review_number = len(sections_by_reviewer[reviewer]) + 1
+
         text = read_text(review_path)
+        block = section(review_number, review_path, text)
+        sections_by_reviewer[reviewer].append(block)
 
-        # Counted with the build's own pattern, so it is the count the build saw
-        heading_count = count_headings(text)
+    remove_old_bundles()
 
-        block = section(review_number, review_path, text, heading_count)
-        sections.append(block)
-
-    write_bundle(opening, sections)
-    print(f"wrote {OUT_FILE.name}: {review_count} reviews")
+    # One file per reviewer that has reviews, in build order
+    for reviewer, sections in sections_by_reviewer.items():
+        out_file = bundle_path(reviewer)
+        write_bundle(out_file, header(reviewer, len(sections)), sections)
+        print(f"wrote {out_file.name}: {len(sections)} reviews")
 
 
 if __name__ == "__main__":
