@@ -7,7 +7,9 @@
 # that has reviews, so each stays small enough to open, and a reviewer with none is
 # simply left out. Reviews are numbered from 1 in each file, in build order, the same
 # order as findings.csv. Reviews grouped "ignore" are left out, as the reports leave them out.
-# People read these beside findings.csv; no script uses them.
+# Control characters a reviewer wrote are shown as their symbol (NUL as ␀), because one
+# NUL makes git treat the whole file as binary and GitHub will not preview it. The reviews
+# themselves are not changed. People read these beside findings.csv; no script uses them.
 
 
 #-----------------------------------------#    imports    #-----------------------------------------#
@@ -26,6 +28,9 @@ from build_findings import REVIEWS_DIR, IGNORE, review_files, review_key_columns
 DATA_DIR = REVIEWS_DIR.parent / "report" / "data"
 OUT_PREFIX = "all_security_review_"                                  # Followed by the reviewer, e.g. _codex.md
 DIVIDER = "\n\n---\n\n"
+KEPT_CONTROLS = "\n\t"                                                # Control characters left as they are
+SYMBOL_START = 0x2400                                                # Unicode control pictures: ␀ is 0x2400 + 0
+DELETE_SYMBOL = "\u2421"                                             # ␡, the symbol for DEL (0x7f)
 
 
 #-------------------------------------#    Define functions    #-------------------------------------#
@@ -51,11 +56,29 @@ def header(reviewer, review_count):
     return f"# All Security Reviews by {reviewer}\n\n{review_count} reviews combined {today}. Read-only.\n"
 
 
+# Returns the text with every control character but newline and tab swapped for its symbol
+def show_control_characters(text):
+    shown = []
+    for character in text:
+        code = ord(character)
+
+        if character in KEPT_CONTROLS:
+            shown.append(character)
+        elif code < 0x20:
+            shown.append(chr(SYMBOL_START + code))
+        elif code == 0x7f:
+            shown.append(DELETE_SYMBOL)
+        else:
+            shown.append(character)
+
+    return "".join(shown)
+
+
 # Returns one review's section: its number and path as a heading, then the review itself
 def section(review_number, review_path, text):
     relative_path = review_path.relative_to(REVIEWS_DIR)
     source = relative_path.as_posix()
-    body = text.strip()
+    body = show_control_characters(text.strip())
 
     title = f"### {review_number}) results-cyber/{source}"
     block = DIVIDER + title + "\n\n" + body + "\n"

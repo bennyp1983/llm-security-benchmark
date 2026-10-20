@@ -1073,7 +1073,7 @@ Lower-severity findings cover the unauthenticated envelope header, differentiate
 
         if (resourceId != null) {
             // Count per (source, resource) pair so one source cannot exhaust a shared key's budget.
-            WindowCounter pairCounter = resourceCounters.get(resourceId + " " + sourceId);
+            WindowCounter pairCounter = resourceCounters.get(resourceId + "␀" + sourceId);
             if (pairCounter != null && pairCounter.isExceeded(now, windowDurationMs, maxResourceFailures)) {
                 throw new CryptoException("Decryption rate limit exceeded");
             }
@@ -9807,7 +9807,7 @@ The review found **one Low-severity issue** (SEC-01). The command-line demo prin
                 System.out.println("  created at: " + a.createdAt());
 ```
 
-**Why it is a problem:** The input username is strictly validated. The values printed here are not: they come from the `users` table (`mapRow`, `UserAccountLookup.java:117-126`). Other application flows usually let end users write columns such as `full_name` and `email`, for example registration or profile editing. The demo prints them straight to the operator's terminal. Stored data that contains ESC-based sequences (`[...`, OSC `]...`), carriage returns or Unicode bidi overrides (`U+202E`) is interpreted by the terminal. That lets an attacker:
+**Why it is a problem:** The input username is strictly validated. The values printed here are not: they come from the `users` table (`mapRow`, `UserAccountLookup.java:117-126`). Other application flows usually let end users write columns such as `full_name` and `email`, for example registration or profile editing. The demo prints them straight to the operator's terminal. Stored data that contains ESC-based sequences (`␛[...`, OSC `␛]...␇`), carriage returns or Unicode bidi overrides (`U+202E`) is interpreted by the terminal. That lets an attacker:
 - rewrite or hide earlier output, for example making an `active: false` line appear as `true` or forging a "No account found" message;
 - change the window title or inject clickable OSC 8 hyperlinks;
 - on vulnerable terminal emulators, trigger sequences that report data back into the input buffer, which has led to command execution in known terminal CVEs.
@@ -11223,7 +11223,7 @@ try {
 ```java
 // New tracker keyed on the pair; the global per-user tracker uses a much higher threshold
 // (e.g. 100) and triggers step-up authentication rather than a hard refusal.
-String pairKey = userKey + ' ' + (sourceKey == null ? "" : sourceKey);
+String pairKey = userKey + '␀' + (sourceKey == null ? "" : sourceKey);
 Duration pairWait = userSourceAttempts.remainingLock(pairKey, now);
 Duration sourceWait = sourceKey == null ? Duration.ZERO : sourceAttempts.remainingLock(sourceKey, now);
 Duration wait = pairWait.compareTo(sourceWait) >= 0 ? pairWait : sourceWait;
@@ -11319,8 +11319,8 @@ synchronized Duration recordFailure(String key, Instant now) {
 **Fix:** Check raw lengths before normalizing, and map oversize values to a single shared bucket so they are still throttled but can't grow memory. Optionally store a fixed-size digest of the key instead of the raw string.
 ```java
 private static final int MAX_SOURCE_LENGTH = 64;
-private static final String OVERSIZE_USER_KEY = " oversize-user";
-private static final String OVERSIZE_SOURCE_KEY = " oversize-source";
+private static final String OVERSIZE_USER_KEY = "␀oversize-user";
+private static final String OVERSIZE_SOURCE_KEY = "␀oversize-source";
 
 boolean usernameTooLong = username != null && username.length() > MAX_USERNAME_LENGTH;
 String userKey = usernameTooLong ? OVERSIZE_USER_KEY : normalizeUsername(username);
