@@ -21,27 +21,24 @@
 
 ## Summary
 
-- All 30 generation runs succeeded for Claude, Codex and Qwen;
-  Antigravity had 29 successes and 1 error, with 7 empty replies. All 48
-  review runs for each assistant succeeded with no empty replies.
-- Qwen had the largest reported generation cost, totaling 50.98 hours
-  and 709.11 million tokens processed across 30 runs; Codex processed
-  8.28 million tokens, while its run time was not reported.
-- Across 48 review runs, Qwen reported 34.53 total hours and 402.96
-  million tokens processed. Antigravity, Claude and Codex processed
-  141.09 million, 56.78 million and 65.42 million review tokens,
-  respectively, and Codex review time was not reported.
-- The generation figures show that Qwen’s security-informed runs stand
-  apart from the other conditions in both time and processed tokens,
-  while the other assistants show smaller condition-to-condition shifts.
-- In the recovered pilot, Claude Sonnet 5 at max effort used 30.24
-  minutes, 1.24 million processed tokens and 21.0 turns for Task 1
-  Basic, compared with 4.38 minutes, 0.24 million processed tokens and
-  12.0 turns for Claude Opus 5 at medium on the same task.
-- Qwen’s security-informed setting combined xhigh generation with medium
-  review: generation averaged 358.46 minutes and self-review 46.38
-  minutes, and the 24-review panel totaled 14.4 actual hours at medium
-  versus 190.5 estimated hours at xhigh.
+- Qwen had the largest generation totals, at 50.98 hours and 709.11
+  million tokens processed across 30 runs; its review totals were 34.53
+  hours and 402.96 million tokens across 48 runs.
+- Antigravity had 29 successful generation runs and one error; seven of
+  its generation runs returned empty replies. Every Claude, Codex and
+  Qwen generation and review run was successful and returned a non-empty
+  reply.
+- Codex generation processed 8.28 million tokens in total, the lowest
+  generation total in
+  <a href="#tbl-run-headline" class="quarto-xref">Table 3</a>, but Codex
+  run time was not reported.
+- The recovered Claude Sonnet 5 max-effort pilot took 30.24 minutes and
+  processed 1.24 million tokens, compared with 4.38 minutes and 0.24
+  million tokens for Claude Opus 5 medium on the same task.
+- For Qwen, Basic and Security-aware self-reviews took 51.75 and 48.76
+  minutes per program, while Security-informed self-review at medium
+  effort took 46.38 minutes versus 358.46 minutes for generation at
+  xhigh effort.
 
 > **Reader’s rule:** time and tokens describe the coding assistant as
 > configured (model, effort setting, scaffolding and hardware), not the
@@ -52,11 +49,10 @@
 
 ### Source of the numbers
 
-This section distinguishes generation runs, whose reported cost is
-assigned to the generator, from review runs, whose reported cost is
-assigned to the reviewer. The report covers 30 generation runs and 48
-review runs for each assistant, as summarized in the later completion
-and cost tables.
+This report summarizes the completion status and CLI-reported time,
+token and turn data for generation and security-review runs. Generation
+costs are grouped by the assistant that wrote the program, while review
+costs are grouped by the assistant that reviewed it.
 
 - A **generation run** is one assistant writing one program. Its cost
   belongs to the generator.
@@ -65,10 +61,11 @@ and cost tables.
 
 ### Two token measures, one rule for every assistant
 
-The table sets out what each assistant includes in input, cached and
-total token counts. It also defines tokens processed consistently as all
-reported input, cache-related and output tokens available for each
-assistant.
+The assistants expose input and cache activity differently, so the table
+distinguishes each tool’s own token total from the common
+tokens-processed measure used in this report. The common measure
+includes generated output and all reported input activity, including
+cache creation or cached reads where those are reported separately.
 
 | Assistant | What “input” counts | Cached tokens | Tool’s own total | Tokens processed, as used here |
 |:---|:---|:---|:---|:---|
@@ -82,10 +79,10 @@ from them
 
 ### Gaps in the data
 
-Codex did not report run time, so its time values are missing from the
-overall table and it does not appear in the time figures. The completion
-tables also distinguish an ERROR from successful runs that returned an
-empty reply, preserving both kinds of gaps in the run record.
+Codex run time was not reported, so it is absent from the time summaries
+and figures. Antigravity had one generation run with ERROR status and
+seven generation runs with empty replies, including that error run; the
+other assistants show neither issue.
 
 ## How the runs finished
 
@@ -111,11 +108,12 @@ review runs
 
 </div>
 
-<a href="#tbl-run-completion" class="quarto-xref">Table 1</a> shows that
-Claude, Codex and Qwen each completed all 30 generation runs
-successfully, while Antigravity recorded 29 successes, 1 error and 7
-empty replies. All four assistants completed their 48 review runs
-successfully with 0 empty replies.
+In <a href="#tbl-run-completion" class="quarto-xref">Table 1</a>,
+Antigravity completed 29 of 30 generation runs successfully, with one
+ERROR and seven empty replies, while all 48 of its review runs succeeded
+without empty replies. Claude, Codex and Qwen each show 30 successful
+generation runs and 48 successful review runs, with no errors or empty
+replies.
 
 <div id="tbl-run-problems">
 
@@ -138,10 +136,11 @@ and review runs
 
 </div>
 
-All seven problem entries in
+All seven entries in
 <a href="#tbl-run-problems" class="quarto-xref">Table 2</a> are
-Antigravity generation runs: 1 ended in ERROR and 6 had SUCCESS status
-with an empty reply. Their reported times range from 4.8 to 5.0 minutes.
+Antigravity generation runs: `agy/post_research/1/security/` ended in
+ERROR after 5.0 minutes, and the other six had SUCCESS status but empty
+replies. The reported times shown are 4.8, 4.9 and 5.0 minutes.
 
 ## Overall cost per assistant
 
@@ -167,12 +166,14 @@ generator) and all review runs (by reviewer); Codex records no time
 
 </div>
 
-<a href="#tbl-run-headline" class="quarto-xref">Table 3</a> shows that
-Qwen generation had the largest reported totals at 50.98 hours and
-709.11 million tokens processed, with means of 101.96 minutes and 23.64
-million processed tokens per run. For review, Qwen reported 34.53 hours
-and 402.96 million processed tokens, while Codex review time was not
-reported and its 48 reviews processed 65.42 million tokens.
+Qwen has the largest totals in
+<a href="#tbl-run-headline" class="quarto-xref">Table 3</a>: generation
+used 50.98 hours and 709.11 million tokens processed, while review used
+34.53 hours and 402.96 million tokens processed. Codex generation
+processed 8.28 million tokens and Codex review processed 65.42 million,
+but time was not reported for either stage. Antigravity and Claude
+generation averaged 4.95 and 5.68 minutes per run, and their reviews
+averaged 4.66 and 6.63 minutes per run.
 
 ## Generation
 
@@ -186,10 +187,11 @@ generation runs; Codex records no time
 </div>
 
 <a href="#fig-run-gen-time" class="quarto-xref">Figure 1</a> shows Qwen
-taking much longer per generated program than Antigravity or Claude,
-especially in the security-informed condition. Antigravity and Claude
-also take longer in the security-informed condition than in their other
-two conditions; Codex is absent because its time was not reported.
+taking substantially longer than Antigravity and Claude in every
+condition, with the separation becoming especially pronounced for
+Security-informed generation. Generation time rises across the three
+conditions for all timed assistants, while Codex is absent because its
+time was not reported.
 
 <div id="fig-run-gen-tokens">
 
@@ -201,10 +203,9 @@ All generation runs
 </div>
 
 <a href="#fig-run-gen-tokens" class="quarto-xref">Figure 2</a> shows
-Qwen processing the most tokens per generated program in every
-condition, with a particularly large increase for security-informed
-generation. Antigravity is next highest across the conditions, while
-Claude and Codex remain lower.
+Qwen processing the most tokens per program in every condition and Codex
+the fewest. For each generator, the Security-informed bar is higher than
+its Basic and Security-aware bars.
 
 <div id="fig-run-gen-task-time">
 
@@ -217,10 +218,10 @@ generation runs; Codex records no time
 
 Across the task panels in
 <a href="#fig-run-gen-task-time" class="quarto-xref">Figure 3</a>, Qwen
-takes the most reported time for every task and condition, with the
-strongest contrast in the security-informed panel. Antigravity and
-Claude are closer to one another, although their task patterns vary;
-Codex is absent because its time was not reported.
+takes longer than the other timed generators for every task and
+condition. Its Security-informed times vary widely across tasks and are
+much higher than its Basic and Security-aware times, while Antigravity
+and Claude remain comparatively clustered.
 
 <div id="fig-run-gen-task-tokens">
 
@@ -232,10 +233,11 @@ generation runs
 </div>
 
 <a href="#fig-run-gen-task-tokens" class="quarto-xref">Figure 4</a>
-shows Qwen processing the most tokens for every task in each condition,
-with the security-informed task cells standing far above its Basic and
-Security-aware cells. Antigravity, Claude and Codex have smaller values
-and less pronounced condition shifts.
+shows Qwen processing the most tokens for every task-condition
+combination, with its largest values concentrated in the
+Security-informed panel. Antigravity, Claude and Codex also generally
+process more tokens in Security-informed tasks than in the other
+conditions, though their task-to-task patterns differ.
 
 ## Review
 
@@ -248,12 +250,12 @@ conditions, self-review; Codex records no time
 
 </div>
 
-<a href="#fig-run-review-time" class="quarto-xref">Figure 5</a> shows
-Qwen self-reviews taking substantially longer than Antigravity or Claude
-in all three conditions. Antigravity and Claude take their longest
-self-review time in the security-informed condition, whereas Qwen’s bars
-decline across the displayed conditions; Codex is absent because its
-time was not reported.
+In <a href="#fig-run-review-time" class="quarto-xref">Figure 5</a>, Qwen
+self-reviews take far longer than Antigravity or Claude self-reviews in
+all three conditions. Qwen’s bars decline from Basic to
+Security-informed, whereas Antigravity and Claude have their highest
+bars in Security-informed; Codex is absent because its time was not
+reported.
 
 <div id="fig-run-review-tokens">
 
@@ -265,9 +267,10 @@ condition · All conditions, self-review
 </div>
 
 <a href="#fig-run-review-tokens" class="quarto-xref">Figure 6</a> shows
-Qwen processing the most tokens per self-review in every condition. For
-Antigravity, Claude and Codex, security-informed self-review is also the
-highest of their three conditions.
+Qwen processing the most tokens per self-review in every condition,
+followed by Antigravity. Security-informed is the highest condition for
+Antigravity, Claude and Codex, while Qwen’s Security-informed bar is
+lower than its Basic and Security-aware bars.
 
 <div id="fig-run-review-matrix">
 
@@ -278,20 +281,21 @@ Security-informed, all four reviewers
 
 </div>
 
-In <a href="#fig-run-review-matrix" class="quarto-xref">Figure 7</a>,
-the Qwen reviewer generally occupies the high end of both processed and
-generated tokens, while the Codex reviewer generates the fewest tokens
-across all generator columns. Within each reviewer row, reviews of
-Qwen-generated programs tend to require the most processed tokens, while
-reviews of Codex-generated programs tend to require the least.
+In the processed-token panel of
+<a href="#fig-run-review-matrix" class="quarto-xref">Figure 7</a>, Qwen
+is the highest-volume reviewer for every generator, and every reviewer
+processes the most tokens when reviewing Qwen-generated programs. The
+generated-token panel is less uniform: Antigravity’s output is fairly
+even across generators, while Qwen’s output varies markedly by
+generator.
 
 ## Claude at maximum effort in the pilot
 
-This section compares one recovered Claude Sonnet 5 pilot generation run
-at max effort with Claude Opus 5 at medium effort. It covers the same
-Task 1 Basic run and also provides the Opus mean across its 12 Basic
-generation runs, using time, output and thinking tokens, processed
-tokens and turns.
+This section compares the recovered Claude Sonnet 5 max-effort pilot
+with Claude Opus 5 at medium effort for the same Basic generation task.
+It also places the pilot beside the Opus mean across all 12 Basic runs,
+covering minutes, output and thinking tokens, processed tokens and
+turns.
 
 <div id="tbl-run-sonnet">
 
@@ -315,18 +319,21 @@ Claude Opus 5 at medium · Task 1 Basic, generation; Opus mean over its
 </div>
 
 In <a href="#tbl-run-sonnet" class="quarto-xref">Table 4</a>, the Sonnet
-5 max pilot used 30.24 minutes, 166076.0 output tokens, 139895.0
-thinking tokens, 1.24 million processed tokens and 21.0 turns. Relative
-to Opus 5 medium on the same task, the table reports ratios of 6.91 for
-minutes, 7.03 for output tokens, 18.72 for thinking tokens, 5.12 for
-processed tokens and 1.75 for turns.
+5 max pilot took 30.24 minutes, produced 166076.0 output tokens,
+processed 1.24 million tokens and used 21.0 turns; the same-task Opus 5
+medium run used 4.38 minutes, 23639.0 output tokens, 0.24 million
+processed tokens and 12.0 turns. The corresponding Sonnet / Opus ratios
+were 6.91, 7.03, 5.12 and 1.75. Sonnet reported 139895.0 thinking tokens
+and an 84.24% thinking share, compared with 7475.0 and 31.62% for the
+same-task Opus run.
 
 ## Qwen review effort
 
-This section separates Qwen generation and self-review time by condition
-and effort setting. It also reports actual medium-effort review hours
-for the security-informed panel and the corresponding estimated hours at
-xhigh effort.
+This section separates Qwen generation time from self-review time by
+condition and records the effort setting used for each stage. It then
+compares actual Security-informed review hours at medium effort with the
+report’s xhigh estimates for six self-reviews and for the full 24-review
+panel.
 
 <div id="fig-run-qwen-effort">
 
@@ -338,10 +345,10 @@ with effort settings · All conditions, Qwen generation and self-review
 </div>
 
 <a href="#fig-run-qwen-effort" class="quarto-xref">Figure 8</a> shows
-self-review taking longer than generation in the Basic and
-Security-aware conditions, where both stages used xhigh effort. In the
-security-informed condition, xhigh generation takes much longer than
-medium-effort self-review.
+self-review taking slightly longer than generation for Basic and
+Security-aware programs when both stages use xhigh effort. For
+Security-informed programs, generation at xhigh is much longer than
+self-review at medium.
 
 <div id="tbl-run-qwen-effort">
 
@@ -360,11 +367,13 @@ settings · All conditions, Qwen generation and self-review
 
 </div>
 
-<a href="#tbl-run-qwen-effort" class="quarto-xref">Table 5</a> reports
-generation and self-review means of 36.11 and 51.75 minutes for Basic,
-39.56 and 48.76 minutes for Security-aware, and 358.46 and 46.38 minutes
-for Security-informed. The corresponding review-to-generation ratios are
-1.43, 1.23 and 0.13.
+In <a href="#tbl-run-qwen-effort" class="quarto-xref">Table 5</a>, Qwen
+generation and self-review averaged 36.11 and 51.75 minutes for Basic
+programs and 39.56 and 48.76 minutes for Security-aware programs,
+yielding review / generation values of 1.43 and 1.23. For
+Security-informed programs, xhigh generation averaged 358.46 minutes and
+medium self-review averaged 46.38 minutes, with a review / generation
+value of 0.13.
 
 <div id="tbl-run-qwen-estimate">
 
@@ -382,11 +391,10 @@ Security-informed, Qwen as reviewer
 
 </div>
 
-For the 6 Qwen self-reviews,
 <a href="#tbl-run-qwen-estimate" class="quarto-xref">Table 6</a> reports
-4.6 actual hours at medium and 47.6 estimated hours at xhigh. Across all
-24 panel reviews, the corresponding totals are 14.4 actual hours and
-190.5 estimated hours.
+4.6 actual hours at medium and 47.6 estimated hours at xhigh for six
+Qwen self-reviews. For all 24 panel reviews, it reports 14.4 actual
+hours at medium and 190.5 estimated hours at xhigh.
 
 <div id="fig-run-qwen">
 
@@ -398,15 +406,15 @@ xhigh · Security-informed, Qwen as reviewer
 </div>
 
 <a href="#fig-run-qwen" class="quarto-xref">Figure 9</a> shows the
-estimated xhigh review time standing well above the actual medium-effort
-time for both the self-review subset and the full four-generator panel.
-The separation is larger for the full panel.
+estimated xhigh review time well above the actual medium-effort time for
+both the six self-reviews and the 24-review panel. The full panel is
+higher than the self-review subset under both effort presentations.
 
 ## Reading these numbers
 
-Time, token and turn values are the values reported by each assistant’s
-CLI under its configured model, effort setting, scaffolding and
-hardware. Generation costs belong to the generator and review costs to
-the reviewer, while the token-processed measure follows the
-assistant-specific accounting described above. Where a value is missing,
-including all Codex run times, it was not reported.
+The tables report each CLI’s recorded time, tokens and turns, with
+missing values left unreported. Time comparisons therefore exclude
+Codex, while token comparisons use the common processed-token definition
+shown earlier. Condition, task, stage, reviewer and generator breakdowns
+are presented separately so the displayed totals and means retain their
+stated scope.

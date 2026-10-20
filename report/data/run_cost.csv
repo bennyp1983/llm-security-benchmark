@@ -30,7 +30,7 @@ generation,agy/sallie/5/basic/,agy,,sallie,5,Basic,Google Antigravity,SUCCESS,Fa
 generation,agy/sallie/5/security/,agy,,sallie,5,Security-aware,Google Antigravity,SUCCESS,False,228.995,230514.0,40635.0,6583.0,2096451.0,,271149.0,1.0
 generation,agy/sallie/6/basic/,agy,,sallie,6,Basic,Google Antigravity,SUCCESS,False,149.959,155687.0,31990.0,7167.0,842618.0,,187677.0,1.0
 generation,agy/sallie/6/security/,agy,,sallie,6,Security-aware,Google Antigravity,SUCCESS,False,289.91700000000003,294732.0,62265.0,11672.0,1948018.0,,356997.0,1.0
-generation,claude/ben/1/basic/,claude,,ben,1,ignore,Claude Code,success,False,0.268,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+generation,claude/ben/1/basic/,claude,,ben,1,ignore,Claude Code,success,False,86.549,12.0,6926.0,339.0,90668.0,22864.0,6938.0,6.0
 generation,claude/post_research/1/security/,claude,,post_research,1,Security-informed,Claude Code,success,False,700.29,50.0,56921.0,10195.0,1102432.0,76382.0,56971.0,25.0
 generation,claude/post_research/2/security/,claude,,post_research,2,Security-informed,Claude Code,success,False,796.291,50.0,67824.0,9755.0,1211631.0,83910.0,67874.0,25.0
 generation,claude/post_research/3/security/,claude,,post_research,3,Security-informed,Claude Code,success,False,796.449,54.0,55492.0,12917.0,1252976.0,77233.0,55546.0,27.0
@@ -177,6 +177,7 @@ review,claude/agy/post_research/3/security/,agy,claude,post_research,3,Security-
 review,claude/agy/post_research/4/security/,agy,claude,post_research,4,Security-informed,Claude Code,success,False,365.948,30.0,27332.0,4800.0,907366.0,112026.0,27362.0,15.0
 review,claude/agy/post_research/5/security/,agy,claude,post_research,5,Security-informed,Claude Code,success,False,445.036,36.0,34004.0,6194.0,1377533.0,117775.0,34040.0,19.0
 review,claude/agy/post_research/6/security/,agy,claude,post_research,6,Security-informed,Claude Code,success,False,365.997,30.0,26955.0,8171.0,866505.0,69016.0,26985.0,15.0
+review,claude/claude/ben/1/basic/,claude,claude,ben,1,ignore,Claude Code,success,False,214.454,18.0,18006.0,2271.0,394085.0,58958.0,18024.0,13.0
 review,claude/claude/post_research/1/security/,claude,claude,post_research,1,Security-informed,Claude Code,success,False,650.672,56.0,39223.0,12991.0,2042640.0,106452.0,39279.0,29.0
 review,claude/claude/post_research/2/security/,claude,claude,post_research,2,Security-informed,Claude Code,success,False,371.606,32.0,30106.0,6898.0,936146.0,97783.0,30138.0,16.0
 review,claude/claude/post_research/3/security/,claude,claude,post_research,3,Security-informed,Claude Code,success,False,424.522,38.0,31847.0,8627.0,1378685.0,102461.0,31885.0,19.0
