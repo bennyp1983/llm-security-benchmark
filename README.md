@@ -13,7 +13,7 @@
 Every table and figure in the reports is computed from the data. The text is written by an AI from the rendered tables and figures, and checked to contain no unfilled placeholders.
 
 
-## About this project
+## About the benchmark
 
 A reproducible benchmark for the security of code written by AI coding assistants. It asks four coding CLIs to write Java for six security-sensitive tasks under different prompting styles, has every program reviewed for vulnerabilities by LLM security reviewers, and turns the reviews into a findings report and a run-cost report.
 
@@ -30,19 +30,9 @@ The two are kept apart on purpose. The security-review skills are installed only
 The coding assistants are Google Antigravity (`agy`), Claude Code (`claude`), ChatGPT Codex (`codex`) and Qwen Code (`qwen`). The same four act as the security reviewers.
 
 
-## The data
+## Methodology
 
-Everything the reports are built from is in the repository:
-
-| What | Where |
-|---|---|
-| Every generated program, with the prompt, the CLI's output and a summary | `results/<cli>/set_a/<prompt_set>/<task>/<style>/` |
-| Every security review (`security_review.md`) of every program | `results-cyber/<reviewer>/<target>/set_a/<prompt_set>/<task>/<style>/` |
-| One row per finding (CWE, OWASP category, severity) | [`report/data/findings.csv`](report/data/findings.csv) |
-| One row per run (time, tokens, turns) | [`report/data/run_cost.csv`](report/data/run_cost.csv) |
-| Every review, one file per reviewer, in `findings.csv` order for checking by hand | [agy](report/data/all_security_review_agy.md), [claude](report/data/all_security_review_claude.md), [codex](report/data/all_security_review_codex.md), [qwen](report/data/all_security_review_qwen.md) |
-
-### The tasks and prompts
+### The tasks
 
 Six Java tasks, each built around one security weakness:
 
@@ -55,17 +45,69 @@ Six Java tasks, each built around one security weakness:
 | 5 | Login attempts and credential verification | CWE-307 |
 | 6 | Authentication with activity logging | CWE-778 |
 
-The prompts live in [`config/benchmark.json`](config/benchmark.json), grouped into prompt sets. Each prompt has a `style`, which is also its results folder name, and a `report_group`, which decides how the reports label it. `report_order` sets the order the groups appear in the reports; `ignore` keeps a run on disk but out of the reports.
+### The prompts and report groups
+
+The prompts are grouped into prompt sets in [`config/benchmark.json`](config/benchmark.json). Each prompt has a `style`, which is also its results folder, and a `report_group`, which decides which group of the reports it counts towards. The reports compare three groups:
 
 | Prompt set | Style (folder) | `report_group` |
 |---|---|---|
 | ruth, sallie | `basic` | Basic |
 | ruth, sallie | `security` | Security-aware (the same task with a short security hint) |
 | post_research | `security` | Security-informed (eight security rules written from what the first prompts revealed) |
-| pilot, ben | `basic`, `security` | ignore (early trial and demo runs) |
-| every set | `multi-turn` | ignore (empty prompts, never run) |
+| ben, pilot | `basic`, `security` | ignore (a demo and an early trial) |
+| every set | `multi-turn` | ignore (empty placeholders, never run) |
 
-The reports read `report_group` from the config, never the folder names, so a new prompt set only needs the right `report_group` to appear in the reports.
+All prompts with the same `report_group` are pooled, whatever prompt set they come from, so the Basic group is ruth's and sallie's basic prompts together. Runs grouped `ignore` stay on disk but out of the reports.
+
+### Code generation
+
+Each CLI wrote one program per prompt, in a fresh folder, with these models:
+
+| CLI | Model |
+|---|---|
+| Google Antigravity | `gemini-3.7-flash-high` |
+| Claude Code | `claude-opus-5`, medium effort |
+| ChatGPT Codex | `gpt-5.6-sol`, medium reasoning effort |
+| Qwen Code | `vllm-general`, a Qwen model on a self-hosted OpenAI-compatible server |
+
+### Security review
+
+Every program was reviewed by an LLM CLI with the [security-review skill](custom-skills/review-code-for-security-vulnerabilities/SKILL.md), which first works out what the code does, then applies the matching skills from a library of security skills. Every review uses the same review prompt, which asks for each finding with a CWE id and file:line evidence, in a fixed report structure.
+
+- Every CLI reviewed all the code it wrote itself, in all three groups.
+- For the Security-informed prompts, every CLI also reviewed the other three CLIs' code.
+
+That is 192 reviews, 48 per reviewer. The findings are extracted from the reviews into [`report/data/findings.csv`](report/data/findings.csv), checked against MITRE's CWE list and mapped to the OWASP Top 10 2025.
+
+### How runs are skipped
+
+Each run is skipped when its prompt has not changed, so a run of either workflow only does what is new:
+
+- **Generation:** the SHA-256 of the prompt text is saved as `prompt_hash.txt` beside the program. A prompt whose hash matches is skipped.
+- **Review:** the hash covers both the generation prompt and the review prompt, saved as `benchmark_cyber_hash.txt`. Changing either prompt runs the review again.
+
+Models, efforts and every other setting are not part of the hash, so changing a model does not run finished work again; the new results would sit beside the old model's.
+
+The committed results therefore depend on the configuration staying as it is:
+
+- **`name`, `task_number` and `style`** are folder names. Changing one leaves the committed results without a prompt in the configuration, and the report build stops.
+- **Prompt text:** changing it runs that prompt again, over its committed result.
+- **The review prompt:** changing it runs every review again.
+
+
+## The data
+
+Everything the reports are built from is in the repository:
+
+| What | Where |
+|---|---|
+| Every generated program, with the prompt, the CLI's output and a summary | `results/<cli>/set_a/<prompt_set>/<task>/<style>/` |
+| Every security review (`security_review.md`) of every program | `results-cyber/<reviewer>/<target>/set_a/<prompt_set>/<task>/<style>/` |
+| One row per finding (CWE, OWASP category, severity) | [`report/data/findings.csv`](report/data/findings.csv) |
+| One row per run (time, tokens, turns) | [`report/data/run_cost.csv`](report/data/run_cost.csv) |
+| Every review, one file per reviewer, in `findings.csv` order for checking by hand | [agy](report/data/all_security_review_agy.md), [claude](report/data/all_security_review_claude.md), [codex](report/data/all_security_review_codex.md), [qwen](report/data/all_security_review_qwen.md) |
+
+[`report/data/README.md`](report/data/README.md) describes every data file.
 
 
 ## Run it yourself
@@ -75,7 +117,7 @@ The reports read `report_group` from the config, never the folder names, so a ne
 - Linux, macOS, or Windows with WSL2.
 - [Docker Engine with the Compose plugin](https://docs.docker.com/engine/install/), plus `bash` and `curl`.
 - About 25 GB of free disk for the two images.
-- Access to the coding CLIs you want to use: a subscription or account for each. Qwen is configured for an OpenAI-compatible server (this study used a self-hosted one). If you have no access to a CLI, remove it (see [Configuration](#configuration)).
+- A subscription or account for each of the four coding CLIs. Qwen is configured for an OpenAI-compatible server (this study used a self-hosted one).
 
 ### Set up
 
@@ -101,40 +143,11 @@ If your user is not in the `docker` group, run it as `sudo ./setup.sh`. You can 
 1. Open http://localhost:5678, open the **benchmark** workflow and click **Execute workflow**. Each CLI writes a program for every prompt into `results/`.
 2. Open http://localhost:5688, open the **cyber** workflow and click **Execute workflow**. Every program is reviewed into `results-cyber/`, then both reports are rebuilt into `report/docs/`.
 
-Both workflows skip any program or review that already exists for the same prompt, so a clone of this repository only runs what is new. Re-running costs nothing for work that is already done.
+A clone of this repository already holds every result, so both runs skip all finished work (see [How runs are skipped](#how-runs-are-skipped)).
 
 ### Configuration
 
-Choosing what runs is done in the two config files, not in `setup.sh`. Edit them, then run the workflows again.
-
-**[`config/benchmark.json`](config/benchmark.json)**
-- `cli_settings`: one entry per coding CLI. Its command, **model and thinking effort** are in `input.set` (the workflows use set `a`), `login` is what `./setup.sh` login runs, and `json_output` says where its output keeps the reply and token counts.
-- **Fewer CLIs:** delete the entries for CLIs you have no access to. Generation, reviews, logins and reports all follow this list, so with Codex alone you need one account and two logins. A CLI that is listed but not signed in fails within seconds; the run carries on and retries it next time.
-- `prompt_sets`: the prompts. To add your own, add a prompt set:
-  ```json
-  {
-      "name": "my_prompts",
-      "task": [
-          {
-              "task_number": 1,
-              "prompts": [
-                  { "report_group": "Basic", "style": "basic", "prompt": "Develop Java code that ..." }
-              ]
-          }
-      ]
-  }
-  ```
-  Only the new prompts run; everything already in `results/` is kept and skipped.
-- `report_order` and `report_group`: the reports compare **groups**, not prompt sets.
-  ```json
-  "report_order": ["Basic", "Security-aware", "Security-informed"]
-  ```
-  `report_order` lists the groups every report table and figure is calculated for, in the order they appear. Each prompt's `report_group` decides which group its results count towards, and it must match one of these names exactly, or be `ignore` to keep the results out of the reports. All prompts with the same `report_group` are pooled together, whatever prompt set they belong to: a new prompt set with `"report_group": "Basic"` adds to the Basic group alongside ruth and sallie. For a new kind of prompt, add its group name to `report_order` and use that name as the prompts' `report_group`. A `report_group` that isn't in `report_order` (and isn't `ignore`) stops the report build with an error, so a typo can't silently drop results.
-- **Changing a model:** a run is skipped when its prompt text is unchanged, whatever the model. A new model therefore does not redo finished work, and its new results would sit beside the old model's. To compare models, copy the prompt set under a new name after changing the model, so each model's results get their own folders.
-
-**[`config/cyber.json`](config/cyber.json)**
-- `run_config`: which reviews run. It picks the reviewers, prompt sets, tasks and styles, and whose code each reviewer reads: `"self"` means each reviewer reviews only its own code, `"all"` means every reviewer reviews every assistant's code. Leave a CLI out here and it does no reviews.
-- `report_writer`: the AI that writes the report text, and its two prompts. It has its **own full command** (now Codex), separate from `cli_settings` on purpose, so the report can be written with a different model or a higher thinking level than the generation runs use. To change it, write the command in two parts: everything before the prompt in `command_before_prompt`, everything after it in `command_after_prompt`. A CLI's `headless_execute`, `prompt_prefix` and `prompt_suffix` in `cli_settings` are a good starting point.
+What runs is set in two JSON files in [`config/`](config/): `benchmark.json` (the coding CLIs, the prompts and the report groups) and `cyber.json` (which reviews run, the review prompt and the AI that writes the report text). The [configuration guide](config/README.md) explains every setting.
 
 To undo config changes, `git checkout config/`.
 
@@ -150,7 +163,7 @@ To keep the setup but delete every generated program and review, choose **[r]ese
 | `setup.sh` | install, CLI logins, reset |
 | `docker-compose.yml` | the two n8n instances and their task runners |
 | `Dockerfile.benchmark`, `Dockerfile.cyber` | the images; cyber builds on top of benchmark and adds the review skills, Quarto and the report's Python packages |
-| `config/` | the prompts and CLI settings (`benchmark.json`), and the review and report-writer settings (`cyber.json`) |
+| `config/` | the prompts and CLI settings (`benchmark.json`), the review and report-writer settings (`cyber.json`), and the [configuration guide](config/README.md) |
 | `n8n-workflows/` | exports of the benchmark and cyber workflows |
 | `custom-skills/` | the security-review skill given to the reviewers |
 | `results/`, `results-cyber/` | generated programs, and their reviews |
