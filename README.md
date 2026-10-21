@@ -1,21 +1,39 @@
 # llm-security-benchmark
 
-## Executive summary
+A benchmark of how prompting changes the security of Java code written by four AI coding assistants: Google Antigravity (Gemini), Claude Code, ChatGPT Codex and Qwen Code. The same four review every program for vulnerabilities, using the open-source [Anthropic Cybersecurity Skills](https://github.com/mukul975/anthropic-cybersecurity-skills) library.
 
-> **TODO (Ben):** a few lines on what this study found, for someone landing on the repository.
+## Summary
+
+Four coding assistants wrote Java for six security-sensitive tasks under three prompting styles, and four LLM reviewers reviewed the code: 120 programs, 192 reviews, 1,217 findings.
+
+- **A short security hint made no measurable difference.** Findings per review went from 6.25 (Basic) to 6.56 (Security-aware); the matched-pair difference of +0.31 has a 95% interval of −0.29 to +0.94.
+- **Eight security rules cut findings where they apply directly**, such as secrets, from 0.73 to 0.17 per review. Overall they cut findings only modestly, to 5.79 per review, and findings outside every rule rose.
+- **Reviewers agree on the category more than the exact weakness.** 64.3% of program–CWE pairs were named by only one of the four reviewers, against 32.1% of program–OWASP-category pairs.
+
+All counts are reviewer-reported findings, not confirmed vulnerabilities; a sample was [checked by hand](#human-verification).
 
 
-## Reports
+## Paper and reports
 
-- **[Security findings report](report/docs/final_report_findings.md)**: what the reviewers found, by prompting style, task, CWE and OWASP category, and how the LLMs compare, as code generators and as security reviewers.
+**Research paper** (PDF / DOCX): *coming soon*.
+
+**Automated data reports**, rebuilt by the pipeline on every run:
+
+- **[Security findings report](report/docs/final_report_findings.md)**: what the reviewers found, by prompting style, task, CWE and OWASP category, and how the LLMs compare as code generators and as security reviewers.
 - **[Run cost report](report/docs/final_report_run_cost.md)**: how the runs finished, and the time, tokens and turns each assistant used.
 
-Every table and figure in the reports is computed from the data. The text is written by an AI from the rendered tables and figures, and checked to contain no unfilled placeholders.
+Report tables and figures are computed directly from the data; the text describing them is AI-written.
 
 
 ## About the benchmark
 
-A reproducible benchmark for the security of code written by AI coding assistants. It asks four coding CLIs to write Java for six security-sensitive tasks under different prompting styles, has every program reviewed for vulnerabilities by LLM security reviewers, and turns the reviews into a findings report and a run-cost report.
+It answers three questions:
+
+1. **Prompting:** how do Basic, Security-aware and Security-informed prompts affect the security findings in the generated code?
+2. **Coding assistant:** how do the findings differ between the four assistants?
+3. **Reviewer:** how consistently do four LLM security reviewers report weaknesses in the same program?
+
+The coding assistants are Google Antigravity (`agy`), Claude Code (`claude`), ChatGPT Codex (`codex`) and Qwen Code (`qwen`), run through their own command-line tools. The same four act as the security reviewers.
 
 Everything runs in two [n8n](https://n8n.io/) workflows, each in its own Docker container:
 
@@ -26,8 +44,6 @@ Everything runs in two [n8n](https://n8n.io/) workflows, each in its own Docker 
 | Writes | `results/` | `results-cyber/` and `report/` |
 
 The two are kept apart on purpose. The security-review skills are installed only in the cyber container, so the generators never see them, and the reviewers get the generated code read-only, so a review can never change what it is reviewing.
-
-The coding assistants are Google Antigravity (`agy`), Claude Code (`claude`), ChatGPT Codex (`codex`) and Qwen Code (`qwen`). The same four act as the security reviewers.
 
 
 ## Methodology
@@ -45,39 +61,53 @@ Six Java tasks, each built around one security weakness:
 | 5 | Login attempts and credential verification | CWE-307 |
 | 6 | Authentication with activity logging | CWE-778 |
 
-### The prompts and report groups
+### Stage 1: Basic and Security-aware
 
-The prompts are grouped into prompt sets in [`config/benchmark.json`](config/benchmark.json). Each prompt has a `style`, which is also its results folder, and a `report_group`, which decides which group of the reports it counts towards. The reports compare three groups:
+Two team members each wrote a prompt set. For every task there is a **Basic** prompt, the task with no security guidance, and a **Security-aware** prompt, the same task with a short hint about its anchor weakness. 2 authors × 6 tasks × 2 prompts × 4 assistants = 96 programs, each reviewed by the assistant that wrote it.
+
+### The eight rules
+
+The team read the Stage 1 reviews and distilled the recurring problems into eight task-independent rules: trust boundaries, secrets, authentication and access, identifiers and tokens, sensitive data, failure behaviour, concurrency, and prefer the platform. Appended to a task as a fixed block, they form the **Security-informed** prompt.
+
+### Stage 2: Security-informed and cross-review
+
+One author wrote the six Security-informed prompts: 6 tasks × 4 assistants = 24 programs. Every program was reviewed by all four reviewers, 96 reviews, so the same code can be compared across reviewers.
+
+### Models
+
+| Assistant | Model |
+|---|---|
+| Google Antigravity | Gemini 3.7 Flash, high |
+| Claude Code | Claude Opus 5, medium effort |
+| ChatGPT Codex | GPT-5.6 Sol, medium reasoning effort |
+| Qwen Code | Qwen3.8-Flash-Next, self-hosted |
+
+### Security review
+
+The reviewers work with [Anthropic Cybersecurity Skills](https://github.com/mukul975/anthropic-cybersecurity-skills), a community library of security skills by mukul975 (not an Anthropic project). The full library was too large for Codex to load, and the reviewers did not reliably pick the right skills from it on their own, so the reviewers call one skill written for this project, [review-code-for-security-vulnerabilities](custom-skills/review-code-for-security-vulnerabilities/SKILL.md). It works out what the code does, then finds and applies the matching skills from the library.
+
+Every review uses that skill and one fixed review prompt, which asks for each finding with a CWE id and file:line evidence.
+
+### Human verification
+
+Two team members checked a sample of the Stage 1 code and reviews by hand, matching findings by the code's behaviour rather than the CWE label:
+
+- **Task 1 (CWE-1004):** the AI reviews agreed with most of the manual findings, but missed some (a CSRF gap, compilation errors) and made some unsupported claims, including seven findings for a run that produced no Java code.
+- **Task 5 (CWE-307):** of 128 AI-reported findings, 16 matched a weakness the human audits confirmed and only 1 was shown to be wrong. The other 111 were neither confirmed nor rejected, mostly because the audits did not rule on each AI claim, so the sample gives no AI error rate. The human audits also found 10 weaknesses the AI did not report.
+
+Both checks were static source-code reviews; exploitability was not tested.
+
+### Prompt sets and report groups
+
+The prompts are in [`config/benchmark.json`](config/benchmark.json), and each prompt's `report_group` decides which group of the reports it counts towards:
 
 | Prompt set | Style (folder) | `report_group` |
 |---|---|---|
 | ruth, sallie | `basic` | Basic |
-| ruth, sallie | `security` | Security-aware (the same task with a short security hint) |
-| post_research | `security` | Security-informed (eight security rules written from what the first prompts revealed) |
+| ruth, sallie | `security` | Security-aware |
+| post_research | `security` | Security-informed |
 | ben, pilot | `basic`, `security` | ignore (a demo and an early trial) |
 | every set | `multi-turn` | ignore (empty placeholders, never run) |
-
-All prompts with the same `report_group` are pooled, whatever prompt set they come from, so the Basic group is ruth's and sallie's basic prompts together. Runs grouped `ignore` stay on disk but out of the reports.
-
-### Code generation
-
-Each CLI wrote one program per prompt, in a fresh folder, with these models:
-
-| CLI | Model |
-|---|---|
-| Google Antigravity | `gemini-3.7-flash-high` |
-| Claude Code | `claude-opus-5`, medium effort |
-| ChatGPT Codex | `gpt-5.6-sol`, medium reasoning effort |
-| Qwen Code | `vllm-general`, a Qwen model on a self-hosted OpenAI-compatible server |
-
-### Security review
-
-Every program was reviewed by an LLM CLI with the [security-review skill](custom-skills/review-code-for-security-vulnerabilities/SKILL.md), which first works out what the code does, then applies the matching skills from a library of security skills. Every review uses the same review prompt, which asks for each finding with a CWE id and file:line evidence, in a fixed report structure.
-
-- Every CLI reviewed all the code it wrote itself, in all three groups.
-- For the Security-informed prompts, every CLI also reviewed the other three CLIs' code.
-
-That is 192 reviews, 48 per reviewer. The findings are extracted from the reviews into [`report/data/findings.csv`](report/data/findings.csv), checked against MITRE's CWE list and mapped to the OWASP Top 10 2025.
 
 ### How runs are skipped
 
