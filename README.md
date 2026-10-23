@@ -86,14 +86,17 @@ The reviewers work with [Anthropic Cybersecurity Skills](https://github.com/muku
 Every review uses that skill and one fixed review prompt, which asks for each finding with a CWE id and file:line evidence.
 
 ### Human verification
-**needs work: *percentage checked and task 1 to match taks 5 style***
 
-Two team members checked a sample of the Stage 1 code and reviews by hand, matching findings by the code's behaviour rather than the CWE label:
+Two team members manually audited all 230 AI-reported findings from the Basic and Security-aware reviews of Tasks 1 and 5, representing approximately 19% of the project's 1,217 findings. Each claim was checked against the generated source code to determine whether the reported weakness was present. Manual inspection also identified weaknesses missed by the AI reviewers.
 
-- **Task 1 (CWE-1004):** the AI reviews agreed with most of the manual findings, but missed some (a CSRF gap, compilation errors) and made some unsupported claims, including seven findings for a run that produced no Java code.
-- **Task 5 (CWE-307):** of 128 AI-reported findings, 16 matched a weakness the human audits confirmed and only 1 was shown to be wrong. The other 111 were neither confirmed nor rejected, mostly because the audits did not rule on each AI claim, so the sample gives no AI error rate. The human audits also found 10 weaknesses the AI did not report.
+- **Task 1:** Of 95 assessable AI findings, 86 were supported by the code and 9 were unsupported. A further 7 could not be assessed because no code was generated. Manual inspection identified 4 additional weaknesses missed by the AI.
+- **Task 5:** Of 128 AI findings, 113 were supported by the code and 15 were unsupported. Manual inspection identified 11 additional weaknesses missed by the AI.
 
-Both checks were static source-code reviews; exploitability was not tested.
+**Overall:** Of 223 assessable AI-reported findings, 199 (89.2%) were supported by source-code evidence (true positives) and 24 (10.8%) were unsupported (false positives). These percentages measure the precision of reported findings and exclude weaknesses the AI failed to identify.
+
+Manual verification identified a further 15 weaknesses (false negatives). Including these gives an indicative recall of 93.0% (199 / 214), provided the findings represent distinct, consistently matched weaknesses and the manual audit established a sufficiently complete reference set. Seven unassessable findings were excluded from these calculations.
+
+These results apply only to the audited Tasks 1 and 5 and should not be generalised to all 1,217 findings.
 
 ### Prompt sets and report groups
 
