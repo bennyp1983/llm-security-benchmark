@@ -86,6 +86,7 @@ The reviewers work with [Anthropic Cybersecurity Skills](https://github.com/muku
 Every review uses that skill and one fixed review prompt, which asks for each finding with a CWE id and file:line evidence.
 
 ### Human verification
+Audit documents (DOCX download): [`human-verification/`](human-verification/).
 
 Two team members manually audited all 230 AI-reported findings from the Basic and Security-aware reviews of Tasks 1 and 5, representing approximately 19% of the project's 1,217 findings. Each claim was checked against the generated source code to determine whether the reported weakness was present. Manual inspection also identified weaknesses missed by the AI reviewers.
 
